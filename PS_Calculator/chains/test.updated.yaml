@@ -1,0 +1,90 @@
+theory: null
+likelihood:
+  test:
+    type: []
+    speed: -1
+    stop_at_error: false
+    version: null
+    external: import_module('llihood').logp
+    input_params:
+    - phi0
+    - gst
+    - lmbd
+    - Cy
+    output_params: []
+params:
+  logphi0:
+    prior:
+      min: 0.5
+      max: 1.8
+    latex: \log_{10} \phi_0
+  phi0:
+    value: 'lambda logphi0: 10**logphi0'
+    latex: \phi_0
+    derived: true
+  loggst:
+    prior:
+      min: 0.0
+      max: 3.0
+    latex: \log_{10} g_*
+  gst:
+    value: 'lambda loggst: 10**loggst'
+    latex: g_*
+    derived: true
+  loglmbd:
+    prior:
+      min: -17.0
+      max: -11.0
+    latex: \log_{10} \Lambda
+  lmbd:
+    value: 'lambda loglmbd: 10**loglmbd'
+    latex: \Lambda
+    derived: true
+  logCy:
+    prior:
+      min: 4.0
+      max: 9.0
+    latex: \log_{10} C_{\Upsilon}
+  Cy:
+    value: 'lambda logCy: 10**logCy'
+    latex: C_{\Upsilon}
+    derived: true
+sampler:
+  mcmc:
+    burn_in: 0
+    max_tries: 1000d
+    covmat: auto
+    covmat_params: null
+    proposal_scale: 2.4
+    output_every: 60s
+    learn_every: 40d
+    temperature: 1
+    learn_proposal: true
+    learn_proposal_Rminus1_max: 2.0
+    learn_proposal_Rminus1_max_early: 30.0
+    learn_proposal_Rminus1_min: 0.0
+    max_samples: .inf
+    Rminus1_stop: 0.01
+    Rminus1_cl_stop: 0.2
+    Rminus1_cl_level: 0.06
+    Rminus1_single_split: 4
+    measure_speeds: true
+    oversample_power: 0.4
+    oversample_thin: true
+    drag: false
+    blocking:
+    - - 1
+      - - logphi0
+        - loggst
+        - loglmbd
+        - logCy
+    callback_function: null
+    callback_every: null
+    seed: null
+    check_every: null
+    oversample: null
+    drag_limits: null
+    fallback_covmat_scale: 4
+    version: 3.5.4
+output: test
+version: 3.5.4
