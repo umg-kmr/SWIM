@@ -5,7 +5,7 @@ Installation
 
    Currently we have only tested the module on linux systems.
 
-**Recommended python environment setup:**
+Recommended python environment setup
 _________________________________________
 
 1. Create a fresh python environment using conda:
@@ -14,12 +14,15 @@ _________________________________________
    
       conda create -n SWIM
       
-2. Activate and install the following packages:
-   NumPy, SciPy, CFFI, matplotlib (optional but recommended).
+2. Activate the environment and install the following packages:
+   NumPy, SciPy, CFFI, matplotlib, JupyterLab, numba (optional).
    
    ::
-     
+      
+      conda activate SWIM
       conda install -c <channel-name (eg. conda-forge)> <package-name (eg. numpy)>
+      
+   Additionally, if you wish to use the Artificial Neural Network (ANN) emulator for SWIM, please also install PyTorch. Refer to the pytorch `documentation <https://pytorch.org/get-started/locally/>`_ and install for your specific system.  
     
 3. It is also recommended to have a working installation of open-mpi (for parallelization) and C++ compiler (g++ for linux) if not already installed:
 
@@ -33,9 +36,9 @@ _________________________________________
 
 .. note::
 
-   Currently only tested with boost v1_87_0.
+   Currently only tested with boost v1_87_0. But should work with later versions as well.
 
-Compilation:
+Compilation
 ____________
 
 No installation is required to use SWIM. To obtain and use SWIM follow the following steps:
@@ -66,8 +69,10 @@ No installation is required to use SWIM. To obtain and use SWIM follow the follo
 
    ::
    
-      g++ -shared -fPIC -I <path-to-boost> -O3 -march=native -mtune=native -ftree-vectorize -funroll-loops -o <path-to-SWIM>/bg/libbg.so <path-to-SWIM>/bg/model_calc.cpp -lm -fopenmp
-      g++ -shared -fPIC -I <path-to-boost> -O3 -march=native -mtune=native -ftree-vectorize -funroll-loops -o <path-to-SWIM>/pert/libpert.so <path-to-SWIM>/bg/model_calc.cpp -lm -fopenmp
+      g++ -shared -fPIC -I <path-to-boost> -O3 -march=native -mtune=native -ftree-vectorize -funroll-loops -o <path-to-SWIM>/GQ_Calculator/bg/libbg.so <path-to-SWIM>/GQ_Calculator/bg/model_calc.cpp -lm -fopenmp
+      g++ -shared -fPIC -I <path-to-boost> -O3 -march=native -mtune=native -ftree-vectorize -funroll-loops -o <path-to-SWIM>/GQ_Calculator/pert/libpert.so <path-to-SWIM>/GQ_Calculator/bg/model_calc.cpp -lm -fopenmp
+      g++ -shared -fPIC -I <path-to-boost> -O3 -march=native -mtune=native -ftree-vectorize -funroll-loops -o <path-to-SWIM>/PS_Calculator/libmodel.so <path-to-SWIM>/PS_Calculator/model_calc.cpp -lm -fopenmp
+      g++ -shared -fPIC -I <path-to-boost> -O3 -march=native -mtune=native -ftree-vectorize -funroll-loops -o <path-to-SWIM>/SA_PS_Calculator/libmodel.so <path-to-SWIM>/SA_PS_Calculator/model_calc.cpp -lm -fopenmp
   
       
-
+Now SWIM is ready to be used!

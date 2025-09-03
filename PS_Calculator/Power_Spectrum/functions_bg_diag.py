@@ -1,11 +1,11 @@
 import numpy as np
-from ps_script import lmbd, gst, p, c, Cy
+from ps_script import V0, alph, n, gst, p, c, Cy
 
 #Define model here again
 def V(phi):
-    return lmbd*(phi**4.0)
+    return V0*np.exp(-alph*(phi**n))
 def Vd(phi):
-    return 4.0*lmbd*(phi**3.0)
+    return -((n*V0*alph*(phi**(-1.0 + n)))/np.exp(alph*(phi**n)))
 def Ups(phi,T):
     return Cy * (T**p) * (phi**c)
 Cr = ( (np.pi**2) / 30.0 )*gst

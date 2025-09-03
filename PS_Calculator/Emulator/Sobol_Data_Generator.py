@@ -5,14 +5,14 @@ from scipy.signal import savgol_filter
 from cffi import FFI
 ffi = FFI()
 
-ffi.cdef("void model (double phi_ini,double gst,double lmbd,double Cy,double Np,int p,int c,int therm,int rad_noise);void set_globals (double kpivot, double Em_h, int N_realizations, double kmax, double kmin, int points_bw_k, int Np_calc, int verbosity);int get_npts ();double* get_klist();double* get_Plist();void clear_P();void clear_k();void write_Bg(const char* fname);",override=True)
+ffi.cdef("void model (double phi_ini,double gst,double V0, double alph, double n,double Cy,double Np,int p,int c,int therm,int rad_noise);void set_globals (double kpivot, double Em_h, int N_realizations, double kmax, double kmin, int points_bw_k, int Np_calc, int verbosity);int get_npts ();double* get_klist();double* get_Plist();void clear_P();void clear_k();void write_Bg(const char* fname);",override=True)
 
 # Define bounds for parameter space
-#gst, lmbd, Cy
-bounds = [[0.0,3.0],[-40.0, -1.0],[-20.0, 20.0]]
+#gst, V0, alph, Cy
+bounds = [[0.0,3.0],[-50.0,-10.0],[-6.0, 2.0],[0.0, 30.0]]
 n_samples = 14#power of 2
-d = len(bounds) #number of parameters
 
+d = len(bounds) #number of parameters
 # Sobol Sampling
 sampler = qmc.Sobol(d, scramble=True)
 sample = sampler.random_base2(m=n_samples)
@@ -30,20 +30,20 @@ def fitting_fn(lnk,lnAs,ns,alphs,betas):
 #set globals
 kp = 0.05 #pivot scale in Mpc^-1
 em_step = 1e-3 #step-size for SDE solver
-Nrealz = int(2400) #number of realizations over which to average, higher number leads to more compute time
+Nrealz = int(1024) #number of realizations over which to average, higher number leads to more compute time
 kmax = 2.0 #in log10 -> actual kmax used internally is 10^kmax
 kmin = -6.0 #in log10
-points_k = int(48) #number of points to be calculated between the k values specified
+points_k = int(28) #number of points to be calculated between the k values specified
 Np_autocalc = int(1) # can be set to either 1 (for internal automatic calculation of N_pivot) or 0 (specify an N_pivot value) | in both cases a value for the Np parameter needs to be passed.
 verbosity = int(0) #can be set to either 1 or 0, when set to 1 the error messages will be printed if encountered any.
 
 #set model parameters (remember to specify the model in model_calc.cpp file):
-p = int(1)
+p = int(3)
 c = int(0)
 therm = int(1)
 Np = 1.0
 rad_noise = int(0)
-phi0 = 20.0
+n = 2
 
 cntr = 0
 
@@ -55,10 +55,11 @@ for i in scaled_sample:
     #Set global parameters:
     lib_pert.set_globals(kp,em_step,Nrealz,kmax,kmin,points_k,Np_autocalc,verbosity)
 
-    gst,lmbd,Cy = (np.power(10.0,i)) #Convert from log10
+    gst, V0, alph, Cy = (np.power(10.0,i)) #Convert from log10
+    phi0 = (( 1.05*(n-1)/(n*alph) )**(1/n))
     
     #pass model paramters
-    lib_pert.model(phi0,gst,lmbd,Cy,Np,p,c,therm,rad_noise)
+    lib_pert.model(phi0,gst,V0,alph,n,Cy,Np,p,c,therm,rad_noise)
 
     try:
 
@@ -86,5 +87,6 @@ for i in scaled_sample:
     finally:
         lib_pert.clear_k()
         lib_pert.clear_P()
+        ffi.dlclose(lib_pert)
         del lib_pert
 print("Final valid points generated: ",cntr)

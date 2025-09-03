@@ -16,7 +16,7 @@ int verbose = 0; //Set to one if you want to see the error messages
 
 extern "C" {
 
-    void model (double phi_ini,double gst,double lmbd,double Cy,double Np,int p,int c,int therm,int rad_noise) {
+    void model (double phi_ini,double gst,double V0, double alph, double n,double Cy,double Np,int p,int c,int therm,int rad_noise) {
 
         double Cr =  ((M_PI*M_PI) / 30.0) * gst;
         double php_ini=0.0;
@@ -25,16 +25,19 @@ extern "C" {
 
         //#### Model Definition here ####//
 
-        auto V = [lmbd] (double phi) -> double {
-            return lmbd*pow(phi,4.0);
+        auto V = [V0,alph,n] (double phi) -> double {
+            return V0*exp(-alph*(pow(phi,n)));
+            //return lmbd*pow(phi,4.0);
         };
 
-        auto Vd = [lmbd] (double phi) -> double {
-            return 4.0*lmbd*pow(phi,3.0);
+        auto Vd = [V0,alph,n] (double phi) -> double {
+            return -((n*V0*alph*pow(phi,-1.0 + n))/exp(alph*pow(phi,n)));
+            //return 4.0*lmbd*pow(phi,3.0);
         };
 
-        auto Vdd = [lmbd] (double phi) -> double {
-            return 12.0*lmbd*pow(phi,2.0);
+        auto Vdd = [V0,alph,n] (double phi) -> double {
+            return -(((-1.0 + n)*n*V0*alph*pow(phi,(-2.0 + n)))/exp(alph*pow(phi,n))) + (n*n*V0*alph*alph*pow(phi,(-2.0 + 2.0*n)))/exp(alph*pow(phi,n));
+            //return 12.0*lmbd*pow(phi,2.0);
         };
 
         auto Ups = [Cy,p,c] (double phi,double T) -> double {

@@ -16,4 +16,5 @@ documentation for details.
    :caption: Contents:
 
    installation
+   general_structure
 

@@ -14,6 +14,7 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="General Structure of SWIM" href="general_structure.html" />
     <link rel="prev" title="SWIM: Stochastic Warm Inflation Module" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -39,18 +40,20 @@
 <p>Currently we have only tested the module on linux systems.</p>
 </div>
 <section id="recommended-python-environment-setup">
-<h2><strong>Recommended python environment setup:</strong><a class="headerlink" href="#recommended-python-environment-setup" title="Link to this heading">¶</a></h2>
+<h2>Recommended python environment setup<a class="headerlink" href="#recommended-python-environment-setup" title="Link to this heading">¶</a></h2>
 <ol class="arabic">
 <li><p>Create a fresh python environment using conda:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">SWIM</span>
 </pre></div>
 </div>
 </li>
-<li><p>Activate and install the following packages:
-NumPy, SciPy, CFFI, matplotlib (optional but recommended).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="o">&lt;</span><span class="n">channel</span><span class="o">-</span><span class="n">name</span> <span class="p">(</span><span class="n">eg</span><span class="o">.</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span><span class="p">)</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">package</span><span class="o">-</span><span class="n">name</span> <span class="p">(</span><span class="n">eg</span><span class="o">.</span> <span class="n">numpy</span><span class="p">)</span><span class="o">&gt;</span>
+<li><p>Activate the environment and install the following packages:
+NumPy, SciPy, CFFI, matplotlib, JupyterLab, numba (optional).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">SWIM</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="o">&lt;</span><span class="n">channel</span><span class="o">-</span><span class="n">name</span> <span class="p">(</span><span class="n">eg</span><span class="o">.</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span><span class="p">)</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">package</span><span class="o">-</span><span class="n">name</span> <span class="p">(</span><span class="n">eg</span><span class="o">.</span> <span class="n">numpy</span><span class="p">)</span><span class="o">&gt;</span>
 </pre></div>
 </div>
+<p>Additionally, if you wish to use the Artificial Neural Network (ANN) emulator for SWIM, please also install PyTorch. Refer to the pytorch <a class="reference external" href="https://pytorch.org/get-started/locally/">documentation</a> and install for your specific system.</p>
 </li>
 <li><p>It is also recommended to have a working installation of open-mpi (for parallelization) and C++ compiler (g++ for linux) if not already installed:</p></li>
 </ol>
@@ -66,11 +69,11 @@ NumPy, SciPy, CFFI, matplotlib (optional but recommended).</p>
 </ol>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Currently only tested with boost v1_87_0.</p>
+<p>Currently only tested with boost v1_87_0. But should work with later versions as well.</p>
 </div>
 </section>
 <section id="compilation">
-<h2>Compilation:<a class="headerlink" href="#compilation" title="Link to this heading">¶</a></h2>
+<h2>Compilation<a class="headerlink" href="#compilation" title="Link to this heading">¶</a></h2>
 <p>No installation is required to use SWIM. To obtain and use SWIM follow the following steps:</p>
 <ol class="arabic">
 <li><p>Download the package from GitHub:</p>
@@ -92,12 +95,15 @@ export $SWIM_PATH=&lt;change-to-SWIM-package-location&gt;
 <p>The script will automatically compile the required modules with the compilation flags specified (these flags were used for testing).</p>
 </li>
 <li><p>Alternate method: It is possible to compile the modules without using the convenience script by executing the following commands:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">g</span><span class="o">++</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">I</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">boost</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">O3</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">mtune</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">ftree</span><span class="o">-</span><span class="n">vectorize</span> <span class="o">-</span><span class="n">funroll</span><span class="o">-</span><span class="n">loops</span> <span class="o">-</span><span class="n">o</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">bg</span><span class="o">/</span><span class="n">libbg</span><span class="o">.</span><span class="n">so</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">bg</span><span class="o">/</span><span class="n">model_calc</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">fopenmp</span>
-<span class="n">g</span><span class="o">++</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">I</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">boost</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">O3</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">mtune</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">ftree</span><span class="o">-</span><span class="n">vectorize</span> <span class="o">-</span><span class="n">funroll</span><span class="o">-</span><span class="n">loops</span> <span class="o">-</span><span class="n">o</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">pert</span><span class="o">/</span><span class="n">libpert</span><span class="o">.</span><span class="n">so</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">bg</span><span class="o">/</span><span class="n">model_calc</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">fopenmp</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">g</span><span class="o">++</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">I</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">boost</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">O3</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">mtune</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">ftree</span><span class="o">-</span><span class="n">vectorize</span> <span class="o">-</span><span class="n">funroll</span><span class="o">-</span><span class="n">loops</span> <span class="o">-</span><span class="n">o</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">GQ_Calculator</span><span class="o">/</span><span class="n">bg</span><span class="o">/</span><span class="n">libbg</span><span class="o">.</span><span class="n">so</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">GQ_Calculator</span><span class="o">/</span><span class="n">bg</span><span class="o">/</span><span class="n">model_calc</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">fopenmp</span>
+<span class="n">g</span><span class="o">++</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">I</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">boost</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">O3</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">mtune</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">ftree</span><span class="o">-</span><span class="n">vectorize</span> <span class="o">-</span><span class="n">funroll</span><span class="o">-</span><span class="n">loops</span> <span class="o">-</span><span class="n">o</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">GQ_Calculator</span><span class="o">/</span><span class="n">pert</span><span class="o">/</span><span class="n">libpert</span><span class="o">.</span><span class="n">so</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">GQ_Calculator</span><span class="o">/</span><span class="n">bg</span><span class="o">/</span><span class="n">model_calc</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">fopenmp</span>
+<span class="n">g</span><span class="o">++</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">I</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">boost</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">O3</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">mtune</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">ftree</span><span class="o">-</span><span class="n">vectorize</span> <span class="o">-</span><span class="n">funroll</span><span class="o">-</span><span class="n">loops</span> <span class="o">-</span><span class="n">o</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">PS_Calculator</span><span class="o">/</span><span class="n">libmodel</span><span class="o">.</span><span class="n">so</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">PS_Calculator</span><span class="o">/</span><span class="n">model_calc</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">fopenmp</span>
+<span class="n">g</span><span class="o">++</span> <span class="o">-</span><span class="n">shared</span> <span class="o">-</span><span class="n">fPIC</span> <span class="o">-</span><span class="n">I</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">boost</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">O3</span> <span class="o">-</span><span class="n">march</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">mtune</span><span class="o">=</span><span class="n">native</span> <span class="o">-</span><span class="n">ftree</span><span class="o">-</span><span class="n">vectorize</span> <span class="o">-</span><span class="n">funroll</span><span class="o">-</span><span class="n">loops</span> <span class="o">-</span><span class="n">o</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">SA_PS_Calculator</span><span class="o">/</span><span class="n">libmodel</span><span class="o">.</span><span class="n">so</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">SWIM</span><span class="o">&gt;/</span><span class="n">SA_PS_Calculator</span><span class="o">/</span><span class="n">model_calc</span><span class="o">.</span><span class="n">cpp</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">fopenmp</span>
 </pre></div>
 </div>
 </li>
 </ol>
+<p>Now SWIM is ready to be used!</p>
 </section>
 </section>
 
@@ -130,10 +136,11 @@ export $SWIM_PATH=&lt;change-to-SWIM-package-location&gt;
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#recommended-python-environment-setup"><strong>Recommended python environment setup:</strong></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#compilation">Compilation:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recommended-python-environment-setup">Recommended python environment setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compilation">Compilation</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure of SWIM</a></li>
 </ul>
 
 <div class="relations">
@@ -141,6 +148,7 @@ export $SWIM_PATH=&lt;change-to-SWIM-package-location&gt;
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="index.html" title="previous chapter">SWIM: Stochastic Warm Inflation Module</a></li>
+      <li>Next: <a href="general_structure.html" title="next chapter">General Structure of SWIM</a></li>
   </ul></li>
 </ul>
 </div>

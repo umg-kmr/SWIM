@@ -19,10 +19,10 @@ theory:
       - 100
         #packages_path: /home/umang.kumar/cobaya/
 likelihood:
-  #bao.desi_dr2: null
+  bao.desi_dr2: null
   planck_2018_lowl.TT: null
   #planck_2018_lowl.EE: null
-  #planck_2018_lowl.EE_sroll2: null
+  planck_2018_lowl.EE_sroll2: null
   act_dr6_cmbonly.PlanckActCut:
     dataset_params:
       use_cl: tt te ee
@@ -35,11 +35,11 @@ likelihood:
   #    min_version: 1.0.2
   act_dr6_cmbonly:
     stop_at_error: true
-  #act_dr6_lenslike.ACTDR6LensLike:
-  #      lens_only: False
-  #      stop_at_error: True
-  #      lmax: 4000
-  #      variant: actplanck_extended
+  act_dr6_lenslike.ACTDR6LensLike:
+        lens_only: False
+        stop_at_error: True
+        lmax: 4000
+        variant: actplanck_extended
 params:
   p:
     value: 3
