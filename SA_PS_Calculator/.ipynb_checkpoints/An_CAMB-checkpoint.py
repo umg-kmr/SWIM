@@ -18,7 +18,7 @@ ffi.cdef("void model (double phi_ini,double gst,double alph, double n,double Cy,
 def feature_power_spectrum(phi0,gst,alph,n,Cy,V0,Np,c,p,therm,  #model params 
                            kmin=1e-6, kmax=100, # generous, for transfer integrals 
                             kp=0.05):
-    
+
     lib = ffi.dlopen("./libmodel.so")
     lib.set_globals(kp, kmax, kmin, Np_autocalc, verbosity,want_full_spectrum, read_GQ_from_file) #sets global variables within C++ code
     npts = lib.npts
