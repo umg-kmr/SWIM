@@ -25,5 +25,8 @@ g++ -shared -fPIC -I $BOOST_PATH -O3 -march=native -mtune=native -ftree-vectoriz
 echo "compiling power spectrum module..."
 g++ -shared -fPIC -I $BOOST_PATH -O3 -march=native -mtune=native -ftree-vectorize -funroll-loops -o $SWIM_PATH/PS_Calculator/libmodel.so $SWIM_PATH/PS_Calculator/model_calc.cpp -lm -fopenmp
 
+echo "compiling semi-analytical power spectrum module..."
+g++ -shared -fPIC -I $BOOST_PATH -O3 -march=native -mtune=native -ftree-vectorize -funroll-loops -o $SWIM_PATH/SA_PS_Calculator/libmodel.so $SWIM_PATH/SA_PS_Calculator/model_calc.cpp -lm -fopenmp
+
 echo "compilation finished."
 

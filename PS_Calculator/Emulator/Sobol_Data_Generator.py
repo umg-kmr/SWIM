@@ -67,7 +67,10 @@ for i in scaled_sample:
         kptr = lib_pert.get_klist()
         Plist = ffi.unpack(Pptr,npts)
         klist = ffi.unpack(kptr,npts)
-    
+
+        if np.any(np.isclose(Plist, 1.0)):
+            raise ValueError("Power Spectrum = 1")
+
         #Filter raw data, fit to power-spectrum function and obtain observables
         Plist = savgol_filter(Plist,11,3)
         popt,pcov = curve_fit(fitting_fn,np.log(klist),np.log(Plist))
@@ -80,4 +83,8 @@ for i in scaled_sample:
                 f.write(",".join(str(p) for p in i)+","+str(logAs)+","+str(ns)+","+str(alphs)+","+str(betas)+"\n")
     except:
         continue
+    finally:
+        lib_pert.clear_k()
+        lib_pert.clear_P()
+        del lib_pert
 print("Final valid points generated: ",cntr)

@@ -1,0 +1,90 @@
+likelihood:
+  stb: import_module('llihood').logp
+params:
+  p:
+    value: 3
+  c:
+    value: 0
+  therm:
+    value: 0
+  logphi0:
+    prior:
+      min: -8.0
+      max: 0.0
+    ref:
+      dist: norm
+      loc: -2.09785
+      scale: 0.563678
+    latex: \log_{10} \phi_0
+  phi0:
+    value: 'lambda logphi0: 10**logphi0'
+    latex: \phi_0
+  loggst:
+    prior:
+      min: 0.0
+      max: 10.0
+    ref:
+      dist: norm
+      loc: 1.76745
+      scale: 0.637099
+    latex: \log_{10} g_*
+  gst:
+    #value: 106.75
+    value: 'lambda loggst: 10**loggst'
+    latex: g_*
+  loglmbd:
+    prior:
+      min: 0.0
+      max: 5.0
+    ref:
+      dist: norm
+      loc: 0.00290979
+      scale: 0.0126343
+    latex: \log_{10} \lambda
+  lmbd:
+    value: 'lambda loglmbd: 10**loglmbd'
+    latex: \lambda
+  logCy:
+    prior:
+      min: 1.0
+      max: 40.0
+    ref:
+      dist: norm
+      loc: 14.4801
+      scale: 0.234177
+    latex: \log_{10} C_{\Upsilon}
+  Cy:
+    value: 'lambda logCy: 10**logCy'
+    latex: C_{\Upsilon}
+  logV0:
+    prior:
+      min: -60.0
+      max: -1.0
+    ref:
+      dist: norm
+      loc: -35.1786
+      scale: 0.76326
+    latex: \log_{10} V_0
+  V0:
+    value: 'lambda logV0: 10**logV0'
+    latex: V_0
+  Np:
+    value: 1.0
+    latex: N_P
+sampler:
+  minimize:
+    method: iminuit
+    ignore_prior: True
+    best_of: 8
+    override_bobyqa:
+      rhoend: 1e-8 
+  #mcmc:
+  #  drag: false
+  #  oversample_power: 0.4
+  #  proposal_scale: 1.9
+  #  covmat: logpot.covmat 
+  #  Rminus1_stop: 0.01
+  #  Rminus1_cl_stop: 0.2
+  #  max_tries: 100000d 
+resume: True
+output: chains_gst/logpot 

@@ -6,7 +6,7 @@ int verbose = 0; //Set to one if you want to see the error messages
 
 extern "C" {
 
-    void model (double phi_ini,double Q_ini, double gst, double V0, double lmbd,int p, int c, int hybrid_inf) {
+    void model (double phi_ini,double Q_ini, double gst, double V0, double alph, double n,int p, int c, int hybrid_inf) {
 
         double Cr = (M_PI*M_PI / 30.0) * gst;
         double php_ini=0.0;
@@ -16,27 +16,27 @@ extern "C" {
 
         //#### Model Def here ####//
 
-        auto V = [V0] (double phi) -> double {
+        auto V = [V0,alph,n] (double phi) -> double {
             //return V0*log(lmbd*phi)*log(lmbd*phi);
             //return 0.5*V0*phi*phi;
-            //return V0*exp(-alph*(pow(phi,n)));
+            return V0*exp(-alph*(pow(phi,n)));
 	    //return (pow(M,4.0)/(4.0*lmbd)) + ((V0/2.0)*phi*phi);
             //return V0 * (1.0 - (gma*phi*phi) );
             //return V0 * (1.0 + cos(phi/f));
             //return V0 * ( F - (4.0*exp(-phi/sqrt(3.0))) + exp(-4.0*phi/sqrt(3.0)) + ( R * ( exp(2.0*phi/sqrt(3.0)) - 1.0 ) ) ) ;
-            return (V0/4.0)*pow(phi,4.0);
+            //return (V0/4.0)*pow(phi,4.0);
             //return 0.5*(m*m)*(phi*phi);
         };
 
-        auto Vd = [V0] (double phi) -> double {
+        auto Vd = [V0,alph,n] (double phi) -> double {
             //return (2.0*V0*log(lmbd*phi))/phi;
             //return V0*phi;
-            //return -((n*V0*alph*pow(phi,-1.0 + n))/exp(alph*pow(phi,n)));
+            return -((n*V0*alph*pow(phi,-1.0 + n))/exp(alph*pow(phi,n)));
 	    //return V0*phi;
             //return -2.0 * V0 * gma * phi;
             //return (-V0/f) * sin(phi/f);
             //return V0 * (2.0/sqrt(3.0)) * exp(-4.0*phi/sqrt(3.0)) * (-2.0 + (2.0*exp(sqrt(3.0)*phi)) + (R*exp(2.0*sqrt(3.0)*phi)) ) ; 
-            return V0*phi*phi*phi;
+            //return V0*phi*phi*phi;
             //return m*m*phi;
         };
 

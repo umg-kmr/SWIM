@@ -686,7 +686,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     
 
     //Generate power spectrum between 10^klow and 10^kup
-    auto Calc_P = [P_num,Q,Calc_Nh,EM_step,phiasN,phpasN,TasN,Calc_Ni_Ne] (vector <double> &klist, vector <double> &Plist) -> void {
+    auto Calc_P = [P_num,Q,Calc_Nh,EM_step,phiasN,phpasN,TasN,Calc_Ni_Ne,verbose] (vector <double> &klist, vector <double> &Plist) -> void {
         double h = 0.0;
         double Nh = 0.0;
         vector <double> kl_int;
