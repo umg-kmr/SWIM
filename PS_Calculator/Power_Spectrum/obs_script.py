@@ -91,7 +91,7 @@ def callback(intermediate_result):
     print("Current f(x):", intermediate_result.fun)
 
 x0 = [2.1,0.8,-34.0,14.0]#initial guess in log10 #gst,alph,V0,Cy
-soln = basinhopping(func=logp,x0=x0,minimizer_kwargs=local_minimizer,niter=100)
+soln = basinhopping(func=logp,x0=x0,minimizer_kwargs=local_minimizer,niter=100,callback=callback,disp=True)
 result_params = soln.x
 result_likelihood = soln.fun
 
