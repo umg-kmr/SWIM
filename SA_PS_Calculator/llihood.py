@@ -1,5 +1,4 @@
 import os
-import gc
 #os.environ["OMP_NUM_THREADS"] = "2"
 
 from cffi import FFI
@@ -7,21 +6,33 @@ ffi = FFI()
 import numpy as np
 import scipy as sp
 
-ffi.cdef("void model (double phi_ini,double gst,double lmbd,double Cy,double V0,double Np,int c,int p,int therm);extern double As_val; extern double ns_val; void clear_k();void clear_P();")
-#lib = ffi.dlopen("./libmodel.so")
+Np_autocalc = int(1) #Automatically calculate the pivot scale exit.
+verbosity = int(0)
+want_full_spectrum = int(0) #1 if you want the full power-spectrum and 0 if you want just As and ns to be computed. Keep this to 0 in this case.
+read_GQ_from_file = int(1)
+kp = 0.05
+
+#these parameters have no effect in this case
+kmax = 100.0
+kmin = 1e-6
+
+ffi.cdef("void model (double phi_ini,double gst,double alph, double n,double Cy,double V0,double Np,int c,int p,int therm);extern int npts; double* get_Plist(); double* get_klist(); void clear_P(); void clear_k();void set_globals (double kpivot, double kmax, double kmin, int Np_calc, int verbosity,int full_spectrum, int GQ_dat_file);",override=True)
+
+lib = ffi.dlopen("./libmodel.so")
+lib.set_globals(kp, kmax, kmin, Np_autocalc, verbosity,want_full_spectrum, read_GQ_from_file) #sets global variables within C++ code
 
 #P-ACT results https://arxiv.org/pdf/2503.14452 Table 5
 y = np.array([3.062,0.9752])
 yerr = np.array([0.011,0.0030])
 
 
-def logp(phi0,gst,lmbd,Cy,V0,Np,c,p,therm):
+def logp(phi0,gst,alph,n,Cy,V0,Np,c,p,therm):
     p = int(p)
     c = int(c)
     therm = int(therm)
-    lib = ffi.dlopen("./libmodel.so")
+
     try:
-        lib.model(phi0,gst,lmbd,Cy,V0,Np,c,p,therm)
+        lib.model(phi0,gst,alph,n,Cy,V0,Np,c,p,therm)
         As = lib.As_val
         ns = lib.ns_val
         if (As == 0.0 or ns == 0.0):
@@ -36,8 +47,5 @@ def logp(phi0,gst,lmbd,Cy,V0,Np,c,p,therm):
     finally:
         lib.clear_k()
         lib.clear_P()
-        ffi.dlclose(lib)
-        del lib
-        gc.collect()
 
 

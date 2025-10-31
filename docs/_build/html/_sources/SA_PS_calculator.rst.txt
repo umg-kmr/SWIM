@@ -1,0 +1,203 @@
+``SA_PS`` Calculator
+=====================
+
+The semi analytical power spectrum calculator is based on the methodology developed by `U. Kumar and S. Das. <https://inspirehep.net/literature/2805807>`_ The primary goal of this submodule is to perform the integration of the WI background equations. The power spectrum and the observables are obtained using the semi-analytical approach by including the correction function :math:`G(Q)` in the power spectrum.
+
+``SA_PS_Calculator`` is versatile and efficient. It can be directly interfaced with codes like ``Cobaya`` to perform parameter inference using the latest observations. It can also be adapted to include any WI model as long as the :math:`G(Q)` function is known. The default functionality includes the use of the :math:`G(Q)` function computed by the ``GQ_Calculator``. There are also a few inbuilt analytical approximations that can be used instead.
+
+As of now there are no helper scripts to interface with the ``SA_PS_Calculator`` as its main purpose is to be used for parameter inference using ``Cobaya``. As with the other modules of ``SWIM``, there are two code files:
+
+1. ``Bg.cpp`` which has the core functionality including performing the background integration, calculating the power spectrum and thus the inflationary observables.
+
+2. ``model_calc.cpp`` which is where the WI model needs to be specified.
+
+3.  There are also two python scripts that are used to interface with ``Cobaya``:
+
+   a. ``llihood.py`` this file can be used when only the power spectrum amplitude :math:`A_s` and spectral index :math:`n_s` are used to constrain the model parameters. This is much faster than using the full power spectrum and can be used to get a good guess for the posterior distribution of the model parameters.
+   
+   b. ``An_CAMB.py`` this file assumes that ``CAMB`` will be used as the Boltzmann code to perform parameter inference and generates the full power spectrum within a range of :math:`k` values hich can then be supplied to ``CAMB`` as the primordial scalar power spectrum.
+   
+To use the code:
+
+1. Modify the ``model_calc.cpp`` file to include your WI model. Similar to the ``GQ_Calculator`` the potential, its derivative and :math:`\Upsilon` can be modified.
+
+2. In this implementation we assume :math:`C_{\Upsilon}` as a free parameter and :math:`Q_{\text{initial}}` is instead calculated within the code from the value of :math:`\phi_{\text{initial}}` satisfying the slow-roll conditions. This assumes that :math:`\Upsilon = C_{\Upsilon} T^p \phi^c`, if you have specified an :math:`\Upsilon` that can not be written down in the form mentioned before then you will have to comment out the ``Qi_find`` code and instead supply the value of :math:`Q_{\text{initial}}`.
+
+.. code-block:: cpp
+
+   auto Qi_find = [V,Vd,Cr,p,c,Cy,phi_ini] (double Qi) -> double {
+       Qi = pow(10.0,Qi);
+       return ( pow((1.0+Qi),(2.0*p))*pow(Qi,(4.0-p)) )  - ( (pow(Cy,4.0)/(9.0*pow(4.0,p)*pow(Cr,p))) * pow(phi_ini,(4.0*c)) * ( pow(Vd(phi_ini),(2.0*p))/pow(V(phi_ini),(p+2.0))  ) ) ;
+   };
+
+   try {
+      auto logQ = boost::math::tools::bisect(Qi_find, -18.0, 6.0,root_stop(),max_iter);
+      Q_ini = (logQ.second + logQ.first)/2;
+      Q_ini = pow(10.0,Q_ini);
+   }
+   catch (const exception& e) {
+      if (verbose==1) {
+          cout<<"Q_initial couldn't be found"<<endl;
+      }
+      return;
+    }
+
+This will disable the functionality to automatically calculate a value :math:`Q_{\text{initial}}`. The code can also be easily modified to calculate :math:`C_{\Upsilon}` instead, from a supplied value of :math:`Q_{\text{initial}}`. Refer to the ``GQ_Calculator`` code to implement this.
+
+3. Modify the signature of the top-level function ``model`` to include your model parameters with their data types just like in the case of ``GQ_Calculator``.
+
+4. Optional: If you wish to use an analytical approximation of :math:`G(Q`) not already specified in the code, modify the ``GQ`` function.
+
+.. code-block:: cpp
+
+   auto GQ = [p] (double Q) -> double {
+
+5. Recompile the module after making the required changes.
+
+Mode 1: :math:`A_s` and :math:`n_s`
+___________________________________
+
+To use this mode edit only the ``llihood.py`` script:
+
+1. Ensure that the model is correctly specified in the ``C++`` code and the shared library was recompiled after that.
+
+2. Specify the code parameters:
+
+   .. data:: Np_autocalc
+      :type: int
+      :value: 0 or 1
+ 
+      Parameter that tells the code whether to automatically calculate (``1``) the pivot scale exit or not (``0``). If you set it to ``0`` then you will have to supply a value of ``Np`` (e-folds at pivot scale exit) in the ``.yaml`` file discussed later.
+   
+   .. data:: want_full_spectrum
+      :type: int
+      :value: 0 or 1
+      
+      This parameter sets the mode of ``SA_PS_Calculator``. Value of ``0`` will instruct the code to only compute :math:`A_s` and :math:`n_s`. Keep the parameter to ``0`` for this mode.
+      
+   .. data:: read_GQ_from_file
+      :type: int
+      :value: 0 or 1
+      
+      This parameter can be used to instruct the code to either interpolate :math:`G(Q)` from the file created by ``GQ_Calculator`` (set to ``1``) or use the inbuilt (or user-defined) analytical aprroximations (set to ``0``). 
+      
+   .. data:: kp
+      :type: double
+      :value: 0.05
+      
+      Parameter to set the pivot scale in :math:`Mpc^{-1}`. Planck mission sets it at :math:`0.05 Mpc^{-1}`.
+      
+  
+3. Similar to ``GQ_Calculator`` modify the ``C++`` library definition and the signature of the called function to include your WI model parameters.
+
+.. code-block:: python
+
+   ffi.cdef("void model (double phi_ini,double gst,double m,double Cy,double Np,int c,int p,int therm);extern int npts; double* get_Plist(); double* get_klist(); void clear_P(); void clear_k();void set_globals (double kpivot, double kmax, double kmin, int Np_calc, int verbosity,int full_spectrum, int GQ_dat_file);",override=True)
+   
+and also modify the log-likelihood function and its signature:
+
+.. code-block:: python
+
+   def logp(phi0,gst,m,Cy,Np,c,p,therm): #edit the signature
+
+      try:
+           lib.model(phi0,gst,m,Cy,Np,c,p,therm) #edit the arguments
+           
+4. The observational constraints on :math:`A_s` and :math:`n_s` from the latest `Planck+ACT <https://inspirehep.net/literature/2901523>`_ collaboration are specified by the arrays ``y`` and ``yerr``. The first element of both the arrays corresponds to :math:`\ln (10^{10} A_s)` and the second one is :math:`n_s`. The array ``yerr`` specifies the error bar on these quantities.
+
+5. Next step is to create a ``.yaml`` file to be used by ``Cobaya`` to perform the parameter inference. A sample ``Input_asns.yaml`` file is provided for this particular mode and can be modified for your particular use case. Specify a value for ``Np`` whether ``Np_autocalc`` is set to ``0`` or ``1``. In the case ``Np_autocalc = 1`` the value of ``Np`` set in the ``yaml`` file will be ignored and the internally calculated value of ``Np`` would instead be used. A value should be passed for ``Np`` in either case.
+
+  .. note::
+  
+     The background integration in the code starts from :math:`N = 0`, so :literal:`Np` should be set accordingly. More specifically, the duration of inflation is :math:`N_{\text{end}} - N_{\text{pivot}}`.
+
+6. Now you can run ``Cobaya`` and perform the parameter inference on your model. Refer to the `Cobaya documentation <https://cobaya.readthedocs.io/en/latest/>`_ for more details on using ``Cobaya``.
+
+Mode 2: Full power spectrum
+____________________________
+
+To use this mode edit only the ``An_CAMB.py`` script:
+
+1. Follow the guide for ``As-ns`` mode till step 3. The parameter ``kp`` is set within the function ``feature_power_spectrum`` in this case.
+
+2. Change the parameter ``want_full_spectrum`` to ``1`` if not already done so, to calculate the full power spectrum.
+
+3. Set the following parameters in ``feature_power_spectrum``:
+
+   .. data:: kmin
+      :type: double
+      :value: 1e-6
+      
+      Sets the lower limit of :math:`k` values for which the power spectrum should be computed.
+      
+   .. data:: kmax
+      :type: double
+      :value: 100
+      
+      Sets the upper limit of :math:`k` values for which the power spectrum should be computed.
+      
+4. As this mode interfaces the ``SA_PS_Calculator`` with ``CAMB``, the free parameters have to be defined in a way that both ``Cobaya`` and ``CAMB`` understand. Modify the signature of ``feature_power_spectrum`` to include your model parameters and also modify:
+
+   .. code-block:: python
+
+      lib.model(phi0, gst, m, Cy, Np, c, p, therm)
+
+   within the same function.
+
+   In the class ``FeaturePrimordialPk`` modify the ``params`` dictionary to include your model parameters:
+
+   .. code-block:: python
+
+      params = {"phi0": None,"gst": None,"m": None,"Cy": None,"Np": None,"c": None,"p": None,"therm": None}
+
+   
+   and also modify the function ``calculate`` in this class to include the model parameters:
+
+   .. code-block:: python
+
+      phi0,gst,m,Cy,Np,c,p,therm = \
+            [params_values_dict[itr] for itr in
+             ["phi0","gst","m","Cy","Np","c","p","therm"]]
+             
+      ks, Pks = feature_power_spectrum(phi0,gst,m,Cy,Np,c,p,therm,kp=self.kp)
+      
+   Note that it is recommended to modify ``kp`` in the class definition itself as this is then passed to the ``feature_power_spectrum`` function. 
+    
+5. Now the input ``.yaml`` file for ``Cobaya`` needs to be generated. A sample ``Input.yaml`` is provided. It is recommended to use ``cobaya-cosmo-generator`` or the web-based input file generator accessible `here <https://cobaya-gui.streamlit.app/>`_. from ``Cobaya``.
+
+  To interface the ``An_CAMB.py`` we just created we need to add the following in the ``yaml`` file:
+  
+  .. code-block:: yaml
+  
+     theory:
+       An_CAMB.FeaturePrimordialPk:
+         python_path: "."
+         
+.. warning::
+
+   The sample ``yaml`` file provided uses the likelihoods provided by the ACT collaboration, Planck collaboration and DESI. Make sure that these likelihoods are installed and visible to ``Cobaya``.
+   
+
+Additional constraints
+_______________________
+
+It is possible to put additional constraints within the ``SA_PS_Calculator`` module to reject parameters based on a condition. For example, a code block can be placed in the ``model`` function of ``model_calc.cpp`` to reject parameters for which :math:`T \leq H`:
+
+.. code-block:: cpp
+
+   //Check for T/H>1 where H is slow-roll approximated
+   if ( (T_ini*sqrt(3.0)/sqrt(V(phi_ini)) )<=1.0 ) {
+      if (verbose==1) {
+         cout<<"T<=H, not warm inflation. Exiting."<<endl;
+      }
+      return;
+   }
+
+This code block returns the function early and doesn't proceed further with any calculation, effectively rejecting the parameter satisfying the condition. Other conditional constraints can be placed similarly at the relevant places. 
+
+.. note::
+
+    The default implementation of ``SA_PS_Calculator`` is such that any errors encounterd during the computation of the model are caught and excepted to return a value such that it is rejected by the ``Cobaya`` sampler. This can have unintended consequences and not reveal the true nature of the failure. For debugging, it can be helpful to remove the ``try ... except...`` blocks (keeping the code within the ``try`` clause) and change ``verbosity`` to ``1`` and see what part of the code is failing. In the expected behaviour of the code, failure should only occur when a combination of parameters produces computation errors so that the problematic parameter values can be rejected by the sampler. Setting ``verbosity=1` will reveal exactly at what computation stage the calculation failed.
+    
+    
+

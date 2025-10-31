@@ -105,5 +105,13 @@ extern "C" {
     void set_phi_crit (double x) {
         ph_crit = x;
     }
+    
+    //Function to set the global variables
+    void set_globals (int N_realizations, double Nstar, int verbosity) {
+        Nrealz = N_realizations;
+        Nevol = Nstar;
+        verbose = verbosity;
+    }
+
 }
 

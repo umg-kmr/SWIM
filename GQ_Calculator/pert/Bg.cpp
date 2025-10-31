@@ -377,6 +377,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     // cout<<"Qlow: "<<QasN(NasX(xlow))<<endl;
     // cout<<"Qup: "<<QasN(NasX(xup))<<endl;
     // cout<<"Np: "<<Npp<<endl;
+    
     //Analytical Power Spectrum
     auto P = [Nask,phiasN,phpasN,TasN,H,Q,therm] (double k) -> double {
         double NN = Nask(k);
@@ -395,6 +396,33 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         return pow((Hn/(2.0*M_PI*phpn)),2.0) * (distrib + (Tn/Hn)*( 2.0*sqrt(3.0)*M_PI*Qn/sqrt(3+4*M_PI*Qn) ));
     };
     
+    //Uncomment the following function and comment the one above to implement the full analytical power spectrum (eqn. 4.24 arXiv:1302.3544 ), retaining the slow-roll coefficients
+    /* auto P = [Nask,phiasN,phpasN,TasN,H,Q,therm,V,Vd,Vdd,Ups,pph_Ups] (double k) -> double {
+        double NN = Nask(k);
+        double phin = phiasN(NN);
+        double phpn = phpasN(NN);
+        double Tn = TasN(NN);
+        double Hn = H(phin,phpn,Tn);
+        double Qn = Q(phin,phpn,Tn);
+        double distrib = 0.0;
+        double vn = 3.0*(1.0+Qn)/2.0;
+        double nV = Vdd(phin)/V(phin);
+        double bV = pph_Ups(phin,Tn)*Vd(phin)/(Ups(phin,Tn)*V(phin));
+        double alphan = sqrt(vn*vn - 3.0*nV + ( 3.0*bV*Qn/(1.0+Qn) ) );
+        if (therm == 1) {
+            distrib = 1/tanh(Hn/(2*Tn));
+        }
+        else if (therm == 0) {
+            distrib = 1.0;
+        }
+        double t1 = (Hn*Hn*Hn)*Tn/(4.0*(M_PI*M_PI)*(pow((Hn*phpn),2.0)));
+        double t2 = (Hn/Tn)*distrib;
+        //lgamma is used to protect against overflow issues
+        double ta =  2.0*alphan*log(2.0) + lgamma(-1.0 + vn) - lgamma(-0.5 + vn) + 2.0*lgamma(alphan) + lgamma(1.5 - vn + alphan) -lgamma(-0.5 + vn + alphan);
+        double t3 = (3.0*Qn/(2.0*sqrt(M_PI))) * exp(ta) ;
+        return t1*(t3+t2);
+    }; 
+    */
 
     //Perturbations
     auto a = [a0] (double N) -> double {

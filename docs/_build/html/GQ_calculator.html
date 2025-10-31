@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>\(G(Q)\) Calculator &#8212; SWIM 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SA_PS Calculator" href="SA_PS_calculator.html" />
+    <link rel="prev" title="General Structure of SWIM" href="general_structure.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="g-q-calculator">
+<h1><span class="math notranslate nohighlight">\(G(Q)\)</span> Calculator<a class="headerlink" href="#g-q-calculator" title="Link to this heading">¶</a></h1>
+<p>This module is subdivided into <code class="docutils literal notranslate"><span class="pre">bg</span></code> and <code class="docutils literal notranslate"><span class="pre">pert</span></code> modules.</p>
+<section id="bg-submodule">
+<h2><code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule<a class="headerlink" href="#bg-submodule" title="Link to this heading">¶</a></h2>
+<p>The main function of this module is to compute the background dynamics of a specified WI model. As a part of <span class="math notranslate nohighlight">\(G(Q)\)</span> calculator this submodule is used to calculate the initial conditions for different <span class="math notranslate nohighlight">\(Q\)</span> values.</p>
+<p>The directory itself contains 3 files:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Bg.cpp</span></code> is the program that numerically integrates the background and computes the required parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> is where the WI model is specified. It is only required to enter the model potential and its derivative if <span class="math notranslate nohighlight">\(\Upsilon = C_{\Upsilon} T^p \phi^c\)</span>. Otherwise <code class="docutils literal notranslate"><span class="pre">Ups_wo_Cy</span></code> function needs to be modified with the form of <span class="math notranslate nohighlight">\(\Upsilon\)</span> being considered.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">libbg.so</span></code> is the compiled library that interfaces with python helper scripts in the <span class="math notranslate nohighlight">\(G(Q)\)</span> calculator module.</p></li>
+</ol>
+<p>Some examples of potentials commonly seen in literature are already available in the code itself. To modify the WI model in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code>:</p>
+<ol class="arabic simple">
+<li><p>Modify the potential function <code class="docutils literal notranslate"><span class="pre">V</span></code> as such:</p></li>
+</ol>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="k">return</span><span class="w"> </span><span class="mf">0.5</span><span class="o">*</span><span class="n">m</span><span class="o">*</span><span class="n">m</span><span class="o">*</span><span class="n">phi</span><span class="o">*</span><span class="n">phi</span><span class="p">;</span><span class="w"> </span><span class="c1">//V = 1/2 m^2 \phi^2</span>
+<span class="w">     </span><span class="p">};</span>
+</pre></div>
+</div>
+<p>Most of the functions in SWIM are <code class="docutils literal notranslate"><span class="pre">lambda</span></code> functions that can take arguments as well as capture fixed parameters from the top-level function. The square brackets are where the captured parameters (fixed) specified. It should be modified accordingly to the potential specified.</p>
+<ol class="arabic simple" start="2">
+<li><p>Modify the potential derivative function <code class="docutils literal notranslate"><span class="pre">Vd</span></code> as such:</p></li>
+</ol>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">Vd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="k">return</span><span class="w"> </span><span class="n">m</span><span class="o">*</span><span class="n">m</span><span class="o">*</span><span class="n">phi</span><span class="p">;</span><span class="w"> </span><span class="c1">//V&#39; =  m^2 \phi</span>
+<span class="w">     </span><span class="p">};</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Depending on the model, you can also modify the <code class="docutils literal notranslate"><span class="pre">Ups_wo_Cy</span></code> function. The default form is <span class="math notranslate nohighlight">\(\Upsilon \propto T^p \phi^c\)</span> .</p></li>
+</ol>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">Ups_wo_Cy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">p</span><span class="p">,</span><span class="n">c</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="kt">double</span><span class="w"> </span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">//Form of Upsilon without the constant</span>
+<span class="w">         </span><span class="k">return</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span><span class="n">c</span><span class="p">);</span>
+<span class="w">     </span><span class="p">};</span>
+</pre></div>
+</div>
+<p>The constant <code class="docutils literal notranslate"><span class="pre">Cy</span></code> (<span class="math notranslate nohighlight">\(C_{\Upsilon}\)</span>) is internally calculated using <span class="math notranslate nohighlight">\(\Upsilon = 3HQ\)</span>.</p>
+<ol class="arabic simple" start="4">
+<li><p>Finally, also modify the signature of the top-level function <code class="docutils literal notranslate"><span class="pre">model</span></code> to include your model parameters with their data types.</p></li>
+</ol>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi_ini</span><span class="p">,</span><span class="kt">double</span><span class="w"> </span><span class="n">Q_ini</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">gst</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">hybrid_inf</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Generally, you can keep all the parameters (<code class="docutils literal notranslate"><span class="pre">phi_ini</span></code>, <code class="docutils literal notranslate"><span class="pre">Q_ini</span></code>, <code class="docutils literal notranslate"><span class="pre">gst</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code>, <code class="docutils literal notranslate"><span class="pre">hybrid_inf</span></code>) and add the other model parameters specific to your use case.</p>
+<p>Apart from these functions, no other function needs to be modified for WI model definition. Once done with the modification make sure to run the compilation script again.</p>
+</section>
+<section id="pert-submodule">
+<h2><code class="docutils literal notranslate"><span class="pre">pert</span></code> submodule<a class="headerlink" href="#pert-submodule" title="Link to this heading">¶</a></h2>
+<p>This submodule performs the perturbation calculations for WI using the stochastic formalism. It is primarily used to calculate the growth function <span class="math notranslate nohighlight">\(G(Q)\)</span> using the python helper script <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code>. The directory structure of this submodule is similar to the <code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule with code files having exactly the same name. <code class="docutils literal notranslate"><span class="pre">Bg.cpp</span></code> contains functions to integrate the stochastic differential equations and finally compute <span class="math notranslate nohighlight">\(G(Q)\)</span>. <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> is where the model has to be specified again so that the perturbation module uses the correct model for calculations.</p>
+<p>The set-up procedure is similar to <code class="docutils literal notranslate"><span class="pre">bg</span></code> module:</p>
+<ol class="arabic simple">
+<li><p>Specify the model potential and its derivative in the functions <code class="docutils literal notranslate"><span class="pre">V</span></code> and <code class="docutils literal notranslate"><span class="pre">Vd</span></code>.</p></li>
+<li><p>Additionally, also specify the second derivative of the potential in <code class="docutils literal notranslate"><span class="pre">Vdd</span></code>.</p></li>
+</ol>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">Vdd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="k">return</span><span class="w"> </span><span class="n">m</span><span class="o">*</span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="c1">//V&#39;&#39; = m^2</span>
+<span class="w">     </span><span class="p">};</span>
+</pre></div>
+</div>
+<p>The second derivative of the potential is required for the perturbation equations.</p>
+<ol class="arabic simple" start="3">
+<li><p>If the model <span class="math notranslate nohighlight">\(\Upsilon\)</span> differs from the default form of the code, modify the <code class="docutils literal notranslate"><span class="pre">Ups_wo_Cy</span></code> function similar to the <code class="docutils literal notranslate"><span class="pre">bg</span></code> module.</p></li>
+<li><p>Skip this step if no modification is done to <span class="math notranslate nohighlight">\(\Upsilon\)</span>. Specify the partial derivatives of <span class="math notranslate nohighlight">\(\Upsilon(\phi,T)\)</span> in the functions <code class="docutils literal notranslate"><span class="pre">pT_Ups</span></code> (temperature derivative) and <code class="docutils literal notranslate"><span class="pre">pph_Ups</span></code> (phi derivative).</p></li>
+</ol>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">pT_Ups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">Cy</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">c</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="k">return</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Cy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">p</span><span class="mf">-1.0</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span><span class="n">c</span><span class="p">);</span>
+<span class="w">     </span><span class="p">};</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">pph_Ups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">Cy</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">c</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="k">return</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Cy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span><span class="n">c</span><span class="mf">-1.0</span><span class="p">);</span>
+<span class="w">     </span><span class="p">};</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Similar to the <code class="docutils literal notranslate"><span class="pre">bg</span></code> module, change the signature of the top-level <code class="docutils literal notranslate"><span class="pre">model</span></code> function to accept the newly added model parameters.</p></li>
+</ol>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi_ini</span><span class="p">,</span><span class="kt">double</span><span class="w"> </span><span class="n">Q_ini</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">gst</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">therm</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">rad_noise</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">hybrid_inf</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Keep the parameters (<code class="docutils literal notranslate"><span class="pre">phi_ini</span></code>, <code class="docutils literal notranslate"><span class="pre">Q_ini</span></code>, <code class="docutils literal notranslate"><span class="pre">gst</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code>, <code class="docutils literal notranslate"><span class="pre">therm</span></code>, <code class="docutils literal notranslate"><span class="pre">rad_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">hybrid_inf</span></code>) as it is and add your model parameters with their data types.</p>
+<p>With this the model specification in the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module is done and the code should be re-compiled.</p>
+<p>Now we can move on to compute <span class="math notranslate nohighlight">\(G(Q)\)</span> by using the helper scripts <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> and <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code>. These scripts are a convenient way to interface with the <code class="docutils literal notranslate"><span class="pre">C++</span></code> code and thus is the preferred way of using the module. It it possible to directly interact with the <code class="docutils literal notranslate"><span class="pre">C++</span></code> code by compiling the code with the inclusion of a <code class="docutils literal notranslate"><span class="pre">main</span></code> function in the <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> files and removing the <code class="docutils literal notranslate"><span class="pre">-shared</span></code> and <code class="docutils literal notranslate"><span class="pre">-fPIC</span></code> compilation flags.</p>
+</section>
+<section id="find-ics-py-script">
+<h2><code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script<a class="headerlink" href="#find-ics-py-script" title="Link to this heading">¶</a></h2>
+<p>The main function of this script is to generate initial values of <span class="math notranslate nohighlight">\(\phi_i\)</span> such that the duration of inflation is equal to the required number of e-folds specified by <code class="docutils literal notranslate"><span class="pre">dur_N</span></code> parameter. The python script sets the global parameter values and repeatedly calls the compiled <code class="docutils literal notranslate"><span class="pre">C++</span></code> library from the <code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule for different <span class="math notranslate nohighlight">\(Q\)</span> values. Finally the computed values of <span class="math notranslate nohighlight">\(\phi_i\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> are stored in a file which can then be used by the <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> script.</p>
+<p>To use the helper script:</p>
+<ol class="arabic">
+<li><p>Specify the model parameters at the top level in the script.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="m">
+<span class="sig-name descname"><span class="pre">m</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-6</span></em><a class="headerlink" href="#m" title="Link to this definition">¶</a></dt>
+<dd><p>Potential parameter</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="gst">
+<span class="sig-name descname"><span class="pre">gst</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">106.75</span></em><a class="headerlink" href="#gst" title="Link to this definition">¶</a></dt>
+<dd><p>Relativistic degrees of freedom (<span class="math notranslate nohighlight">\(g_*\)</span>)</p>
+</dd></dl>
+
+</li>
+<li><p>Specify the <span class="math notranslate nohighlight">\(\Upsilon\)</span> parameters.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="p">
+<span class="sig-name descname"><span class="pre">p</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#p" title="Link to this definition">¶</a></dt>
+<dd><p><span class="math notranslate nohighlight">\(T^p\)</span></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="c">
+<span class="sig-name descname"><span class="pre">c</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-2</span></em><a class="headerlink" href="#c" title="Link to this definition">¶</a></dt>
+<dd><p><span class="math notranslate nohighlight">\(\phi^c\)</span></p>
+</dd></dl>
+
+</li>
+<li><p>If working with hybrid inflation, set these two parameters.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="hybrid_inf">
+<span class="sig-name descname"><span class="pre">hybrid_inf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em><a class="headerlink" href="#hybrid_inf" title="Link to this definition">¶</a></dt>
+<dd><p>Parameter indicating inflation type. Can be either <code class="docutils literal notranslate"><span class="pre">0</span></code> (disabled) or <code class="docutils literal notranslate"><span class="pre">1</span></code> (enabled).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ph_crit">
+<span class="sig-name descname"><span class="pre">ph_crit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#ph_crit" title="Link to this definition">¶</a></dt>
+<dd><p>Parameter to set the critical value of the field. To be used with <code class="docutils literal notranslate"><span class="pre">hybrid_inf=1</span></code>.</p>
+</dd></dl>
+
+</li>
+<li><p>Finally, set the other code related parameters.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="Qlow">
+<span class="sig-name descname"><span class="pre">Qlow</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-9</span></em><a class="headerlink" href="#Qlow" title="Link to this definition">¶</a></dt>
+<dd><p>Lower limit for the range of <span class="math notranslate nohighlight">\(Q\)</span> values.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="Qup">
+<span class="sig-name descname"><span class="pre">Qup</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e4</span></em><a class="headerlink" href="#Qup" title="Link to this definition">¶</a></dt>
+<dd><p>Upper limit for the range of <span class="math notranslate nohighlight">\(Q\)</span> values.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="npts">
+<span class="sig-name descname"><span class="pre">npts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#npts" title="Link to this definition">¶</a></dt>
+<dd><p>Number of points to be generated between <code class="docutils literal notranslate"><span class="pre">Qlow</span></code> and <code class="docutils literal notranslate"><span class="pre">Qup</span></code>, logarithmically spaced.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dur_N">
+<span class="sig-name descname"><span class="pre">dur_N</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60.0</span></em><a class="headerlink" href="#dur_N" title="Link to this definition">¶</a></dt>
+<dd><p>Parameter to specify the duration of inflation in e-folds.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="Nprocs">
+<span class="sig-name descname"><span class="pre">Nprocs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#Nprocs" title="Link to this definition">¶</a></dt>
+<dd><p>Number of CPUs to be used for multiprocessing. To utilize all available CPU resources, set this number to the number of logical processors (threads/core <span class="math notranslate nohighlight">\(\times\)</span> cores) in your system.</p>
+</dd></dl>
+
+</li>
+<li><p>Finding the value of <span class="math notranslate nohighlight">\(\phi\)</span> such that inflation ends at <code class="docutils literal notranslate"><span class="pre">dur_N</span></code> is effectively a minimization problem and a versatile albeit inefficient <code class="docutils literal notranslate"><span class="pre">brute_force</span></code> algorithm is used to achieve this in this code. The algorithm finds a local minima of the objective function specified by the parameters:</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="lower_bound">
+<span class="sig-name descname"><span class="pre">lower_bound</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1.0</span></em><a class="headerlink" href="#lower_bound" title="Link to this definition">¶</a></dt>
+<dd><p>Parameter to specify the lower bound of the input parameter (<span class="math notranslate nohighlight">\(\phi\)</span>) in <span class="math notranslate nohighlight">\(\log_{10}\)</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="upper_bound">
+<span class="sig-name descname"><span class="pre">upper_bound</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#upper_bound" title="Link to this definition">¶</a></dt>
+<dd><p>Parameter to specify the upper bound of the input parameter (<span class="math notranslate nohighlight">\(\phi\)</span>) in <span class="math notranslate nohighlight">\(\log_{10}\)</span>.</p>
+</dd></dl>
+
+</li>
+</ol>
+<blockquote>
+<div><p>As the algorithm evaluates the objective function multiple times, it is an inefficient way to minimize the function. The algorithm used can be replaced by a more efficient algorithm better suited for your use case by modifying this line of the code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">soln</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">brute</span><span class="p">(</span><span class="n">objfn</span><span class="p">,</span><span class="n">ranges</span><span class="o">=</span><span class="n">ranges</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,),</span> <span class="n">Ns</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">Nprocs</span><span class="p">,</span><span class="n">finish</span><span class="o">=</span><span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic" start="6">
+<li><p>Finally, modify the <code class="docutils literal notranslate"><span class="pre">C++</span></code> library definition and also the signature of the function being called from the loaded library.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ffi</span><span class="o">.</span><span class="n">cdef</span><span class="p">(</span><span class="s2">&quot;void model (double phi_ini,double Q_ini, double gst, double m,int p, int c, int hybrid_inf);void clear_Nend();extern double Nend;void set_phi_crit (double x);&quot;</span><span class="p">,</span><span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The command above specifies the functions (and their signatures) that are to be loaded from the <code class="docutils literal notranslate"><span class="pre">C++</span></code> shared library of the <code class="docutils literal notranslate"><span class="pre">bg</span></code> module. You only need to modify the signature of <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">model</span></code> function to match with the definition in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> of the <code class="docutils literal notranslate"><span class="pre">bg</span></code> module.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lib</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">phi0</span><span class="p">,</span> <span class="n">Q0</span><span class="p">,</span> <span class="n">gst</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span><span class="n">hybrid_inf</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is where we pass the python parameter values to the shared library and hence should match the signature of <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">model</span></code> exactly. The name of the python variables can be different from the <code class="docutils literal notranslate"><span class="pre">C++</span></code> variable names but the logical quantity held by these parameters should match. For instance, <code class="docutils literal notranslate"><span class="pre">phi0</span> <span class="pre">=</span> <span class="pre">phi_ini</span></code>.</p>
+</li>
+</ol>
+<p>Now the helper script is ready to compute the initial conditions. Run the command <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">find_ICs.py</span></code> in the conda environment setup during the installation stage. The script will create a file <code class="docutils literal notranslate"><span class="pre">ics.dat</span></code> in the same directory with the format: <code class="docutils literal notranslate"><span class="pre">phi_initial</span></code>, <code class="docutils literal notranslate"><span class="pre">Q_initial</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the helper script is re-run, the new computation results will keep on appending to the same <code class="docutils literal notranslate"><span class="pre">ics.dat</span></code> file.</p>
+</div>
+</section>
+<section id="find-gq-py-script">
+<h2><code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> script<a class="headerlink" href="#find-gq-py-script" title="Link to this heading">¶</a></h2>
+<p>This script computes the growth function <span class="math notranslate nohighlight">\(G(Q)\)</span> utilizing the initial conditions calculated by the <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script in the previous step. The shared <code class="docutils literal notranslate"><span class="pre">C++</span></code> library of the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module is repeatedly called for each pair of initial conditions in the <code class="docutils literal notranslate"><span class="pre">ics.dat</span></code> file. The <code class="docutils literal notranslate"><span class="pre">pert</span></code> shared library will internally calculate both the numerical scalar power spectrum and analytical power spectrum and finally save the ratio of the two in a file <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code>.</p>
+<p>The usage of the helper script is similar to the <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script with a few additional parameters:</p>
+<ol class="arabic">
+<li><p>Specify the model and <span class="math notranslate nohighlight">\(\Upsilon\)</span> parameters as before in <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script.</p></li>
+<li><p>Include the parameters for hybrid inflation if required.</p></li>
+<li><p>Set the other parameters:</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="therm">
+<span class="sig-name descname"><span class="pre">therm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em><a class="headerlink" href="#therm" title="Link to this definition">¶</a></dt>
+<dd><p>Parameter indicating the state of thermalization of inflaton with the radiation bath. <code class="docutils literal notranslate"><span class="pre">0</span></code> for no thermalization and <code class="docutils literal notranslate"><span class="pre">1</span></code> inflaton is thermalized and we assume a Bose-Einstein distribution.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="rad_noise">
+<span class="sig-name descname"><span class="pre">rad_noise</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em><a class="headerlink" href="#rad_noise" title="Link to this definition">¶</a></dt>
+<dd><p>Set to <code class="docutils literal notranslate"><span class="pre">1</span></code> to include the thermal noise term in the radiation perturbation equation and <code class="docutils literal notranslate"><span class="pre">0</span></code> to not.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="Nrealz">
+<span class="sig-name descname"><span class="pre">Nrealz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1024</span></em><a class="headerlink" href="#Nrealz" title="Link to this definition">¶</a></dt>
+<dd><p>Parameter that sets the number of realiazations of the stochastic noise term to average over. Higher values will increase computation time.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="Nstar">
+<span class="sig-name descname"><span class="pre">Nstar</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7.0</span></em><a class="headerlink" href="#Nstar" title="Link to this definition">¶</a></dt>
+<dd><p>Parameter that sets the e-folding value at which the power spectrum should be computed. It should be set in a way such that the mode under study should have enough e-folds before to initialize and after to freeze.</p>
+</dd></dl>
+
+</li>
+<li><p>Like before, modify the <code class="docutils literal notranslate"><span class="pre">C++</span></code> library definition and also the signature of the function being called from the loaded library.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ffi</span><span class="o">.</span><span class="n">cdef</span><span class="p">(</span><span class="s2">&quot;void model (double phi_ini,double Q_ini, double gst, double m, int p, int c, int therm, int rad_noise,int hybrid_inf);void clear_vars();void set_phi_crit (double x);extern double Nend;extern double GQ_val;extern double Q_val; void set_globals (int N_realizations, double Nstar, int verbosity);&quot;</span><span class="p">,</span><span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You only need to modify the signature of <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">model</span></code> function to match with the definition in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> of the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lib_pert</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">gst</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">therm</span><span class="p">,</span><span class="n">rad_noise</span><span class="p">,</span><span class="n">hybrid_inf</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">j</span></code> are dummy variables looping over the pair of <span class="math notranslate nohighlight">\(\phi\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> values from <code class="docutils literal notranslate"><span class="pre">ics.dat</span></code>.</p>
+</li>
+</ol>
+<p>Now the helper script can be run using the command <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">find_GQ.py</span></code> in the conda environment setup during the installation stage. The script will create a file <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code> in the same directory with the format: <span class="math notranslate nohighlight">\(Q_*\)</span>, <span class="math notranslate nohighlight">\(G(Q_*)\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>If the helper script is re-run, the new computation results will keep on appending to the same <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code> file.</p></li>
+<li><p>The multiprocessing method in the <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> script is different from <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code>. In the <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> case, multiprocessing is implemented in the <code class="docutils literal notranslate"><span class="pre">C++</span></code> library itself using <code class="docutils literal notranslate"><span class="pre">OpenMP</span></code> and by default it uses all the available CPUs in the system. To change the number of CPUs available to <code class="docutils literal notranslate"><span class="pre">OpenMP</span></code> you can update the flag:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">12</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div></blockquote>
+<p>This change is temporary and is only valid untill the current shell is closed.</p>
+</div>
+</section>
+<section id="gq-plotting-nb-ipynb-notebook">
+<h2><code class="docutils literal notranslate"><span class="pre">GQ_Plotting_NB.ipynb</span></code> notebook<a class="headerlink" href="#gq-plotting-nb-ipynb-notebook" title="Link to this heading">¶</a></h2>
+<p>This is <code class="docutils literal notranslate"><span class="pre">Jupyter</span></code> notebook that includes codes to visualize the computation of the <code class="docutils literal notranslate"><span class="pre">GQ_Calculator</span></code>. It is optional to use this notebook and you can use your own preferred plotting facilities. However, it has an important code-block that smooths the raw output of the <code class="docutils literal notranslate"><span class="pre">GQ_Calculator</span></code>. This is important if you wish to use the computed <span class="math notranslate nohighlight">\(G(Q)\)</span> in the semi-analytical approach to compute the WI power-spectrum. <code class="docutils literal notranslate"><span class="pre">SWIM</span></code> provides another submodule <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code> that implements this approach, can read an external <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code> file and perform statistical analysis using <code class="docutils literal notranslate"><span class="pre">Cobaya</span></code> and recent cosmological likelihoods. It is important to smooth the raw output before using it in the <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code> module.</p>
+<p>The usage of the <code class="docutils literal notranslate"><span class="pre">Jupyter</span></code> notebook is mostly self-explanatory,</p>
+<ol class="arabic simple">
+<li><p>The notebook loads the raw output <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code> and then plots it.</p></li>
+<li><p>In the next step smoothing is done using <code class="docutils literal notranslate"><span class="pre">UnivariateSpline</span></code> in log scale and then plots both the raw and smooth output to compare. Here, the parameter <cite>s</cite> can be tuned to achieve varying degree of smoothness. For more information on <code class="docutils literal notranslate"><span class="pre">s</span></code> and other paramters of <code class="docutils literal notranslate"><span class="pre">UnivariateSpline</span></code> visit <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.UnivariateSpline.html">here</a>.</p></li>
+<li><p>The notebook also provides a code to compare the derivatives of raw and smooth <span class="math notranslate nohighlight">\(G(Q)\)</span>. It can be used as a visual tool to check the smoothing effect of the previous step.</p></li>
+<li><p>Once you are satisfied with the smoothing of the raw data, the final code block can be run to save the smoothed data to a file <code class="docutils literal notranslate"><span class="pre">GQ_smooth.dat</span></code>. This file can then be used by the <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code>.</p></li>
+</ol>
+</section>
+<section id="optional-functionality">
+<h2>Optional functionality<a class="headerlink" href="#optional-functionality" title="Link to this heading">¶</a></h2>
+<p>In the <code class="docutils literal notranslate"><span class="pre">Bg.cpp</span></code> file of the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module a commented out version of the analytical power spectrum can be found that doesn’t drop the slow-roll parameters <span class="math notranslate nohighlight">\(\eta_V\)</span> and <span class="math notranslate nohighlight">\(\beta_V\)</span>. The implementation in the code directly follows from <a class="reference external" href="https://inspirehep.net/literature/1219309">R.O.Ramos and L.A. da Silva</a>.</p>
+<p>To use this form of the analytical power spectrum just comment out the other implementation and uncomment:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">Pp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">Nask</span><span class="p">,</span><span class="n">phiasN</span><span class="p">,</span><span class="n">phpasN</span><span class="p">,</span><span class="n">TasN</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="n">Q</span><span class="p">,</span><span class="n">therm</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Vd</span><span class="p">,</span><span class="n">Vdd</span><span class="p">,</span><span class="n">Ups</span><span class="p">,</span><span class="n">pph_Ups</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">SWIM</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure of SWIM</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><span class="math notranslate nohighlight">\(G(Q)\)</span> Calculator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#bg-submodule"><code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pert-submodule"><code class="docutils literal notranslate"><span class="pre">pert</span></code> submodule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find-ics-py-script"><code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find-gq-py-script"><code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gq-plotting-nb-ipynb-notebook"><code class="docutils literal notranslate"><span class="pre">GQ_Plotting_NB.ipynb</span></code> notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-functionality">Optional functionality</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="general_structure.html" title="previous chapter">General Structure of SWIM</a></li>
+      <li>Next: <a href="SA_PS_calculator.html" title="next chapter"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Umang Kumar.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/GQ_calculator.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

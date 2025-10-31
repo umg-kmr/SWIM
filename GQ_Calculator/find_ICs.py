@@ -10,10 +10,14 @@ gst = 121.62
 alph = 9.22
 V0 = (5.45e38)/((2.44e18)**4.0)
 n = 2.0
+
+#Upsilon parameters
 p = int(3)
 c = int(0)
+
 hybrid_inf = int(0)
 #ph_crit = M/g
+
 #Q range:
 Qlow = 1e-55
 Qup = 5e4
@@ -25,13 +29,16 @@ Nprocs = 24
 #provide a range of values where you expect the phi_initial to be around. For small-field models one can reduce the upper_bound. The bounds are in log10.
 lower_bound = -20.0
 upper_bound = 1.0
+
 ranges = ((lower_bound, upper_bound),)
 
 Qs = np.logspace(np.log10(Qlow),np.log10(Qup),npts)
 
 # def pll_comp(i):
 
+#Modify this according to the model_calc.cpp "model" function signature
 ffi.cdef("void model (double phi_ini,double Q_ini, double gst, double V0, double alph, double n,int p, int c, int hybrid_inf);void clear_Nend();extern double Nend;void set_phi_crit (double x);",override=True)
+
 lib = ffi.dlopen("./bg/libbg.so")
 
 #For hybrid inflation
@@ -40,7 +47,7 @@ if hybrid_inf==1:
 
 def objfn(x,Q0):
     phi0 = 10**x[0]
-    lib.model(phi0, Q0, gst, V0, alph, n, p, c,hybrid_inf)
+    lib.model(phi0, Q0, gst, V0, alph, n, p, c,hybrid_inf) #Modify to match the signature of the C++ library
     Nend = lib.Nend
     lib.clear_Nend()
     return np.abs(Nend-dur_N)

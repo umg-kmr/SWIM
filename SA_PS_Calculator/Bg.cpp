@@ -83,18 +83,24 @@ void bg_solver (const function<double(double)> &V,const function<double(double)>
 
     double Npp = 0.0; //Npivot dummy variable
    
-    auto gen_klist = [klow,kup,npts] (vector <double> &klist) -> void {
+    //Generates the klist when called
+    auto gen_klist = [kup,klow,npts] (vector <double> &klist) -> void {
         vector <double> temp;
         double step = (kup-klow)/(npts-1.0);
-        for (double i=klow; i<=kup; i+=step) {
-            temp.push_back(i);
+        double kint = klow;
+
+        //Loop from klow to kup in step size calculated above
+        for (int i=0; i<npts; i++) {
+            temp.push_back(kint);
+            kint+=step;
         }
 
         //Raise to power of 10
-        for (unsigned long k = 0; k<temp.size(); k++) {
-            klist.push_back(pow(10.0,temp[k]));
+        for (int k = 0; k<npts; k++) {
+            klist.push_back(exp10(temp[k]));
         }
     };
+
       
     //Generates the klist between, 10^kup and k^low of size npts
     gen_klist(klist);

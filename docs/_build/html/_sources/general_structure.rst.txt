@@ -22,7 +22,7 @@ This submodule contains all the functionality required to compute the growth fun
 Numerical Power Spectrum Calculator
 ___________________________________
 
-Labelled as ``PS_Calculator`` in the code.
+Labelled as ``PS_Calculator`` in the code. It is the heart of SWIM as it directly computes the WI power spectrum numerically using a Stochastic-Langevin approach (similar to ``WarmSpy``). This submodule can be run independently of all the other submodules within SWIM, as the power spectrum is directly calculated as a function of the comoving wavenumber :math:`k`.  
 
 
 

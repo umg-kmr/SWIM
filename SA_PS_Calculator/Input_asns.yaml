@@ -1,5 +1,7 @@
+#import the likelihood function from llihood.py
 likelihood:
   stb: import_module('llihood').logp
+  
 params:
   p:
     value: 3
@@ -65,19 +67,19 @@ params:
     value: 1.0
     latex: N_P
 sampler:
-  minimize:
-    method: iminuit
-    ignore_prior: True
-    best_of: 8
-    override_bobyqa:
-      rhoend: 1e-8 
-  #mcmc:
-  #  drag: false
-  #  oversample_power: 0.4
-  #  proposal_scale: 1.9
-  #  covmat: logpot.covmat 
-  #  Rminus1_stop: 0.01
-  #  Rminus1_cl_stop: 0.2
-  #  max_tries: 100000d 
+  #minimize:
+  #  method: iminuit
+  #  ignore_prior: True
+  #  best_of: 8
+  #  override_bobyqa:
+  #    rhoend: 1e-8 
+  mcmc:
+    drag: false
+    oversample_power: 0.4
+    proposal_scale: 1.9
+    #covmat: exp.covmat 
+    Rminus1_stop: 0.01
+    Rminus1_cl_stop: 0.2
+    max_tries: 100000d 
 resume: True
-output: chains_gst/logpot 
+output: chains/exp 

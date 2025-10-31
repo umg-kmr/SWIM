@@ -19,8 +19,8 @@ yerr = np.array([0.011,0.0030])
 kp = 0.05 #pivot scale in Mpc^-1
 em_step = 1e-3 #step-size for SDE solver
 Nrealz = int(2400) #number of realizations over which to average, higher number leads to more compute time
-kmax = np.log10(kp+0.01) #in log10 -> actual kmax used internally is 10^kmax
-kmin = np.log10(kp-0.01) #in log10
+kmax = np.log10(kp+0.1) #in log10 -> actual kmax used internally is 10^kmax
+kmin = np.log10(kp-0.1) #in log10
 points_k = int(10) #number of points to be calculated between the k values specified
 Np_autocalc = int(1) # can be set to either 1 (for internal automatic calculation of N_pivot) or 0 (specify an N_pivot value) | in both cases a value for the Np parameter needs to be passed.
 verbosity = int(1) #can be set to either 1 or 0, when set to 1 the error messages will be printed if encountered any.
@@ -39,16 +39,17 @@ rad_noise = int(0)
 n = 2.0
 
 ffi.cdef("void model (double phi_ini,double gst,double V0, double alph, double n,double Cy,double Np,int p,int c,int therm,int rad_noise);void set_globals (double kpivot, double Em_h, int N_realizations, double kmax, double kmin, int points_bw_k, int Np_calc, int verbosity);int get_npts ();double* get_klist();double* get_Plist();void clear_P();void clear_k();void write_Bg(const char* fname);",override=True)
-lib_pert.set_globals(kp,em_step,Nrealz,kmax,kmin,points_k,Np_autocalc,verbosity)
+
 
 def logp(x):
     gst = 10**x[0]
-    alph = 10**[1]
-    V0 = 10**[2]
+    alph = 10**x[1]
+    V0 = 10**x[2]
     Cy = 10**x[3]
     phi0 = (( 1.05*(n-1)/(n*alph) )**(1/n))
     
     lib_pert = ffi.dlopen("../libmodel.so")
+    lib_pert.set_globals(kp,em_step,Nrealz,kmax,kmin,points_k,Np_autocalc,verbosity)
     try:
         lib_pert.model(phi0,gst,V0,alph,n,Cy,Np,p,c,therm,rad_noise)
         npts = lib_pert.get_npts()
@@ -72,7 +73,7 @@ def logp(x):
         log_lik = -0.5* np.sum(np.log(2*np.pi*sigma2) + (((y-model_fin)**2)/(sigma2)))
         nve_log_lik = -log_lik #Maximize log-likelihood
         
-        return negtve_log_lik
+        return nve_log_lik
         
     except:
         return np.inf
@@ -86,9 +87,14 @@ local_minimizer = {
     "method": "L-BFGS-B"}
     
         
-def callback(intermediate_result):
-    print("Current x:", intermediate_result.x)
-    print("Current f(x):", intermediate_result.fun)
+#def callback(intermediate_result):
+#    print("Current x:", intermediate_result.x)
+#    print("Current f(x):", intermediate_result.fun)
+def callback(x, f, accepted):
+    print("Current x:", x)
+    print("Current f(x):", f)
+    print("Step accepted:", accepted)
+
 
 x0 = [2.1,0.8,-34.0,14.0]#initial guess in log10 #gst,alph,V0,Cy
 soln = basinhopping(func=logp,x0=x0,minimizer_kwargs=local_minimizer,niter=100,callback=callback,disp=True)

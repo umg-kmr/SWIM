@@ -51,12 +51,12 @@ params:
     value: 2.0
   logalph:
     prior:
-      min: -20.0
-      max: 2.0
-        #ref:
-        #dist: norm
-        #loc: -2.09785
-        #scale: 0.563678
+      min: 0.5
+      max: 1.0
+    ref:
+      dist: norm
+      loc: 0.690652
+      scale: 0.0764086
     latex: \log_{10} \alpha
   alph:
     value: 'lambda logalph: 10**logalph'
@@ -66,12 +66,12 @@ params:
     latex: \phi_0
   loggst:
     prior:
-      min: 0.0
-      max: 3.0
-        #ref:
-        #dist: norm
-        #loc: 1.76745
-        #scale: 0.637099
+      min: 0.6
+      max: 3.2
+    ref:
+      dist: norm
+      loc: 2.24369
+      scale: 0.513174
     latex: \log_{10} g_*
   gst:
     #value: 106.75
@@ -79,24 +79,24 @@ params:
     latex: g_*
   logV0:
     prior:
-      min: -80.0
-      max: -1.0
-        #ref:
-        #dist: norm
-        #loc: 0.00290979
-        #scale: 0.0126343
+      min: -36.0
+      max: -30.5
+    ref:
+      dist: norm
+      loc: -32.9325
+      scale: 1.01441
     latex: \log_{10} V_0
   V0:
     value: 'lambda logV0: 10**logV0'
     latex: V_0
   logCy:
     prior:
-      min: -60.0
-      max: 60.0
-        #ref:
-        #dist: norm
-        #loc: 14.4801
-        #scale: 0.234177
+      min: 12.8
+      max: 15.5
+    ref:
+      dist: norm
+      loc: 13.9389
+      scale: 0.483614
     latex: \log_{10} C_{\Upsilon}
   Cy:
     value: 'lambda logCy: 10**logCy'
@@ -188,9 +188,8 @@ params:
 sampler:
   mcmc:
    drag: true
-   oversample_power: 0.4
-   proposal_scale: 1.9
-   #covmat: logpot_full.covmat
+   burn_in: 200d
+   covmat: c.covmat
    Rminus1_stop: 0.01
    Rminus1_cl_stop: 0.2
    max_tries: 100000d
