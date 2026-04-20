@@ -50,3 +50,24 @@ tar -xvf boost_*.tar.bz2
 
 After extraction, ensure that the Boost library paths are correctly specified in the `compile_SWIM.sh` script.
 
+### Multiprocessing support
+
+SWIM supports parallel computation using OpenMP and MPI (useful for Cobaya).
+
+Install the required packages using `conda`:
+
+```bash
+conda install -c conda-forge openmp openmpi 
+```
+
+### Install Cobaya (Optional)
+
+SWIM can interface with `Cobaya` for Bayesian analysis and parameter inference. While not required for basic functionality, installing Cobaya is recommended for performing parameter estimation.
+
+Follow the official installation guide:
+
+https://cobaya.readthedocs.io/en/latest/installation.html
+
+All dependencies required by Cobaya should be installed within the same `conda` environment created for SWIM.
+
+
