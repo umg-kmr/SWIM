@@ -106,8 +106,6 @@ $$
 
 ### $G(Q)$ Calculator
 
-### $G(Q)$ Calculator
-
 To compute the $G(Q)$ correction factor, use this module.
 
 Navigate to the directory:
@@ -138,16 +136,6 @@ Next, run the script to compute the $G(Q)$ correction factor:
 python -u find_GQ.py
 ```
 
-After completion, the output will be saved in the file `GQ.dat`.
+After completion, the output will be saved in the file `GQ.dat`. The computed $G(Q)$ can be visualized using the Jupyter notebook:`GQ_Plotting_NB.ipynb`
 
-The computed $G(Q)$ can be visualized using the Jupyter notebook:
-
-```
-GQ_Plotting_NB.ipynb
-```
-
-The notebook also includes utilities to smooth the raw output and save it as:
-
-```
-GQ_smooth.dat
-```
+The notebook also includes utilities to smooth the raw output and save it as `GQ_smooth.dat`.
