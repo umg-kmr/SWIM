@@ -1,0 +1,75 @@
+#import the likelihood function from llihood.py
+likelihood:
+  stb: import_module('llihood_RF').logp
+  
+params:
+  logphi0:
+    prior:
+      min: -0.5
+      max: 1.4
+    ref:
+      dist: norm
+      loc: 0.664668
+      scale: 0.01
+    latex: \log_{10} \phi_0
+  phi0:
+    value: 'lambda logphi0: 10**logphi0'
+    latex: \phi_0
+  loggst:
+    prior:
+      min: 0.1
+      max: 3.0
+    ref:
+      dist: norm
+      loc: 1.07943
+      scale: 0.1
+    latex: \log_{10} g_*
+  gst:
+    #value: 106.75
+    value: 'lambda loggst: 10**loggst'
+    latex: g_*
+  logV0:
+    prior:
+      min: -30.0
+      max: -9.0
+    ref:
+      dist: norm
+      loc: -12.8956
+      scale: 0.1
+    latex: \log_{10} V_0
+  V0:
+    value: 'lambda logV0: 10**logV0'
+    latex: V_0
+  logQ0:
+    prior:
+      min: -3.0
+      max: 3.5
+    ref:
+      dist: norm
+      loc: 0.874174
+      scale: 0.05
+        #ref:
+        #dist: norm
+        #loc: 14.4801
+        #scale: 0.234177
+    latex: \log_{10} Q_{0}
+  Q0:
+    value: 'lambda logQ0: 10**logQ0'
+    latex: Q_{0}
+sampler:
+  #minimize:
+  #  method: iminuit
+  #  ignore_prior: True
+  #  best_of: 8
+  #  override_bobyqa:
+  #    rhoend: 1e-8 
+  mcmc:
+    drag: false
+    oversample_power: 0.4
+    proposal_scale: 1.9
+    covmat: Quad_EFT.covmat 
+    Rminus1_stop: 0.01
+    Rminus1_cl_stop: 0.2
+    max_tries: 100000d 
+resume: True
+output: chains_RF/Quad_EFT_RF

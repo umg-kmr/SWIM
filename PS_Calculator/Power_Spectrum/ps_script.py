@@ -4,7 +4,7 @@ ffi = FFI()
 
 #set globals
 kp = 0.05 #pivot scale in Mpc^-1
-em_step = 1e-3 #step-size for SDE solver
+em_step = 1e-5 #step-size for SDE solver after Q > 10^4
 Nrealz = int(2400) #number of realizations over which to average, higher number leads to more compute time
 kmax = 2.0 #in log10 -> actual kmax used internally is 10^kmax
 kmin = -6.0 #in log10

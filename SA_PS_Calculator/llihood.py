@@ -16,7 +16,7 @@ kp = 0.05
 kmax = 100.0
 kmin = 1e-6
 
-ffi.cdef("void model (double phi_ini,double gst,double alph, double n,double Cy,double V0,double Np,int c,int p,int therm);extern int npts; double* get_Plist(); double* get_klist(); void clear_P(); void clear_k();void set_globals (double kpivot, double kmax, double kmin, int Np_calc, int verbosity,int full_spectrum, int GQ_dat_file);",override=True)
+ffi.cdef("void model (double phi_ini,double gst,double alph, double n,double Cy,double V0,double Np,int c,int p,int therm);extern int npts; extern double As_val; extern double ns_val; double* get_Plist(); double* get_klist(); void clear_P(); void clear_k();void set_globals (double kpivot, double kmax, double kmin, int Np_calc, int verbosity,int full_spectrum, int GQ_dat_file);",override=True)
 
 lib = ffi.dlopen("./libmodel.so")
 lib.set_globals(kp, kmax, kmin, Np_autocalc, verbosity,want_full_spectrum, read_GQ_from_file) #sets global variables within C++ code

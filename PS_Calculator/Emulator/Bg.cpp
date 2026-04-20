@@ -32,12 +32,14 @@ vector <double> php_glob_array;
 vector <double> T_glob_array;
 
 double Nend = 0.0;
-double tend = 1000.0; //Upper limit of Bg integration
+double tend = 200.0; //Upper limit of Bg integration
 double maxiter_bg = 1e6; //Upper limit on the background integration iterations
 uintmax_t max_iter = 1000000; //upper limit for root finding algorithm
 double Nreh = 0.0;
 double atol_bg = 1e-14; //Sets absolute tolerance for all the integrators
 double rtol_bg = 1e-12; //Sets relative tolerance for all the integrators
+
+double PT_kp = 0.0;
 
 //Function to terminate root finding algorithm with some epsilon.
 struct root_stop  {
@@ -306,6 +308,33 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         Plist.assign(npts,1);
         return;
     }
+
+     //Constrain duration of Inflation
+    try {
+        if ( ((Nend-Npp) < 7.0) || (Npp<10.0)  )   {
+            if (verbose == 1) {
+                cout<<"Duration of Inflation less than 7.0"<<endl;
+            }
+            return;
+        }
+    }
+    catch (const exception& e) {
+        return;
+    }
+
+    //Check for T/H>1 
+    /*try {
+        if ( (TasN(Npp) / ( H(phiasN(Npp),phpasN(Npp),TasN(Npp)) )) <= 1.0 ) {
+            return;
+        }
+    }
+    catch (const exception& e) {
+        if (verbose==1) {
+                cout<<"T<=H, not warm inflation. Exiting."<<endl;
+        }
+        Plist.assign(npts,1);
+        return;
+    }*/
 
     //Checks for smooth transition to RD.
     /*if ( (want_Np_autocalc == 1) && (log10(V(phiasN(Nend))) - log10(Cr*pow(TasN(Nend),4.0))>0.1) ) {
@@ -747,6 +776,17 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         Plist.assign(npts,1);
         return;
     }
+
+     auto PT = [phiasN,phpasN,TasN,H] (double NN) -> double {
+        double phin = phiasN(NN);
+        double phpn = phpasN(NN);
+        double Tn = TasN(NN);
+        double Hn = H(phin,phpn,Tn);
+        return (2.0*pow(Hn,2.0))/pow(M_PI,2.0);
+    };
+
+    PT_kp = PT(Npp); //Calculate the amplitude of tensor power spectrum at kp
+
 }
 
 

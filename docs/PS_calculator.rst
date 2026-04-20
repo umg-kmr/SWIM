@@ -1,0 +1,83 @@
+``PS`` Calculator
+==================
+
+The numerical power spectrum calculator forms the core functionality of ``SWIM``. This module has the functionality to generate the full power-spectrum for any WI model by numerically solving the full-set of perturbation equations. It is based on the stochastic formalism and needs to average over multiple realizations to compute the power spectrum. For Fokker-Planck implementation check `WI2Easy <https://github.com/RudneiRamos/WI2easy>`_ .
+
+Similar to the other modules of ``SWIM`` the WI model has to be specified in the ``model_calc.cpp`` file and the code should be recompiled after making the changes.
+
+``ps_script``
+______________
+
+The sub-directory ``Power_Spectrum`` contains a helper script ``ps_script.py`` to interface with the ``C++`` code.
+
+Script parameters:
+
+.. data:: em_step
+      :type: double
+      :value: 1e-5
+ 
+      The SDE solver within the code tunes the step-size depending on the value of :math:`Q`. This parameter sets the step-size to be used when :math:`Q>10^4` .
+      
+.. data:: Nrealz
+      :noindex:
+      :type: int
+      :value: 1024
+      
+      Parameter that sets the number of realiazations of the stochastic noise term to average over.
+      
+.. data:: kmin
+      :noindex:
+      :type: double
+      :value: -6.0
+      
+      Parameter that sets the lower bound of :math:`k` values in :math:`\log_{10}`.
+      
+.. data:: kmax
+      :noindex:
+      :type: double
+      :value: 2.0
+      
+      Parameter that sets the upper bound of :math:`k` values in :math:`\log_{10}`.
+      
+.. data:: points_k
+      :type: int
+      :value: 48
+      
+      Number of points to generate between ``kmin`` and ``kmax``.
+      
+.. data:: Np_autocalc
+      :noindex:
+      :type: int
+      :value: 0 or 1
+ 
+      Parameter that tells the code whether to automatically calculate (``1``) the pivot scale exit or not (``0``). If you set it to ``0`` then you will have to supply a value of ``Np`` (e-folds at pivot scale exit) in the ``.yaml`` file.
+      
+.. data:: write_bg
+      :type: boolean
+      :value: True
+      
+      Set to True if you wish to save the background computations in a file.
+      
+.. data:: fname_bg
+      :type: string
+      :value: "bg.dat"
+      
+      Set the filename for saving the background computations. Requires ``write_bg=True`` to work.
+      
+.. data:: fname_ps
+      :type: string
+      :value: "ps.dat"
+      
+      Set the filename for saving the power-spectrum computations. 
+      
+      
+The model parameters follow the same logic and naming scheme as ``GQ_Calculator``. The only difference being the parameter ``Np`` which is different from ``Nstar`` parameter. If ``Np_autocalc=1`` then ``Np`` could be set to any value as it will anyway be internally calculated. On the other hand, if ``Np_autocalc=0`` then the code will use the value set in ``Np`` as the pivot scale exit. Note that in ``SWIM`` all background integrations starts at ``N=0`` and ends at ``Nend`` where :math:`\epsilon_H=1`.
+
+Similar to ``SA_PS_Calculator`` you need to supply :math:`C_{\Upsilon}` as :math:`Q_{\text{initial}}` is the quantity that is internally calculated. This behaviour can be modified, refer to ``SA_PS_Calculator`` documentation for more details.
+
+Make sure that the signature of function in ``ffi.cdef(...)`` matches with that in ``model_calc.cpp`` and modify ``lib_pert.model(...)`` to include your model parameters.
+
+``Plotting_NB``
+_______________
+
+``Plotting_NB.ipynb`` is a Jupyter notebook that provides various utilities to load, analyse and visualize the computation of the numerical power spectrum.

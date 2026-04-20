@@ -2,7 +2,6 @@ import numpy as np
 from scipy.optimize import curve_fit
 from scipy.signal import savgol_filter
 from cffi import FFI
-import gc
 ffi = FFI()
 
 kp = 0.05

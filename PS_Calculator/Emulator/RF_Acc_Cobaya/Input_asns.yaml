@@ -1,0 +1,84 @@
+#import the likelihood function from llihood.py
+likelihood:
+  stb: import_module('llihood_Observables').logp
+  
+params:
+  p:
+    value: 1
+  c:
+    value: 0
+  f:
+    value: 0.5
+  therm:
+    value: 0
+  rad_noise:
+    value: 0
+  logphi0:
+    prior:
+      min: -13.0
+      max: -2.0
+    # ref:
+    #   dist: norm
+    #   loc: 0.664668
+    #   scale: 0.01
+    latex: \log_{10} \phi_0
+  phi0:
+    value: 'lambda logphi0: 10**logphi0'
+    latex: \phi_0
+  loggst:
+    prior:
+      min: 0.0
+      max: 4.0
+    # ref:
+    #   dist: norm
+    #   loc: 1.07943
+    #   scale: 0.1
+    latex: \log_{10} g_*
+  gst:
+    #value: 106.75
+    value: 'lambda loggst: 10**loggst'
+    latex: g_*
+  logV0:
+    prior:
+      min: -50.0
+      max: -6.0
+    # ref:
+    #   dist: norm
+    #   loc: -12.8956
+    #   scale: 0.1
+    latex: \log_{10} V_0
+  V0:
+    value: 'lambda logV0: 10**logV0'
+    latex: V_0
+  logQ0:
+    prior:
+      min: -9.0
+      max: 1.2
+    # ref:
+    #   dist: norm
+    #   loc: 0.874174
+    #   scale: 0.05
+    latex: \log_{10} Q_{0}
+  Q0:
+    value: 'lambda logQ0: 10**logQ0'
+    latex: Q_{0}
+  Np:
+    value: 1.0
+    latex: N_P
+sampler:
+  #minimize:
+  #  method: iminuit
+  #  ignore_prior: True
+  #  best_of: 8
+  #  override_bobyqa:
+  #    rhoend: 1e-8 
+  mcmc:
+    drag: false
+    oversample_power: 0.4
+    proposal_scale: 1.9
+    # covmat: Quad_EFT.covmat 
+    Rminus1_stop: 0.01
+    Rminus1_cl_stop: 0.2
+    max_tries: 100000d 
+resume: True
+output: chains/WNI_f05_T_WDR

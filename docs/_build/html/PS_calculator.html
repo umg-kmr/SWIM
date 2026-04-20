@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>PS Calculator &#8212; SWIM 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SA_PS Calculator" href="SA_PS_calculator.html" />
+    <link rel="prev" title="\(G(Q)\) Calculator" href="GQ_calculator.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="ps-calculator">
+<h1><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator<a class="headerlink" href="#ps-calculator" title="Permalink to this heading">¶</a></h1>
+<p>The numerical power spectrum calculator forms the core functionality of <code class="docutils literal notranslate"><span class="pre">SWIM</span></code>. This module has the functionality to generate the full power-spectrum for any WI model by numerically solving the full-set of perturbation equations. It is based on the stochastic formalism and needs to average over multiple realizations to compute the power spectrum. For Fokker-Planck implementation check <a class="reference external" href="https://github.com/RudneiRamos/WI2easy">WI2Easy</a> .</p>
+<p>Similar to the other modules of <code class="docutils literal notranslate"><span class="pre">SWIM</span></code> the WI model has to be specified in the <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> file and the code should be recompiled after making the changes.</p>
+<p>The sub-directory <code class="docutils literal notranslate"><span class="pre">Power_Spectrum</span></code> contains a helper script <code class="docutils literal notranslate"><span class="pre">ps_script.py</span></code> to interface with the <code class="docutils literal notranslate"><span class="pre">C++</span></code> code.</p>
+<p>Script parameters:</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="em_step">
+<span class="sig-name descname"><span class="pre">em_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-5</span></em><a class="headerlink" href="#em_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SDE solver within the code tunes the step-size depending on the value of <span class="math notranslate nohighlight">\(Q\)</span>. This parameter sets the step-size to be used when <span class="math notranslate nohighlight">\(Q&gt;10^4\)</span> .</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">Nrealz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1024</span></em></dt>
+<dd><p>Parameter that sets the number of realiazations of the stochastic noise term to average over.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">kmin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-6.0</span></em></dt>
+<dd><p>Parameter that sets the lower bound of <span class="math notranslate nohighlight">\(k\)</span> values in <span class="math notranslate nohighlight">\(\log_{10}\)</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">kmax</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2.0</span></em></dt>
+<dd><p>Parameter that sets the upper bound of <span class="math notranslate nohighlight">\(k\)</span> values in <span class="math notranslate nohighlight">\(\log_{10}\)</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="points_k">
+<span class="sig-name descname"><span class="pre">points_k</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">48</span></em><a class="headerlink" href="#points_k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of points to generate between <code class="docutils literal notranslate"><span class="pre">kmin</span></code> and <code class="docutils literal notranslate"><span class="pre">kmax</span></code>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">Np_autocalc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em></dt>
+<dd><p>Parameter that tells the code whether to automatically calculate (<code class="docutils literal notranslate"><span class="pre">1</span></code>) the pivot scale exit or not (<code class="docutils literal notranslate"><span class="pre">0</span></code>). If you set it to <code class="docutils literal notranslate"><span class="pre">0</span></code> then you will have to supply a value of <code class="docutils literal notranslate"><span class="pre">Np</span></code> (e-folds at pivot scale exit) in the <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> file.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="write_bg">
+<span class="sig-name descname"><span class="pre">write_bg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">boolean</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#write_bg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set to True if you wish to save the background computations in a file.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="fname_bg">
+<span class="sig-name descname"><span class="pre">fname_bg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">string</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;bg.dat&quot;</span></em><a class="headerlink" href="#fname_bg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the filename for saving the background computations. Requires <code class="docutils literal notranslate"><span class="pre">write_bg=True</span></code> to work.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="fname_ps">
+<span class="sig-name descname"><span class="pre">fname_ps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">string</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;ps.dat&quot;</span></em><a class="headerlink" href="#fname_ps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the filename for saving the power-spectrum computations.</p>
+</dd></dl>
+
+<p>The model parameters follow the same logic and naming scheme as <code class="docutils literal notranslate"><span class="pre">GQ_Calculator</span></code>. The only difference being the parameter <code class="docutils literal notranslate"><span class="pre">Np</span></code> which is different from <code class="docutils literal notranslate"><span class="pre">Nstar</span></code> parameter. If <code class="docutils literal notranslate"><span class="pre">Np_autocalc=1</span></code> then <code class="docutils literal notranslate"><span class="pre">Np</span></code> could be set to any value as it will anyway be internally calculated. On the other hand, if <code class="docutils literal notranslate"><span class="pre">Np_autocalc=0</span></code> then the code will use the value set in <code class="docutils literal notranslate"><span class="pre">Np</span></code> as the pivot scale exit. Note that in <code class="docutils literal notranslate"><span class="pre">SWIM</span></code> all background integrations starts at <code class="docutils literal notranslate"><span class="pre">N=0</span></code> and ends at <code class="docutils literal notranslate"><span class="pre">Nend</span></code> where <span class="math notranslate nohighlight">\(\epsilon_H=1\)</span>.</p>
+<p>Similar to <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code> you need to supply <span class="math notranslate nohighlight">\(C_{\Upsilon}\)</span> as <span class="math notranslate nohighlight">\(Q_{\text{initial}}\)</span> is the quantity that is internally calculated. This behaviour can be modified, refer to <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code> documentation for more details.</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">SWIM</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure of SWIM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html"><span class="math notranslate nohighlight">\(G(Q)\)</span> Calculator</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="GQ_calculator.html" title="previous chapter"><span class="math notranslate nohighlight">\(G(Q)\)</span> Calculator</a></li>
+      <li>Next: <a href="SA_PS_calculator.html" title="next chapter"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Umang Kumar.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/PS_calculator.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

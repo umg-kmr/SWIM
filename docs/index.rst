@@ -18,5 +18,6 @@ documentation for details.
    installation
    general_structure
    GQ_calculator
+   PS_calculator
    SA_PS_calculator
 

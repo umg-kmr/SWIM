@@ -16,35 +16,50 @@ int verbose = 0; //Set to one if you want to see the error messages
 
 extern "C" {
 
-    void model (double phi_ini,double gst,double V0, double alph, double n,double Cy,double Np,int p,int c,int therm,int rad_noise) {
+    void model (double phi_ini,double gst,double V0, double f,double Q_ini,double Np,int p,int c,int therm,int rad_noise) {
 
         double Cr =  ((M_PI*M_PI) / 30.0) * gst;
         double php_ini=0.0;
+        double Cy = 0.0;
         double T_ini=0.0;
-        double Q_ini=0.0;
 
         //#### Model Definition here ####//
 
-        auto V = [V0,alph,n] (double phi) -> double {
-            return V0*exp(-alph*(pow(phi,n)));
-            //return lmbd*pow(phi,4.0);
+        auto V = [V0,f] (double phi) -> double {
+            return V0 * (1.0 + cos(phi/f));
         };
 
-        auto Vd = [V0,alph,n] (double phi) -> double {
-            return -((n*V0*alph*pow(phi,-1.0 + n))/exp(alph*pow(phi,n)));
-            //return 4.0*lmbd*pow(phi,3.0);
+        auto Vd = [V0,f] (double phi) -> double {
+            return (-V0/f) * sin(phi/f);
         };
 
-        auto Vdd = [V0,alph,n] (double phi) -> double {
-            return -(((-1.0 + n)*n*V0*alph*pow(phi,(-2.0 + n)))/exp(alph*pow(phi,n))) + (n*n*V0*alph*alph*pow(phi,(-2.0 + 2.0*n)))/exp(alph*pow(phi,n));
-            //return 12.0*lmbd*pow(phi,2.0);
+        auto Vdd = [V0,f] (double phi) -> double {
+            return (-V0/(f*f)) * cos(phi/f);
         };
 
-        auto Ups = [Cy,p,c] (double phi,double T) -> double {
-            return Cy * pow(T,p) * pow(phi,c);
+        auto Ups_wo_Cy = [p,c] (double phi,double T) -> double {
+            return pow(T,p) * pow(phi,c);
         };
 
-        auto pT_Ups = [Cy,p,c] (double phi, double T) -> double {
+        auto set_php_ini = [Vd,V,phi_ini,&php_ini] (double Q_ini) -> void {
+            php_ini = -Vd(phi_ini)/(V(phi_ini)*(1.0+Q_ini));
+        };
+
+        set_php_ini(Q_ini);
+
+        auto set_T_ini = [V,phi_ini,php_ini,Cr,&T_ini] (double Q_ini) -> void {
+            T_ini = pow( ((Q_ini*V(phi_ini)*php_ini*php_ini)/(4.0*Cr))  , (1.0/4.0) );
+        };
+
+        set_T_ini(Q_ini);
+        
+        Cy = 3.0*sqrt(V(phi_ini)/3.0)*Q_ini/Ups_wo_Cy(phi_ini,T_ini);
+
+        auto Ups = [Cy,Ups_wo_Cy] (double phi,double T) -> double {
+            return Cy * Ups_wo_Cy(phi,T);
+        };
+        
+        auto pT_Ups = [p,c,Cy] (double phi, double T) -> double {
             return p * Cy * pow(T,p-1.0) * pow(phi,c);
         };
 
@@ -54,7 +69,7 @@ extern "C" {
 
         //Find a value of Q_ini from phi_ini
         //DO NOT USE THIS FUNCTION IF YOUR UPSILON CAN NOT BE WRITTEN IN THE FORM: T^p * \phi^c . SUPPLY A Q_INITIAL INSTEAD
-        auto Qi_find = [V,Vd,Cr,p,c,Cy,phi_ini] (double Qi) -> double {
+        /*auto Qi_find = [V,Vd,Cr,p,c,Cy,phi_ini] (double Qi) -> double {
             Qi = pow(10.0,Qi);
             return ( pow((1.0+Qi),(2.0*p))*pow(Qi,(4.0-p)) ) - ( (pow(Cy,4.0)/(9.0*pow(4.0,p)*pow(Cr,p))) * pow(phi_ini,(4.0*c)) * ( pow(Vd(phi_ini),(2.0*p))/pow(V(phi_ini),(p+2.0))  ) ) ;
         };
@@ -69,21 +84,29 @@ extern "C" {
                 cout<<"Q_initial couldn't be found"<<endl;
             }
             return;
-        }
+        }*/
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        auto set_php_ini = [Vd,V,phi_ini,&php_ini,Q_ini] () -> void {
+        /*auto set_php_ini = [Vd,V,phi_ini,&php_ini] (double Q_ini) -> void {
             php_ini = -Vd(phi_ini)/(V(phi_ini)*(1.0+Q_ini));
         };
         //#################################//
 
-        set_php_ini();
+        set_php_ini(Q_ini);
 
-        auto set_T_ini = [V,phi_ini,Q_ini,php_ini,Cr,&T_ini] () -> void {
+        auto set_T_ini = [V,phi_ini,php_ini,Cr,&T_ini] (double Q_ini) -> void {
             T_ini = pow( ((Q_ini*V(phi_ini)*php_ini*php_ini)/(4.0*Cr))  , (1.0/4.0) );
         };
 
-        set_T_ini();
+        set_T_ini(Q_ini);*/
+
+        //Check for T/H>1 where H is slow-roll approximated
+        if ( (T_ini*sqrt(3.0)/sqrt(V(phi_ini)) )<=1.0 ) {
+            if (verbose==1) {
+                cout<<"T<=H, not warm inflation. Exiting."<<endl;
+            }
+            return;
+        }
 
         bg_solver (V,Vd,Vdd,Ups,pT_Ups,pph_Ups,Cr,Np,phi_ini,php_ini,T_ini,therm,kp,klow,kup,EM_step,npts,Nrealz,want_Np_autocalc,verbose,rad_noise); //Calculates the power-spectrum
     }  //Model Specification ends

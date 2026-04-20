@@ -1,21 +1,23 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="./">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>\(G(Q)\) Calculator &#8212; SWIM 1.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
-    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
-    <script src="_static/documentation_options.js?v=f2a433a1"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="SA_PS Calculator" href="SA_PS_calculator.html" />
+    <link rel="next" title="PS Calculator" href="PS_calculator.html" />
     <link rel="prev" title="General Structure of SWIM" href="general_structure.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -35,10 +37,10 @@
           <div class="body" role="main">
             
   <section id="g-q-calculator">
-<h1><span class="math notranslate nohighlight">\(G(Q)\)</span> Calculator<a class="headerlink" href="#g-q-calculator" title="Link to this heading">¶</a></h1>
+<h1><span class="math notranslate nohighlight">\(G(Q)\)</span> Calculator<a class="headerlink" href="#g-q-calculator" title="Permalink to this heading">¶</a></h1>
 <p>This module is subdivided into <code class="docutils literal notranslate"><span class="pre">bg</span></code> and <code class="docutils literal notranslate"><span class="pre">pert</span></code> modules.</p>
 <section id="bg-submodule">
-<h2><code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule<a class="headerlink" href="#bg-submodule" title="Link to this heading">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule<a class="headerlink" href="#bg-submodule" title="Permalink to this heading">¶</a></h2>
 <p>The main function of this module is to compute the background dynamics of a specified WI model. As a part of <span class="math notranslate nohighlight">\(G(Q)\)</span> calculator this submodule is used to calculate the initial conditions for different <span class="math notranslate nohighlight">\(Q\)</span> values.</p>
 <p>The directory itself contains 3 files:</p>
 <ol class="arabic simple">
@@ -83,7 +85,7 @@
 <p>Apart from these functions, no other function needs to be modified for WI model definition. Once done with the modification make sure to run the compilation script again.</p>
 </section>
 <section id="pert-submodule">
-<h2><code class="docutils literal notranslate"><span class="pre">pert</span></code> submodule<a class="headerlink" href="#pert-submodule" title="Link to this heading">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">pert</span></code> submodule<a class="headerlink" href="#pert-submodule" title="Permalink to this heading">¶</a></h2>
 <p>This submodule performs the perturbation calculations for WI using the stochastic formalism. It is primarily used to calculate the growth function <span class="math notranslate nohighlight">\(G(Q)\)</span> using the python helper script <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code>. The directory structure of this submodule is similar to the <code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule with code files having exactly the same name. <code class="docutils literal notranslate"><span class="pre">Bg.cpp</span></code> contains functions to integrate the stochastic differential equations and finally compute <span class="math notranslate nohighlight">\(G(Q)\)</span>. <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> is where the model has to be specified again so that the perturbation module uses the correct model for calculations.</p>
 <p>The set-up procedure is similar to <code class="docutils literal notranslate"><span class="pre">bg</span></code> module:</p>
 <ol class="arabic simple">
@@ -120,20 +122,20 @@
 <p>Now we can move on to compute <span class="math notranslate nohighlight">\(G(Q)\)</span> by using the helper scripts <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> and <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code>. These scripts are a convenient way to interface with the <code class="docutils literal notranslate"><span class="pre">C++</span></code> code and thus is the preferred way of using the module. It it possible to directly interact with the <code class="docutils literal notranslate"><span class="pre">C++</span></code> code by compiling the code with the inclusion of a <code class="docutils literal notranslate"><span class="pre">main</span></code> function in the <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> files and removing the <code class="docutils literal notranslate"><span class="pre">-shared</span></code> and <code class="docutils literal notranslate"><span class="pre">-fPIC</span></code> compilation flags.</p>
 </section>
 <section id="find-ics-py-script">
-<h2><code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script<a class="headerlink" href="#find-ics-py-script" title="Link to this heading">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script<a class="headerlink" href="#find-ics-py-script" title="Permalink to this heading">¶</a></h2>
 <p>The main function of this script is to generate initial values of <span class="math notranslate nohighlight">\(\phi_i\)</span> such that the duration of inflation is equal to the required number of e-folds specified by <code class="docutils literal notranslate"><span class="pre">dur_N</span></code> parameter. The python script sets the global parameter values and repeatedly calls the compiled <code class="docutils literal notranslate"><span class="pre">C++</span></code> library from the <code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule for different <span class="math notranslate nohighlight">\(Q\)</span> values. Finally the computed values of <span class="math notranslate nohighlight">\(\phi_i\)</span> and <span class="math notranslate nohighlight">\(Q\)</span> are stored in a file which can then be used by the <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> script.</p>
 <p>To use the helper script:</p>
 <ol class="arabic">
 <li><p>Specify the model parameters at the top level in the script.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="m">
-<span class="sig-name descname"><span class="pre">m</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-6</span></em><a class="headerlink" href="#m" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">m</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-6</span></em><a class="headerlink" href="#m" title="Permalink to this definition">¶</a></dt>
 <dd><p>Potential parameter</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="gst">
-<span class="sig-name descname"><span class="pre">gst</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">106.75</span></em><a class="headerlink" href="#gst" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gst</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">106.75</span></em><a class="headerlink" href="#gst" title="Permalink to this definition">¶</a></dt>
 <dd><p>Relativistic degrees of freedom (<span class="math notranslate nohighlight">\(g_*\)</span>)</p>
 </dd></dl>
 
@@ -141,13 +143,13 @@
 <li><p>Specify the <span class="math notranslate nohighlight">\(\Upsilon\)</span> parameters.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="p">
-<span class="sig-name descname"><span class="pre">p</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#p" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">p</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#p" title="Permalink to this definition">¶</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(T^p\)</span></p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="c">
-<span class="sig-name descname"><span class="pre">c</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-2</span></em><a class="headerlink" href="#c" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">c</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-2</span></em><a class="headerlink" href="#c" title="Permalink to this definition">¶</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(\phi^c\)</span></p>
 </dd></dl>
 
@@ -155,13 +157,13 @@
 <li><p>If working with hybrid inflation, set these two parameters.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="hybrid_inf">
-<span class="sig-name descname"><span class="pre">hybrid_inf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em><a class="headerlink" href="#hybrid_inf" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">hybrid_inf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em><a class="headerlink" href="#hybrid_inf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parameter indicating inflation type. Can be either <code class="docutils literal notranslate"><span class="pre">0</span></code> (disabled) or <code class="docutils literal notranslate"><span class="pre">1</span></code> (enabled).</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="ph_crit">
-<span class="sig-name descname"><span class="pre">ph_crit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#ph_crit" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ph_crit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#ph_crit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parameter to set the critical value of the field. To be used with <code class="docutils literal notranslate"><span class="pre">hybrid_inf=1</span></code>.</p>
 </dd></dl>
 
@@ -169,31 +171,31 @@
 <li><p>Finally, set the other code related parameters.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="Qlow">
-<span class="sig-name descname"><span class="pre">Qlow</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-9</span></em><a class="headerlink" href="#Qlow" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Qlow</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-9</span></em><a class="headerlink" href="#Qlow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lower limit for the range of <span class="math notranslate nohighlight">\(Q\)</span> values.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="Qup">
-<span class="sig-name descname"><span class="pre">Qup</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e4</span></em><a class="headerlink" href="#Qup" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Qup</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e4</span></em><a class="headerlink" href="#Qup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Upper limit for the range of <span class="math notranslate nohighlight">\(Q\)</span> values.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="npts">
-<span class="sig-name descname"><span class="pre">npts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#npts" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">npts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#npts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of points to be generated between <code class="docutils literal notranslate"><span class="pre">Qlow</span></code> and <code class="docutils literal notranslate"><span class="pre">Qup</span></code>, logarithmically spaced.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="dur_N">
-<span class="sig-name descname"><span class="pre">dur_N</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60.0</span></em><a class="headerlink" href="#dur_N" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">dur_N</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60.0</span></em><a class="headerlink" href="#dur_N" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parameter to specify the duration of inflation in e-folds.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="Nprocs">
-<span class="sig-name descname"><span class="pre">Nprocs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#Nprocs" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Nprocs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#Nprocs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of CPUs to be used for multiprocessing. To utilize all available CPU resources, set this number to the number of logical processors (threads/core <span class="math notranslate nohighlight">\(\times\)</span> cores) in your system.</p>
 </dd></dl>
 
@@ -201,13 +203,13 @@
 <li><p>Finding the value of <span class="math notranslate nohighlight">\(\phi\)</span> such that inflation ends at <code class="docutils literal notranslate"><span class="pre">dur_N</span></code> is effectively a minimization problem and a versatile albeit inefficient <code class="docutils literal notranslate"><span class="pre">brute_force</span></code> algorithm is used to achieve this in this code. The algorithm finds a local minima of the objective function specified by the parameters:</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="lower_bound">
-<span class="sig-name descname"><span class="pre">lower_bound</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1.0</span></em><a class="headerlink" href="#lower_bound" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">lower_bound</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1.0</span></em><a class="headerlink" href="#lower_bound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parameter to specify the lower bound of the input parameter (<span class="math notranslate nohighlight">\(\phi\)</span>) in <span class="math notranslate nohighlight">\(\log_{10}\)</span>.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="upper_bound">
-<span class="sig-name descname"><span class="pre">upper_bound</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#upper_bound" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">upper_bound</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#upper_bound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parameter to specify the upper bound of the input parameter (<span class="math notranslate nohighlight">\(\phi\)</span>) in <span class="math notranslate nohighlight">\(\log_{10}\)</span>.</p>
 </dd></dl>
 
@@ -238,7 +240,7 @@
 </div>
 </section>
 <section id="find-gq-py-script">
-<h2><code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> script<a class="headerlink" href="#find-gq-py-script" title="Link to this heading">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> script<a class="headerlink" href="#find-gq-py-script" title="Permalink to this heading">¶</a></h2>
 <p>This script computes the growth function <span class="math notranslate nohighlight">\(G(Q)\)</span> utilizing the initial conditions calculated by the <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script in the previous step. The shared <code class="docutils literal notranslate"><span class="pre">C++</span></code> library of the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module is repeatedly called for each pair of initial conditions in the <code class="docutils literal notranslate"><span class="pre">ics.dat</span></code> file. The <code class="docutils literal notranslate"><span class="pre">pert</span></code> shared library will internally calculate both the numerical scalar power spectrum and analytical power spectrum and finally save the ratio of the two in a file <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code>.</p>
 <p>The usage of the helper script is similar to the <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script with a few additional parameters:</p>
 <ol class="arabic">
@@ -247,25 +249,25 @@
 <li><p>Set the other parameters:</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="therm">
-<span class="sig-name descname"><span class="pre">therm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em><a class="headerlink" href="#therm" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">therm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em><a class="headerlink" href="#therm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parameter indicating the state of thermalization of inflaton with the radiation bath. <code class="docutils literal notranslate"><span class="pre">0</span></code> for no thermalization and <code class="docutils literal notranslate"><span class="pre">1</span></code> inflaton is thermalized and we assume a Bose-Einstein distribution.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="rad_noise">
-<span class="sig-name descname"><span class="pre">rad_noise</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em><a class="headerlink" href="#rad_noise" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">rad_noise</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em><a class="headerlink" href="#rad_noise" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set to <code class="docutils literal notranslate"><span class="pre">1</span></code> to include the thermal noise term in the radiation perturbation equation and <code class="docutils literal notranslate"><span class="pre">0</span></code> to not.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="Nrealz">
-<span class="sig-name descname"><span class="pre">Nrealz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1024</span></em><a class="headerlink" href="#Nrealz" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Nrealz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1024</span></em><a class="headerlink" href="#Nrealz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parameter that sets the number of realiazations of the stochastic noise term to average over. Higher values will increase computation time.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="Nstar">
-<span class="sig-name descname"><span class="pre">Nstar</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7.0</span></em><a class="headerlink" href="#Nstar" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Nstar</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">double</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7.0</span></em><a class="headerlink" href="#Nstar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parameter that sets the e-folding value at which the power spectrum should be computed. It should be set in a way such that the mode under study should have enough e-folds before to initialize and after to freeze.</p>
 </dd></dl>
 
@@ -298,7 +300,7 @@
 </div>
 </section>
 <section id="gq-plotting-nb-ipynb-notebook">
-<h2><code class="docutils literal notranslate"><span class="pre">GQ_Plotting_NB.ipynb</span></code> notebook<a class="headerlink" href="#gq-plotting-nb-ipynb-notebook" title="Link to this heading">¶</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">GQ_Plotting_NB.ipynb</span></code> notebook<a class="headerlink" href="#gq-plotting-nb-ipynb-notebook" title="Permalink to this heading">¶</a></h2>
 <p>This is <code class="docutils literal notranslate"><span class="pre">Jupyter</span></code> notebook that includes codes to visualize the computation of the <code class="docutils literal notranslate"><span class="pre">GQ_Calculator</span></code>. It is optional to use this notebook and you can use your own preferred plotting facilities. However, it has an important code-block that smooths the raw output of the <code class="docutils literal notranslate"><span class="pre">GQ_Calculator</span></code>. This is important if you wish to use the computed <span class="math notranslate nohighlight">\(G(Q)\)</span> in the semi-analytical approach to compute the WI power-spectrum. <code class="docutils literal notranslate"><span class="pre">SWIM</span></code> provides another submodule <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code> that implements this approach, can read an external <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code> file and perform statistical analysis using <code class="docutils literal notranslate"><span class="pre">Cobaya</span></code> and recent cosmological likelihoods. It is important to smooth the raw output before using it in the <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code> module.</p>
 <p>The usage of the <code class="docutils literal notranslate"><span class="pre">Jupyter</span></code> notebook is mostly self-explanatory,</p>
 <ol class="arabic simple">
@@ -309,7 +311,7 @@
 </ol>
 </section>
 <section id="optional-functionality">
-<h2>Optional functionality<a class="headerlink" href="#optional-functionality" title="Link to this heading">¶</a></h2>
+<h2>Optional functionality<a class="headerlink" href="#optional-functionality" title="Permalink to this heading">¶</a></h2>
 <p>In the <code class="docutils literal notranslate"><span class="pre">Bg.cpp</span></code> file of the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module a commented out version of the analytical power spectrum can be found that doesn’t drop the slow-roll parameters <span class="math notranslate nohighlight">\(\eta_V\)</span> and <span class="math notranslate nohighlight">\(\beta_V\)</span>. The implementation in the code directly follows from <a class="reference external" href="https://inspirehep.net/literature/1219309">R.O.Ramos and L.A. da Silva</a>.</p>
 <p>To use this form of the analytical power spectrum just comment out the other implementation and uncomment:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">Pp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">Nask</span><span class="p">,</span><span class="n">phiasN</span><span class="p">,</span><span class="n">phpasN</span><span class="p">,</span><span class="n">TasN</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="n">Q</span><span class="p">,</span><span class="n">therm</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Vd</span><span class="p">,</span><span class="n">Vdd</span><span class="p">,</span><span class="n">Ups</span><span class="p">,</span><span class="n">pph_Ups</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
@@ -323,7 +325,7 @@
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="index.html">SWIM</a></h1>
 
@@ -334,16 +336,7 @@
 
 
 
-
-<search id="searchbox" style="display: none" role="search">
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</search>
-<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -357,6 +350,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#optional-functionality">Optional functionality</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
 </ul>
 
@@ -365,10 +359,20 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="general_structure.html" title="previous chapter">General Structure of SWIM</a></li>
-      <li>Next: <a href="SA_PS_calculator.html" title="next chapter"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
+      <li>Next: <a href="PS_calculator.html" title="next chapter"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
   </ul></li>
 </ul>
 </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -385,8 +389,8 @@
       &#169;2025, Umang Kumar.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
       |
       <a href="_sources/GQ_calculator.rst.txt"
