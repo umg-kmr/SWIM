@@ -6,8 +6,8 @@ set -e
 echo "Starting build..."
 
 #Change these paths to the location of boost libraries and SWIM package
-export BOOST_PATH=/mnt/misc/boost_1_87_0 #/path/to/boost/libraries
-export SWIM_PATH=/mnt/misc/SWIM_repo #/path/to/SWIM
+export BOOST_PATH=/mnt/misc/boost_1_90_0 #/path/to/boost/libraries
+export SWIM_PATH=/mnt/misc/SWIM_v1 #/path/to/SWIM
 
 #prints the set library paths
 echo "BOOST path set to: $BOOST_PATH"

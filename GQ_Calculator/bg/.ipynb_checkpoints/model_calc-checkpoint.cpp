@@ -1,12 +1,12 @@
 #include "Bg.cpp"
 
-double kp = 0.05;
+double kp = 0.05; //Set from python script
 
-int verbose = 0; //Set to one if you want to see the error messages
+int verbose = 0; //Set from python script
 
 extern "C" {
 
-    void model (double phi_ini,double Q_ini, double gst, double V0, double lmbd,int p, int c, int hybrid_inf) {
+    void model (double phi_ini,double Q_ini, double gst, double V0,int p, int c, int hybrid_inf) {
 
         double Cr = (M_PI*M_PI / 30.0) * gst;
         double php_ini=0.0;
@@ -40,7 +40,7 @@ extern "C" {
             //return m*m*phi;
         };
 
-
+        
         auto set_php_ini = [Vd,V,phi_ini,&php_ini] (double Q_ini) -> void {
             php_ini = -Vd(phi_ini)/(V(phi_ini)*(1.0+Q_ini));
         };
@@ -52,22 +52,23 @@ extern "C" {
         };
 
         set_T_ini(Q_ini);
-        
+
+        /*  Specify your WI dissipation here if not of the form T^p \phi^c  */
         auto Ups_wo_Cy = [p,c] (double phi,double T) -> double {  //Form of Upsilon without the constant
             return pow(T,p) * pow(phi,c);
+
+            /* EFT WI model Upsilon */
             //double mx = sqrt(((g*g)*(M*M))/2.0 + ((alph*alph)*(T*T)));
-            //return exp(-mx/T)*(pow(g,4.0)*(M*M)*(T*T)/( pow(mx,3.0) ) ) * (1.0 + (1.0/(sqrt(2*M_PI)))*pow((mx/T),(3.0/2.0)) );
+            //return exp(-mx/T)*(pow(g,4.0)*(M*M)*(T*T)/( pow(mx,3.0) ) ) * (1.0 + (1.0/(sqrt(2*M_PI)))*pow((mx/T),(3.0/2.0)) );   
         };
-        
+
+      //#################################//
+
         Cy = 3.0*sqrt(V(phi_ini)/3.0)*Q_ini/Ups_wo_Cy(phi_ini,T_ini);
 
         auto Ups = [Cy,Ups_wo_Cy] (double phi,double T) -> double {
             return Cy * Ups_wo_Cy(phi,T);
         };
-
-
-        //#################################//
-
 
         bg_solver (V,Vd,Ups,Cr,phi_ini,php_ini,T_ini,kp,verbose,hybrid_inf); //Calculates the power-spectrum
     }
