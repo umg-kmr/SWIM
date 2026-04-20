@@ -104,3 +104,50 @@ $$
 \Upsilon(\phi,T) = C_{\Upsilon} T^3
 $$
 
+### $G(Q)$ Calculator
+
+### $G(Q)$ Calculator
+
+To compute the $G(Q)$ correction factor, use this module.
+
+Navigate to the directory:
+
+```bash
+cd GQ_Calculator
+```
+
+Remove any existing data files to generate fresh outputs:
+
+```bash
+rm ics.dat GQ.dat GQ_smooth.dat
+```
+
+Run the Python script to compute the initial conditions:
+
+```bash
+python -u find_ICs.py
+```
+
+This step may take some time depending on system specifications. Upon completion, a file named `ics.dat` will be generated.
+
+---
+
+Next, run the script to compute the $G(Q)$ correction factor:
+
+```bash
+python -u find_GQ.py
+```
+
+After completion, the output will be saved in the file `GQ.dat`.
+
+The computed $G(Q)$ can be visualized using the Jupyter notebook:
+
+```
+GQ_Plotting_NB.ipynb
+```
+
+The notebook also includes utilities to smooth the raw output and save it as:
+
+```
+GQ_smooth.dat
+```

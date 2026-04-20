@@ -20,7 +20,7 @@ Qup = 1e4
 npts = 150 #number of points in Q range
 
 dur_N = 60.0 #Duration of inflation parameter
-Nprocs = 24  #Set to the number of CPUs you wish to use for parallelization
+Nprocs = 4  #Set to the number of CPUs you wish to use for parallelization
 
 #provide a range of values where you expect the phi_initial to be around (for the whole range of Q). For small-field models one can reduce the upper_bound. The bounds are in log10.
 lower_bound = np.log10(0.01)
