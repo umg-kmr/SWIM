@@ -1,14 +1,24 @@
 import numpy as np
-from ps_script import V0, alph, n, gst, p, c, Cy
+from ps_script import V0, gst, p, c, Q0, phi0
+
+Cr = ( (np.pi**2) / 30.0 )*gst
 
 #Define model here again
 def V(phi):
-    return V0*np.exp(-alph*(phi**n))
+    return (V0/4.0)*(phi**4)
 def Vd(phi):
-    return -((n*V0*alph*(phi**(-1.0 + n)))/np.exp(alph*(phi**n)))
+    return V0*(phi**3)
+
+def Ups_wo_Cy(phi,T):
+    return (T**p) * (phi**c)
+    
+php0 = -Vd(phi0)/(V(phi0)*(1.0+Q0))
+T0 = ( ((Q0*V(phi0)*php0*php0)/(4.0*Cr))**(1.0/4.0) );
+Cy = 3.0*np.sqrt(V(phi0)/3.0)*Q0/Ups_wo_Cy(phi0,T0)
+
 def Ups(phi,T):
-    return Cy * (T**p) * (phi**c)
-Cr = ( (np.pi**2) / 30.0 )*gst
+    return Cy * Ups_wo_Cy(phi,T)
+
 
 def H(phi,phip,T):
     return np.sqrt(2 * ( V(phi) + (Cr*(T**4))) * ( ( 6 - (phip**2) )**(-1) ) )

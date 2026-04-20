@@ -1,3 +1,0 @@
-Number of points generated:  16384
-Generating observables for the given model...
-Final valid points generated:  1

@@ -1,0 +1,46 @@
+[0 : output] Output to be read-from/written-into folder 'chains_Asns', with prefix 'quartic_T3'
+[2 : stb] Initialized external likelihood.
+[3 : stb] Initialized external likelihood.
+[6 : stb] Initialized external likelihood.
+[7 : stb] Initialized external likelihood.
+[1 : stb] Initialized external likelihood.
+[4 : stb] Initialized external likelihood.
+[0 : stb] Initialized external likelihood.
+[5 : stb] Initialized external likelihood.
+[0 : mcmc] Getting initial point... (this may take a few seconds)
+[2 : mcmc] Getting initial point... (this may take a few seconds)
+[3 : mcmc] Getting initial point... (this may take a few seconds)
+[3 : prior] Reference values or pdfs for some parameters were not provided. Sampling from the prior instead for those parameters.
+[4 : mcmc] Getting initial point... (this may take a few seconds)
+[5 : mcmc] Getting initial point... (this may take a few seconds)
+[5 : prior] Reference values or pdfs for some parameters were not provided. Sampling from the prior instead for those parameters.
+[6 : mcmc] Getting initial point... (this may take a few seconds)
+[6 : prior] Reference values or pdfs for some parameters were not provided. Sampling from the prior instead for those parameters.
+[7 : mcmc] Getting initial point... (this may take a few seconds)
+[7 : prior] Reference values or pdfs for some parameters were not provided. Sampling from the prior instead for those parameters.
+[0 : prior] Reference values or pdfs for some parameters were not provided. Sampling from the prior instead for those parameters.
+[1 : mcmc] Getting initial point... (this may take a few seconds)
+[1 : prior] Reference values or pdfs for some parameters were not provided. Sampling from the prior instead for those parameters.
+[2 : prior] Reference values or pdfs for some parameters were not provided. Sampling from the prior instead for those parameters.
+[4 : prior] Reference values or pdfs for some parameters were not provided. Sampling from the prior instead for those parameters.
+[7 : mcmc] Initial point: logphi0:0.535236, loggst:2.631876, logV0:-11.85956, logQ0:1.780727
+[4 : mcmc] Initial point: logphi0:0.3619402, loggst:0.5619837, logV0:-20.26512, logQ0:2.206229
+[3 : mcmc] Initial point: logphi0:0.8408498, loggst:1.260385, logV0:-26.68662, logQ0:1.243601
+[5 : mcmc] Initial point: logphi0:-0.2917778, loggst:0.3578313, logV0:-15.50699, logQ0:3.370549
+[0 : mcmc] Initial point: logphi0:-0.3669167, loggst:2.189026, logV0:-9.823852, logQ0:3.470067
+[1 : mcmc] Initial point: logphi0:1.283136, loggst:2.066651, logV0:-10.94023, logQ0:-0.007208488
+[2 : mcmc] Initial point: logphi0:0.5561349, loggst:2.10768, logV0:-22.07845, logQ0:2.002574
+[6 : mcmc] Initial point: logphi0:-0.09746303, loggst:0.3645082, logV0:-16.6635, logQ0:3.291277
+[0 : model] Measuring speeds... (this may take a few seconds)
+[0 : model] Setting measured speeds (per sec): {stb: 71.7}
+[0 : prior] *WARNING* Reference pdf not defined or improper for some parameters. Using prior's sigma instead for them.
+[0 : mcmc] Covariance matrix not present. We will start learning the covariance of the proposal earlier: R-1 = 30 (would be 2 if all params loaded).
+[0 : mcmc] Sampling!
+[0 : mcmc] Progress @ 2026-04-20 20:14:54 : 1 steps taken, and 0 accepted.
+[6 : mcmc] Progress @ 2026-04-20 20:14:54 : 1 steps taken, and 0 accepted.
+[2 : mcmc] Progress @ 2026-04-20 20:14:54 : 1 steps taken, and 0 accepted.
+[1 : mcmc] Progress @ 2026-04-20 20:14:54 : 1 steps taken, and 0 accepted.
+[5 : mcmc] Progress @ 2026-04-20 20:14:54 : 1 steps taken, and 0 accepted.
+[3 : mcmc] Progress @ 2026-04-20 20:14:54 : 1 steps taken, and 0 accepted.
+[4 : mcmc] Progress @ 2026-04-20 20:14:54 : 1 steps taken, and 0 accepted.
+[7 : mcmc] Progress @ 2026-04-20 20:14:54 : 1 steps taken, and 0 accepted.

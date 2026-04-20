@@ -1,5 +1,6 @@
 #include "Bg.cpp"
 
+/* Set from the python scripts */
 double kp = 0.05;
 //int therm : Thermalization of inflaton, 1 = yes = Bose-Einstein; 0 = no
 
@@ -9,41 +10,59 @@ int Nrealz = 2500; //Number of realizations for SDE
 //Klist lower and upper bounds in log10
 double klow = -6.0;
 double kup = 2.0;
-int npts = 28; 
+int npts = 40; 
 
-int want_Np_autocalc = 1; //Set to 1 if you want the solver to calculate Np itself (only when smooth transition to RD after Inflation) otherwise set 0. In both cases supply Np
+int want_Np_autocalc = 1; //Set to 1 if you want the solver to calculate Np itself otherwise set 0. In both cases supply Np
 int verbose = 0; //Set to one if you want to see the error messages
+/* ######################### */
 
 extern "C" {
 
-    void model (double phi_ini,double gst,double V0, double alph, double n,double Cy,double Np,int p,int c,int therm,int rad_noise) {
+    void model (double phi_ini,double gst,double Q_ini,double V0,double Np,int p,int c,int therm,int rad_noise) {
 
         double Cr =  ((M_PI*M_PI) / 30.0) * gst;
         double php_ini=0.0;
         double T_ini=0.0;
-        double Q_ini=0.0;
+        double Cy=0.0;
 
         //#### Model Definition here ####//
 
-        auto V = [V0,alph,n] (double phi) -> double {
-            return V0*exp(-alph*(pow(phi,n)));
-            //return lmbd*pow(phi,4.0);
+        auto V = [V0] (double phi) -> double {
+            return (V0/4.0)*pow(phi,4.0);
         };
 
-        auto Vd = [V0,alph,n] (double phi) -> double {
-            return -((n*V0*alph*pow(phi,-1.0 + n))/exp(alph*pow(phi,n)));
-            //return 4.0*lmbd*pow(phi,3.0);
+        auto Vd = [V0] (double phi) -> double {
+            return V0*phi*phi*phi;
         };
 
-        auto Vdd = [V0,alph,n] (double phi) -> double {
-            return -(((-1.0 + n)*n*V0*alph*pow(phi,(-2.0 + n)))/exp(alph*pow(phi,n))) + (n*n*V0*alph*alph*pow(phi,(-2.0 + 2.0*n)))/exp(alph*pow(phi,n));
-            //return 12.0*lmbd*pow(phi,2.0);
+        auto Vdd = [V0] (double phi) -> double {
+            return 3.0*V0*phi*phi;
         };
 
+        auto set_php_ini = [Vd,V,phi_ini,&php_ini] (double Q_ini) -> void {
+            php_ini = -Vd(phi_ini)/(V(phi_ini)*(1.0+Q_ini));
+        };
+
+        set_php_ini(Q_ini);
+
+        auto set_T_ini = [V,phi_ini,php_ini,Cr,&T_ini] (double Q_ini) -> void {
+            T_ini = pow( ((Q_ini*V(phi_ini)*php_ini*php_ini)/(4.0*Cr))  , (1.0/4.0) );
+        };
+
+        set_T_ini(Q_ini);
+
+        /*  Specify your WI dissipation here if not of the form T^p \phi^c  */
+        auto Ups_wo_Cy = [p,c] (double phi,double T) -> double {  //Form of Upsilon without the constant
+            return pow(T,p) * pow(phi,c);
+        };
+
+        Cy = 3.0*sqrt(V(phi_ini)/3.0)*Q_ini/Ups_wo_Cy(phi_ini,T_ini);
+        
         auto Ups = [Cy,p,c] (double phi,double T) -> double {
             return Cy * pow(T,p) * pow(phi,c);
         };
-
+        
+        /*  Define the partial derivatives of Upsilon if not of the form T^p \phi^c  */
         auto pT_Ups = [Cy,p,c] (double phi, double T) -> double {
             return p * Cy * pow(T,p-1.0) * pow(phi,c);
         };
@@ -52,6 +71,7 @@ extern "C" {
             return c * Cy * pow(T,p) * pow(phi,c-1.0);
         };
 
+        /*
         //Find a value of Q_ini from phi_ini
         //DO NOT USE THIS FUNCTION IF YOUR UPSILON CAN NOT BE WRITTEN IN THE FORM: T^p * \phi^c . SUPPLY A Q_INITIAL INSTEAD
         auto Qi_find = [V,Vd,Cr,p,c,Cy,phi_ini] (double Qi) -> double {
@@ -70,20 +90,8 @@ extern "C" {
             }
             return;
         }
+        */
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        auto set_php_ini = [Vd,V,phi_ini,&php_ini,Q_ini] () -> void {
-            php_ini = -Vd(phi_ini)/(V(phi_ini)*(1.0+Q_ini));
-        };
-        //#################################//
-
-        set_php_ini();
-
-        auto set_T_ini = [V,phi_ini,Q_ini,php_ini,Cr,&T_ini] () -> void {
-            T_ini = pow( ((Q_ini*V(phi_ini)*php_ini*php_ini)/(4.0*Cr))  , (1.0/4.0) );
-        };
-
-        set_T_ini();
 
         bg_solver (V,Vd,Vdd,Ups,pT_Ups,pph_Ups,Cr,Np,phi_ini,php_ini,T_ini,therm,kp,klow,kup,EM_step,npts,Nrealz,want_Np_autocalc,verbose,rad_noise); //Calculates the power-spectrum
     }  //Model Specification ends

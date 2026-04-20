@@ -1,3 +1,5 @@
+#This input file can be used to perform full-scale CMB dataset analysis, varying also the cosmological parameters. The semi-analytical power spectrum calculator computes the WI scalar primordial power spectrum which is then injected to CAMB as external primordial power spectrum.
+
 theory:
   An_CAMB.FeaturePrimordialPk:
     python_path: "."
@@ -17,22 +19,18 @@ theory:
       theta_H0_range:
       - 20
       - 100
-packages_path: /home/umang.kumar/cobaya/
+#packages_path: /path/to/cobaya
+
+#requires that the Planck, DESI DR2, ACT DR6, SPT likelihoods are installed. Follow the Cobaya documentation to install these likelihoods
 likelihood:
   bao.desi_dr2: null
-  #planck_2018_lowl.TT: null
-  #planck_2018_lowl.EE: null
-  #planck_2018_lowl.EE_sroll2: null
-  #act_dr6_cmbonly.PlanckActCut:
-  #  dataset_params:
-  #    use_cl: tt te ee
-  #    lmin_cuts: 0 0 0
-  #    lmax_cuts: 1000 600 600
-  #planck_NPIPE_highl_CamSpec.TTTEEE: null
-  #planckpr4lensing:
-  #  package_install:
-  #    github_repository: carronj/planck_PR4_lensing
-  #    min_version: 1.0.2
+  planck_2018_lowl.TT: null
+  planck_2018_lowl.EE_sroll2: null
+  act_dr6_cmbonly.PlanckActCut:
+    dataset_params:
+      use_cl: tt te ee
+      lmin_cuts: 0 0 0
+      lmax_cuts: 1000 600 600
   act_dr6_cmbonly:
     stop_at_error: true
   act_dr6_lenslike.ACTDR6LensLike:
@@ -40,70 +38,78 @@ likelihood:
         stop_at_error: True
         lmax: 4000
         variant: actplanck_extended
+  candl_like:
+    additional_args: {}
+    clear_internal_priors: true
+    data_set_file: !!python/name:spt_candl_data.SPT3G_D1_TnE ''
+    external: !!python/name:candl.interface.CandlCobayaLikelihood ''
+    variant: "lite"
+    feedback: true
+    wrapper: null
 params:
+#WI model parameters for Quartic T^3
   p:
     value: 3
   c:
     value: 0
   therm:
-    value: 1
-  n:
-    value: 2.0
-  logalph:
+    value: 0
+  logphi0:
     prior:
-      min: -20.0
-      max: 2.0
-        #ref:
-        #dist: norm
-        #loc: -2.09785
-        #scale: 0.563678
-    latex: \log_{10} \alpha
-  alph:
-    value: 'lambda logalph: 10**logalph'
-    latex: \alpha
-  phi0:
-    value: 'lambda n,alpha: (( 1.05*(n-1)/(n*alph) )**(1/n))'
+      dist: norm
+      loc: 1.05206
+      scale: 0.381546
+    ref:
+      dist: norm
+      loc: 0.566429
+      scale: 0.1
+    latex: \log_{10} \phi_0
+  phi0: 
+    value: 'lambda logphi0: 10**logphi0'
     latex: \phi_0
   loggst:
     prior:
       min: 0.0
       max: 3.0
-        #ref:
-        #dist: norm
-        #loc: 1.76745
-        #scale: 0.637099
+    ref:
+      dist: norm
+      loc: 1.46339
+      scale: 0.3
     latex: \log_{10} g_*
   gst:
-    #value: 106.75
     value: 'lambda loggst: 10**loggst'
     latex: g_*
   logV0:
     prior:
-      min: -80.0
-      max: -1.0
-        #ref:
-        #dist: norm
-        #loc: 0.00290979
-        #scale: 0.0126343
+      dist: norm
+      loc: -19.0966
+      scale: 4.52179
+    ref:
+      dist: norm
+      loc: -23.7408
+      scale: 1.0
     latex: \log_{10} V_0
   V0:
     value: 'lambda logV0: 10**logV0'
     latex: V_0
-  logCy:
+  logQ0:
     prior:
-      min: -60.0
-      max: 60.0
-        #ref:
-        #dist: norm
-        #loc: 14.4801
-        #scale: 0.234177
-    latex: \log_{10} C_{\Upsilon}
-  Cy:
-    value: 'lambda logCy: 10**logCy'
-    latex: C_{\Upsilon}
+      dist: norm
+      loc: 0.427263
+      scale: 1.11572
+    ref:
+      dist: norm
+      loc: 1.60487
+      scale: 0.3
+    latex: \log_{10} Q_0
+  Q0:
+    value: 'lambda logQ0: 10**logQ0'
+    latex: Q_0
   Np:
     value: 1.0
     latex: N_P
+
+#Cosmological parameters
   theta_MC_100:
     prior:
       min: 0.5
@@ -190,7 +196,8 @@ sampler:
    drag: true
    oversample_power: 0.4
    proposal_scale: 1.9
-   covmat: logpot_full.covmat
+   # burn_in: 200d
+   covmat: quartic_T3.covmat
    Rminus1_stop: 0.01
    Rminus1_cl_stop: 0.2
    max_tries: 100000d
@@ -205,4 +212,4 @@ sampler:
     #precision_criterion: 0.0001
     #maximise : True 
 resume: True
-output: chains/
+output: chains_fullCMB/quartic_T3

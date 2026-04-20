@@ -300,9 +300,9 @@ void bg_solver (const function<double(double)> &V,const function<double(double)>
     }
     //Constrain duration of Inflation
     try {
-        if ( ((Nend-Npp) < 42.0) || (Npp<3.0)  )   {
+        if ( ((Nend-Npp) < 30.0) || (Npp<15.0)  )   {
             if (verbose == 1) {
-                cout<<"Duration of Inflation less than 42.0"<<endl;
+                cout<<"Duration of Inflation less than 30.0"<<endl;
             }
             return;
         }
@@ -480,8 +480,8 @@ void bg_solver (const function<double(double)> &V,const function<double(double)>
     };
     
     //Constraint on r
-    /*try {
-        if (r(0.002)>0.056) {
+    try {
+        if (r(kp)>0.038) { //95%, P-ACT-LB-BK18
             return;
         }   
     }
@@ -491,7 +491,7 @@ void bg_solver (const function<double(double)> &V,const function<double(double)>
          }
          Plist.assign(npts,1);
          return;
-    }*/
+    }
 
     
 

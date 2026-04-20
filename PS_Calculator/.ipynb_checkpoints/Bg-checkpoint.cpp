@@ -32,12 +32,14 @@ vector <double> php_glob_array;
 vector <double> T_glob_array;
 
 double Nend = 0.0;
-double tend = 1000.0; //Upper limit of Bg integration
+double tend = 200.0; //Upper limit of Bg integration
 double maxiter_bg = 1e6; //Upper limit on the background integration iterations
 uintmax_t max_iter = 1000000; //upper limit for root finding algorithm
 double Nreh = 0.0;
 double atol_bg = 1e-14; //Sets absolute tolerance for all the integrators
 double rtol_bg = 1e-12; //Sets relative tolerance for all the integrators
+
+double PT_kp = 0.0;
 
 //Function to terminate root finding algorithm with some epsilon.
 struct root_stop  {
@@ -307,11 +309,18 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         return;
     }
 
-    //Checks for smooth transition to RD.
-    /*if ( (want_Np_autocalc == 1) && (log10(V(phiasN(Nend))) - log10(Cr*pow(TasN(Nend),4.0))>0.1) ) {
-        cout<<"Warning! Non-smooth transition to RD detected, turn off Np auto calculation. Exiting."<<endl;
-     }*/
-    /*    Bg calculations done    */
+    /* Constrain duration of Inflation. We want atleast 15 e-folds before pivot-scale exit to initialize the larger(smaller) scales(modes) as well. */
+    try {
+        if ( ((Nend-Npp) < 30.0) || (Npp<15.0)  )   {
+            if (verbose == 1) {
+                cout<<"Duration of Inflation less than 30.0"<<endl;
+            }
+            return;
+        }
+    }
+    catch (const exception& e) {
+        return;
+    }
 
     //Perturbations
     auto a = [a0] (double N) -> double {
@@ -711,7 +720,16 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             }
             //Adapts the step-size according to the value of Q.
             double Q_val = Q(phiasN(Nh),phpasN(Nh),TasN(Nh));
-            if (Q_val<=0.01) {
+            
+            //Empirical prescription to change step-size with Q to keep accuracy
+            if (Q_val<=13600) {
+        	h = 4.71550024e-05 - 7.85635682e-08*pow(Q_val,6.29070211e-01) + 9.72292031e-04*pow(9.95511012e-01,Q_val);
+            }
+            else {
+                h = EM_step;
+            }
+            
+            /*if (Q_val<=0.01) {
             	h = EM_step;
             }
             else if (Q_val>0.01 && Q_val<=310) {
@@ -719,7 +737,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             }
             else {
                 h = EM_step*0.01;
-            }
+            }*/
             //cout<<"N: "<<Nh<<" Q: "<<Q_val<<" h: "<<h<<" k: "<<ki<<endl;
             Plist.push_back(P_num(ki,h));
             kl_int.push_back(ki);
@@ -738,6 +756,25 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         Plist.assign(npts,1);
         return;
     }
+    
+    auto PT = [phiasN,phpasN,TasN,H] (double NN) -> double {
+        double phin = phiasN(NN);
+        double phpn = phpasN(NN);
+        double Tn = TasN(NN);
+        double Hn = H(phin,phpn,Tn);
+        return (2.0*pow(Hn,2.0))/pow(M_PI,2.0);
+    };
+
+    try {
+        PT_kp = PT(Npp); //Calculate the amplitude of tensor power spectrum at kp
+    }
+    catch (const exception& e) {
+        if (verbose == 1) {
+            cout<<"Error with tensor power spectrum calculation"<<endl;
+        }
+        PT_kp = 0.0;
+        return;
+    }    
 }
 
 

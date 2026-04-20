@@ -1,28 +1,22 @@
+#Only implements A_s, n_s and r (specified in Bg.cpp) constraints
+#import the likelihood function from llihood.py
 likelihood:
   stb: import_module('llihood').logp
+  
 params:
   p:
     value: 3
   c:
     value: 0
   therm:
-    value: 1
-  n:
-    value: 2.0
-  logalph:
+    value: 0
+  logphi0:
     prior:
-      min: -20.0
-      max: 2.0
-        #ref:
-        #dist: norm
-        #loc: -2.09785
-        #scale: 0.563678
-    latex: \log_{10} \alpha
-  alph:
-    value: 'lambda logalph: 10**logalph'
-    latex: \alpha
-  phi0:
-    value: 'lambda n,alpha: (( 1.05*(n-1)/(n*alph) )**(1/n))'
+      min: -1.0
+      max: 2.5
+    latex: \log_{10} \phi_0
+  phi0: 
+    value: 'lambda logphi0: 10**logphi0'
     latex: \phi_0
   loggst:
     prior:
@@ -34,13 +28,12 @@ params:
         #scale: 0.637099
     latex: \log_{10} g_*
   gst:
-    #value: 106.75
     value: 'lambda loggst: 10**loggst'
     latex: g_*
   logV0:
     prior:
-      min: -80.0
-      max: -1.0
+      min: -30.0
+      max: -10.0
         #ref:
         #dist: norm
         #loc: 0.00290979
@@ -49,35 +42,31 @@ params:
   V0:
     value: 'lambda logV0: 10**logV0'
     latex: V_0
-  logCy:
+  logQ0:
     prior:
-      min: -60.0
-      max: 60.0
-        #ref:
-        #dist: norm
-        #loc: 14.4801
-        #scale: 0.234177
-    latex: \log_{10} C_{\Upsilon}
-  Cy:
-    value: 'lambda logCy: 10**logCy'
-    latex: C_{\Upsilon}
+      min: -6.0
+      max: 3.5
+    latex: \log_{10} Q_0
+  Q0:
+    value: 'lambda logQ0: 10**logQ0'
+    latex: Q_0
   Np:
     value: 1.0
     latex: N_P
 sampler:
-  minimize:
-    method: iminuit
-    ignore_prior: True
-    best_of: 8
-    override_bobyqa:
-      rhoend: 1e-8 
-  #mcmc:
-  #  drag: false
-  #  oversample_power: 0.4
-  #  proposal_scale: 1.9
-  #  covmat: logpot.covmat 
-  #  Rminus1_stop: 0.01
-  #  Rminus1_cl_stop: 0.2
-  #  max_tries: 100000d 
+  #minimize:
+  #  method: iminuit
+  #  ignore_prior: True
+  #  best_of: 8
+  #  override_bobyqa:
+  #    rhoend: 1e-8 
+  mcmc:
+    drag: false  #keep this to false as all parameters will have same speeds and dragging will not work
+    oversample_power: 0.4
+    proposal_scale: 1.9
+    #covmat: 
+    Rminus1_stop: 0.01
+    Rminus1_cl_stop: 0.2
+    max_tries: 100000d 
 resume: True
-output: chains_gst/logpot 
+output: chains_Asns/quartic_T3 
