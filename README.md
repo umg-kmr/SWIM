@@ -38,12 +38,6 @@ Install the required packages for SWIM using `conda`:
 conda install -c conda-forge gcc gxx gfortran numpy matplotlib scipy scikit-learn jupyterlab cffi joblib
 ```
 
-SWIM relies on the Boost C++ libraries for numerical routines. Download the latest copy of boost libraries from https://www.boost.org/releases/latest/ and extract somewhere convenient using:
-
-```bash
-tar -xvzf boost_*.tar.bz2
-```
-
 SWIM relies on the Boost C++ libraries for numerical routines. Download the latest release from:
 
 https://www.boost.org/releases/latest/
