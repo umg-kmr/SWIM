@@ -42,7 +42,7 @@ yobs = np.array([3.0586,0.9726]) #,-0.0045])
 yerr = np.array([0.0094,0.0028]) #,0.0067])
 
 #Determined by running the solver 50times over the same input parameters for 2048 realizations and 50 points b/w k
-yerr_solver = np.array([0.0071,0.0021]) #,0.0009])
+yerr_solver = np.array([0.008,0.003]) #,0.0009])
 
 scale = yerr + yerr_solver
 

@@ -30,3 +30,29 @@ Then activate the environment:
 conda activate SWIM
 ```
 
+### Dependencies
+
+Install the required packages for SWIM using `conda`:
+
+```bash
+conda install -c conda-forge gcc gxx gfortran numpy matplotlib scipy scikit-learn jupyterlab cffi joblib
+```
+
+SWIM relies on the Boost C++ libraries for numerical routines. Download the latest copy of boost libraries from https://www.boost.org/releases/latest/ and extract somewhere convenient using:
+
+```bash
+tar -xvzf boost_*.tar.bz2
+```
+
+SWIM relies on the Boost C++ libraries for numerical routines. Download the latest release from:
+
+https://www.boost.org/releases/latest/
+
+and extract it to a convenient location using:
+
+```bash
+tar -xvf boost_*.tar.bz2
+```
+
+After extraction, ensure that the Boost library paths are correctly specified in the `compile_SWIM.sh` script.
+

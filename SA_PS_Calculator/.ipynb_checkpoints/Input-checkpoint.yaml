@@ -19,7 +19,7 @@ theory:
       theta_H0_range:
       - 20
       - 100
-#packages_path: /path/to/cobaya
+packages_path: /mnt/misc/cobaya/
 
 #requires that the Planck, DESI DR2, ACT DR6, SPT likelihoods are installed. Follow the Cobaya documentation to install these likelihoods
 likelihood:
@@ -108,6 +108,20 @@ params:
   Np:
     value: 1.0
     latex: N_P
+
+#likelihood parameters
+  Tcal:
+    latex: T_{\rm cal}
+    prior:
+      max: 1.2
+      min: 0.8
+    ref: 1.0
+  Ecal:
+    latex: E_{\rm cal}
+    prior:
+      max: 1.2
+      min: 0.8
+    ref: 1.0
 
 #Cosmological parameters
   theta_MC_100:
