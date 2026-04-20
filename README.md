@@ -70,4 +70,37 @@ https://cobaya.readthedocs.io/en/latest/installation.html
 
 All dependencies required by Cobaya should be installed within the same `conda` environment created for SWIM.
 
+### Compilation
+
+After installing all the required dependencies, SWIM can be compiled using the `compile_SWIM.sh` script.
+
+First, edit the paths to the SWIM directory and Boost libraries in the script:
+
+```bash
+export BOOST_PATH=/path/to/boost
+export SWIM_PATH=/path/to/SWIM
+```
+
+Then make the script executable and run it:
+
+```bash
+chmod +x compile_SWIM.sh
+./compile_SWIM.sh
+```
+
+SWIM is now ready to be used.
+
+---
+
+## Quick Start Guide
+
+As an illustrative example, the code includes an implementation of the following Warm Inflation (WI) model:
+
+$$
+V(\phi) = \dfrac{1}{4} V_0 \phi^4
+$$
+
+$$
+\Upsilon(\phi,T) = C_{\Upsilon} T^3
+$$
 
