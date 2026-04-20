@@ -161,3 +161,36 @@ Remove any existing chains:
 ```bash
 rm -rf chains_Asns chains_fullCMB
 ```
+
+To perform parameter inference using constraints only on $A_s$, $n_s$, and $r$, run:
+
+```bash
+mpirun -n 8 cobaya-run Input_asns.yaml
+```
+
+This launches 8 parallel chains.
+
+For a single chain, run:
+
+```bash
+cobaya-run Input_asns.yaml
+```
+To perform parameter inference including full CMB power spectrum constraints (requires `CAMB`), run:
+
+```bash
+mpirun -n 8 cobaya-run Input.yaml
+```
+
+By default, CAMB uses all available CPU threads. When running multiple chains in parallel, it is recommended to limit the number of threads per chain.
+
+Set the number of OpenMP threads as:
+
+```bash
+export OMP_NUM_THREADS=<total_threads / number_of_chains>
+```
+
+For example, if your system has 32 threads and you run 8 chains:
+
+```bash
+export OMP_NUM_THREADS=4
+```
