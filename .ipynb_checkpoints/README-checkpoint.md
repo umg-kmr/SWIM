@@ -183,6 +183,12 @@ mpirun -n 8 cobaya-run Input.yaml
 
 By default, CAMB uses all available CPU threads. When running multiple chains in parallel, it is recommended to limit the number of threads per chain.
 
+You can check the total number of available CPU threads using:
+
+```bash
+nproc --all
+```
+
 Set the number of OpenMP threads as:
 
 ```bash
