@@ -139,3 +139,25 @@ python -u find_GQ.py
 After completion, the output will be saved in the file `GQ.dat`. The computed $G(Q)$ can be visualized using the Jupyter notebook:`GQ_Plotting_NB.ipynb`
 
 The notebook also includes utilities to smooth the raw output and save it as `GQ_smooth.dat`.
+
+### Semi-Analytical Power Spectrum Calculator
+
+This module is used to perform parameter inference for WI models using the semi-analytical power spectrum, which incorporates the $G(Q)$ correction factor.
+
+To use this module, `Cobaya` must be installed along with the required likelihoods (Planck, ACT DR6, DESI DR2, and SPT). Follow the official Cobaya guide to install external likelihoods:
+
+https://cobaya.readthedocs.io/en/latest/likelihood_external.html#list-of-external-packages
+
+---
+
+From the main SWIM directory, navigate to:
+
+```bash
+cd SA_PS_Calculator
+```
+
+Remove any existing chains:
+
+```bash
+rm -rf chains_Asns chains_fullCMB
+```
