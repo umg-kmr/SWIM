@@ -200,3 +200,93 @@ For example, if your system has 32 threads and you run 8 chains:
 ```bash
 export OMP_NUM_THREADS=4
 ```
+The resulting chains can be analyzed using the `getdist` utility provided by Cobaya.
+
+### Numerical Power Spectrum Calculator
+
+This module computes the Warm Inflation (WI) primordial power spectrum $P_{\mathcal{R}}(k)$ numerically, without relying on the $G(Q)$ correction factor. It operates independently of the `GQ_Calculator` and `SA_PS_Calculator` modules.
+
+The module can be used to:
+- compute the full WI power spectrum for a given set of model parameters, and  
+- perform parameter inference using the numerical power spectrum by interfacing with `Cobaya`.
+
+From the main SWIM directory, navigate to:
+
+```bash
+cd PS_Calculator
+```
+To compute the full WI power spectrum for the model:
+
+$$
+V(\phi) = \dfrac{1}{4} V_0 \phi^4
+$$
+
+$$
+\Upsilon(\phi,T) = C_{\Upsilon} T^3
+$$
+
+The WI model and corresponding parameter values are already implemented in the code.
+
+Navigate to the power spectrum directory and remove existing data files:
+
+```bash
+cd Power_Spectrum
+rm bg.dat ps.dat PT_kp.dat
+```
+
+(Optional) If OpenMP threads were previously limited, reset them to use all available CPUs:
+
+```bash
+export OMP_NUM_THREADS=$(nproc --all)
+```
+
+Then run the Python script:
+
+```bash
+python -u ps_script.py
+```
+
+The script generates the following files:
+
+- `bg.dat` — background evolution of $\phi$, $\phi'$, and $T$ as a function of e-folds $N$  
+- `ps.dat` — numerical WI power spectrum as a function of $k$  
+- `PT_kp.dat` — tensor power spectrum amplitude at the pivot scale
+
+The notebook `Plotting_NB.ipynb` can then be used to:
+
+- visualize the background evolution  
+- plot the raw power spectrum $P_{\mathcal{R}}(k)$  
+- compute derived quantities such as $A_s$, $n_s$, and $r$
+
+---
+
+To perform parameter inference using `Cobaya` (requires Cobaya to be installed), navigate to:
+
+```bash
+cd ../Emulator/RF_Acc_Cobaya
+```
+
+Remove any existing chains:
+
+```bash
+rm -rf chains
+```
+
+Then run Cobaya:
+
+```bash
+cobaya-run Input_asns.yaml
+```
+
+This runs a single MCMC chain and uses a Random Forest Regression (RFR) emulator to accelerate the inference.
+
+During the initial phase, the code evaluates the full numerical solver and stores valid samples. Once a sufficient number of points (100) have been accumulated, the emulator is trained and saved as: `rf_model.pkl`
+
+This trained model can then be used to perform parameter inference more efficiently.
+
+---
+
+### Notes
+
+- This module is the most computationally expensive component of SWIM and is best suited for execution on a high-performance computing (HPC) system with multiple CPU threads.  
+- After training, the emulator provides a fast approximation to the full numerical solver in the high-likelihood region of parameter space.  
