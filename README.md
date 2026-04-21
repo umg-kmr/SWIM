@@ -2,8 +2,6 @@
 
 ![Platform](https://img.shields.io/badge/platform-Linux-blue)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-active-success)
 ![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b)
 
 SWIM is a numerical framework for computing the power spectrum in Warm Inflation (WI) models and performing parameter inference using `Cobaya`. The code provides a flexible and modular pipeline for both semi-analytical and fully numerical approaches.
@@ -309,40 +307,27 @@ SWIM has currently been tested only on Linux-based systems. Compatibility with m
 ```
 SWIM/
 ├── GQ_Calculator/
-│   ├── bg/                     # Background evolution (C++)
-│   ├── pert/                   # Perturbation module (C++)
+│   ├── bg/                     # Background evolution
+│   ├── pert/                   # Perturbation module 
 │   ├── find_ICs.py            # Initial condition solver
 │   ├── find_GQ.py             # Computes G(Q)
 │   └── GQ_Plotting_NB.ipynb   # Visualization & smoothing
 
 ├── SA_PS_Calculator/
 │   ├── model_calc.cpp         # WI model definition
+│   ├── Bg.cpp                 # Solver
+│   ├── llihood.py             # Likelihood definition (A_s, n_s, r constraints)
+│   ├── An_CAMB.py             # CAMB external primordial power spectrum
 │   ├── Input_asns.yaml        # Cobaya config (A_s, n_s, r)
 │   └── Input.yaml             # Full CMB inference
 
-├── SPS_Calculator/
-│   └── Power_Spectrum/
-│       ├── ps_script.py       # Numerical solver
-│       ├── Plotting_NB.ipynb  # Visualization
-│       └── functions_bg_diag.py
+├── PS_Calculator/
+│   ├── Emulator               # RF emulator based inference
+│   ├── Power_Spectrum         # Numerical power spectrum calculation
+│   ├── model_calc.cpp         # Model definition
+│   └── Bg.cpp                 # Solver
 
-├── Emulator/
-│   └── RF_Acc_Cobaya/
-│       ├── Input_asns.yaml
-│       ├── rf_model.pkl       # Trained emulator (generated)
-│       └── chains/            # MCMC outputs
-
-├── compile_SWIM.sh
-├── plots/                     # Figures from paper
-├── data/                      # Precomputed data files
+├── compile_SWIM.sh            # Compilation script
+├── arXiv_plots_data/                     # Figures and data from paper
 └── README.md
-```
-SWIM/
-├── GQ_Calculator/        # Computes G(Q) correction function
-├── SA_PS_Calculator/     # Semi-analytical power spectrum + Cobaya interface
-├── PS_Calculator/       # Full numerical power spectrum solver
-├── Emulato/             # Random Forest emulator and inference pipeline
-├── compile_SWIM.sh       # Compilation script
-├── plots/                # Figures used in the paper
-└── data/                 # Precomputed data files
 ```
