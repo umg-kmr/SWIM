@@ -322,12 +322,12 @@ SWIM/
 │   └── Input.yaml             # Full CMB inference
 
 ├── PS_Calculator/
-│   ├── Emulator               # RF emulator based inference
-│   ├── Power_Spectrum         # Numerical power spectrum calculation
+│   ├── Emulator/              # RF emulator based inference
+│   ├── Power_Spectrum/        # Numerical power spectrum calculation
 │   ├── model_calc.cpp         # Model definition
 │   └── Bg.cpp                 # Solver
 
 ├── compile_SWIM.sh            # Compilation script
-├── arXiv_plots_data/                     # Figures and data from paper
+├── arXiv_plots_data/          # Figures and data from paper
 └── README.md
 ```
