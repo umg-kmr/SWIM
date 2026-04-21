@@ -1,4 +1,11 @@
 # SWIM: Stochastic Warm Inflation Module
+
+![Platform](https://img.shields.io/badge/platform-Linux-blue)
+![Python](https://img.shields.io/badge/python-3.10+-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Status](https://img.shields.io/badge/status-active-success)
+![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b)
+
 SWIM is a numerical framework for computing the power spectrum in Warm Inflation (WI) models and performing parameter inference using `Cobaya`. The code provides a flexible and modular pipeline for both semi-analytical and fully numerical approaches.
 
 The main components of SWIM include:
@@ -92,7 +99,7 @@ SWIM is now ready to be used.
 
 ---
 
-## Quick Start Guide
+# Quick Start Guide
 
 As an illustrative example, the code includes an implementation of the following Warm Inflation (WI) model:
 
@@ -284,9 +291,58 @@ During the initial phase, the code evaluates the full numerical solver and store
 
 This trained model can then be used to perform parameter inference more efficiently.
 
----
-
-### Notes
+#### Notes
 
 - This module is the most computationally expensive component of SWIM and is best suited for execution on a high-performance computing (HPC) system with multiple CPU threads.  
-- After training, the emulator provides a fast approximation to the full numerical solver in the high-likelihood region of parameter space.  
+- After training, the emulator provides a fast approximation to the full numerical solver in the high-likelihood region of parameter space.
+
+---
+
+## Platform Compatibility
+
+SWIM has currently been tested only on Linux-based systems. Compatibility with macOS or Windows has not been extensively verified.
+
+---
+
+## Repository Structure
+
+```
+SWIM/
+├── GQ_Calculator/
+│   ├── bg/                     # Background evolution (C++)
+│   ├── pert/                   # Perturbation module (C++)
+│   ├── find_ICs.py            # Initial condition solver
+│   ├── find_GQ.py             # Computes G(Q)
+│   └── GQ_Plotting_NB.ipynb   # Visualization & smoothing
+
+├── SA_PS_Calculator/
+│   ├── model_calc.cpp         # WI model definition
+│   ├── Input_asns.yaml        # Cobaya config (A_s, n_s, r)
+│   └── Input.yaml             # Full CMB inference
+
+├── SPS_Calculator/
+│   └── Power_Spectrum/
+│       ├── ps_script.py       # Numerical solver
+│       ├── Plotting_NB.ipynb  # Visualization
+│       └── functions_bg_diag.py
+
+├── Emulator/
+│   └── RF_Acc_Cobaya/
+│       ├── Input_asns.yaml
+│       ├── rf_model.pkl       # Trained emulator (generated)
+│       └── chains/            # MCMC outputs
+
+├── compile_SWIM.sh
+├── plots/                     # Figures from paper
+├── data/                      # Precomputed data files
+└── README.md
+```
+SWIM/
+├── GQ_Calculator/        # Computes G(Q) correction function
+├── SA_PS_Calculator/     # Semi-analytical power spectrum + Cobaya interface
+├── PS_Calculator/       # Full numerical power spectrum solver
+├── Emulato/             # Random Forest emulator and inference pipeline
+├── compile_SWIM.sh       # Compilation script
+├── plots/                # Figures used in the paper
+└── data/                 # Precomputed data files
+```
