@@ -331,3 +331,12 @@ SWIM/
 ├── arXiv_plots_data/          # Figures and data from paper
 └── README.md
 ```
+
+## Contact
+
+For questions, feedback, or issues related to SWIM, please contact:
+
+- **Umang Kumar**  
+  Email: umang.kumar_phd21@ashoka.edu.in  
+
+Alternatively, feel free to open an issue on this repository.
