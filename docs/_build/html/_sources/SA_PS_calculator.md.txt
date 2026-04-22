@@ -15,7 +15,7 @@ As of now there are no helper scripts to interface with the ``SA_PS_Calculator``
 
    a. ``llihood.py`` this file can be used when only the power spectrum amplitude :math:`A_s` and spectral index :math:`n_s` are used to constrain the model parameters. This is much faster than using the full power spectrum and can be used to get a good guess for the posterior distribution of the model parameters.
    
-   b. ``An_CAMB.py`` this file assumes that ``CAMB`` will be used as the Boltzmann code to perform parameter inference and generates the full power spectrum within a range of :math:`k` values hich can then be supplied to ``CAMB`` as the primordial scalar power spectrum.
+   b. ``An_CAMB.py`` this file assumes that ``CAMB`` will be used as the Boltzmann code to perform parameter inference and generates the full power spectrum within a range of :math:`k` values which can then be supplied to ``CAMB`` as the primordial scalar power spectrum.
    
 To use the code:
 

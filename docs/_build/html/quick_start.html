@@ -21,15 +21,15 @@
 <meta content="#ffffff" media="(prefers-color-scheme: light)" name="theme-color"/>
 <meta content="#030711" media="(prefers-color-scheme: dark)" name="theme-color"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>General Structure of SWIM | SWIM 1.0 documentation</title>
-<meta content="General Structure of SWIM | SWIM 1.0 documentation" property="og:title"/>
-<meta content="General Structure of SWIM | SWIM 1.0 documentation" name="twitter:title"/>
+<title>Quick Start | SWIM 1.0 documentation</title>
+<meta content="Quick Start | SWIM 1.0 documentation" property="og:title"/>
+<meta content="Quick Start | SWIM 1.0 documentation" name="twitter:title"/>
 <link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
 <link href="_static/theme.css?v=979577e3" rel="stylesheet" type="text/css"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
-<link href="GQ_calculator.html" rel="next" title=":math:G(Q) Calculator"/>
-<link href="quick_start.html" rel="prev" title="Quick Start"/>
+<link href="general_structure.html" rel="next" title="General Structure of SWIM"/>
+<link href="installation.html" rel="prev" title="Installation"/>
 </head>
 <body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
 <div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
@@ -73,8 +73,8 @@
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">General Structure of SWIM</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure of SWIM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html">:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
@@ -98,29 +98,158 @@
 <path d="M240 856h120V616h240v240h120V496L480 316 240 496v360Zm-80 80V456l320-240 320 240v480H520V696h-80v240H160Zm320-350Z"></path>
 </svg>
 </a>
-<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">General Structure of SWIM</span>
+<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">Quick Start</span>
 </nav>
 <div id="content" role="main">
-<section class="tex2jax_ignore mathjax_ignore" id="general-structure-of-swim">
-<h1>General Structure of SWIM<a class="headerlink" href="#general-structure-of-swim" title="Link to this heading"><span>#</span></a></h1>
-<p>SWIM has been divided into following sub-modules:</p>
+<section class="tex2jax_ignore mathjax_ignore" id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"><span>#</span></a></h1>
+<p>This guide walks through the core workflow of SWIM using a built-in example Warm Inflation (WI) model:</p>
+<div class="math notranslate nohighlight">
+\[
+V(\phi) = \dfrac{1}{4} V_0 \phi^4, \qquad
+\Upsilon(\phi,T) = C_{\Upsilon} T^3
+\]</div>
+<hr class="docutils"/>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#overview'"><span>#</span></a></h2>
+<p>The typical workflow in SWIM is:</p>
 <ol class="arabic simple">
-<li><p>:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> calculator</p></li>
-<li><p>Numerical power-spectrum calculator</p></li>
-<li><p>Semi-analytical power-spectrum calculator</p></li>
+<li><p>Compute the correction function <span class="math notranslate nohighlight">\(G(Q)\)</span></p></li>
+<li><p>Perform semi-analytical parameter inference using the computed <span class="math notranslate nohighlight">\(G(Q)\)</span></p></li>
+<li><p>Compute the full numerical power spectrum</p></li>
+<li><p>Perform parameter inference using full numerical power spectrum accelerated using the emulator</p></li>
 </ol>
-<p>:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> Calculator</p>
-<hr class="docutils"/>
-<p>The function :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> accounts for the enhancement in the primordial power spectrum of Warm Inflation (WI) arising due to the coupling between inflaton and radiation fluctuations. This function has to be computed numerically by integrating WI fluctuation equations which is what this submodule does, similar to codes like <code class="docutils literal notranslate"><span class="pre">WI2Easy</span> <span class="pre">&lt;https://github.com/RudneiRamos/WI2easy&gt;</span></code>_ and <code class="docutils literal notranslate"><span class="pre">WarmSpy</span> <span class="pre">&lt;https://github.com/GabrieleMonte/WarmSPy&gt;</span></code>_.  Once obtained, it can be used to calculate the semi-analytical primordial power-spectrum :math:<code class="docutils literal notranslate"><span class="pre">P_{\mathcal{R}}(k)</span></code> for WI.</p>
-<p>.. math::</p>
-<p>P_{\mathcal{R}}(k) = \left(\dfrac{H^2}{2\pi \dot{\phi}}\right)^2\left[\dfrac{T}{H}\dfrac{2\sqrt{3}\pi Q}{\sqrt{3+4\pi Q}} + 1 + 2\mathcal{N}\right] G(Q) \ ,</p>
-<p>where all the quantities are evaluated at horizon crossing :math:<code class="docutils literal notranslate"><span class="pre">(k=aH)</span></code> and :math:<code class="docutils literal notranslate"><span class="pre">\mathcal{N}</span></code> denotes the thermal distribution of the inflaton field due to the presence of radiation.</p>
-<p>This submodule contains all the functionality required to compute the growth function :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> for a given WI model, further divided into: <code class="docutils literal notranslate"><span class="pre">bg</span></code> and <code class="docutils literal notranslate"><span class="pre">pert</span></code> modules. It also includes python scripts and a Jupyter Notebook to interact with the numerical solver.</p>
-<p>Numerical Power Spectrum Calculator</p>
-<hr class="docutils"/>
-<p>Labelled as <code class="docutils literal notranslate"><span class="pre">PS_Calculator</span></code> in the code. It is the heart of SWIM as it directly computes the WI power spectrum numerically using a Stochastic-Langevin approach (similar to <code class="docutils literal notranslate"><span class="pre">WarmSpy</span></code>). This submodule can be run independently of all the other submodules within SWIM, as the power spectrum is directly calculated as a function of the comoving wavenumber :math:<code class="docutils literal notranslate"><span class="pre">k</span></code>.</p>
 </section>
-</div></div>
+<hr class="docutils"/>
+<section id="compute-g-q">
+<h2>1. Compute <span class="math notranslate nohighlight">\(G(Q)\)</span><a class="headerlink" href="#compute-g-q" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#compute-g-q'"><span>#</span></a></h2>
+<p>Navigate to the module:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">cd</span><span class="w"> </span>GQ_Calculator
+</span></code></pre></div>
+</div>
+<p>Clean previous outputs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">rm<span class="w"> </span>ics.dat<span class="w"> </span>GQ.dat<span class="w"> </span>GQ_smooth.dat
+</span></code></pre></div>
+</div>
+<p>Compute initial conditions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">python<span class="w"> </span>-u<span class="w"> </span>find_ICs.py
+</span></code></pre></div>
+</div>
+<p>Then compute <span class="math notranslate nohighlight">\(G(Q)\)</span>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">python<span class="w"> </span>-u<span class="w"> </span>find_GQ.py
+</span></code></pre></div>
+</div>
+<p>Outputs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ics.dat</span></code> — initial conditions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code> — raw <span class="math notranslate nohighlight">\(G(Q)\)</span></p></li>
+</ul>
+<p>Use the notebook <code class="docutils literal notranslate"><span class="pre">GQ_Plotting_NB.ipynb</span></code> to visualize and smooth the output (<code class="docutils literal notranslate"><span class="pre">GQ_smooth.dat</span></code>).</p>
+</section>
+<hr class="docutils"/>
+<section id="semi-analytical-inference-optional">
+<h2>2. Semi-Analytical Inference (Optional)<a class="headerlink" href="#semi-analytical-inference-optional" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#semi-analytical-inference-optional'"><span>#</span></a></h2>
+<p>Requires <code class="docutils literal notranslate"><span class="pre">Cobaya</span></code> and cosmological likelihoods.</p>
+<p>Navigate to:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">cd</span><span class="w"> </span>../SA_PS_Calculator
+</span></code></pre></div>
+</div>
+<p>Remove old chains:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">rm<span class="w"> </span>-rf<span class="w"> </span>chains_Asns<span class="w"> </span>chains_fullCMB
+</span></code></pre></div>
+</div>
+<p>Run inference (example with 8 chains):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">8</span><span class="w"> </span>cobaya-run<span class="w"> </span>Input_asns.yaml
+</span></code></pre></div>
+</div>
+<p>For full CMB likelihoods:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">8</span><span class="w"> </span>cobaya-run<span class="w"> </span>Input.yaml
+</span></code></pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When running multiple chains, limit CPU usage per chain:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">export OMP_NUM_THREADS=$(nproc --all)/8
+</span></code></pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="numerical-power-spectrum">
+<h2>3. Numerical Power Spectrum<a class="headerlink" href="#numerical-power-spectrum" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#numerical-power-spectrum'"><span>#</span></a></h2>
+<p>Compute the full stochastic WI power spectrum:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">cd</span><span class="w"> </span>../SPS_Calculator/Power_Spectrum
+</span></code></pre></div>
+</div>
+<p>Clean outputs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">rm<span class="w"> </span>bg.dat<span class="w"> </span>ps.dat<span class="w"> </span>PT_kp.dat
+</span></code></pre></div>
+</div>
+<p>(Optional) use all CPU threads:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="k">$(</span>nproc<span class="w"> </span>--all<span class="k">)</span>
+</span></code></pre></div>
+</div>
+<p>Run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">python<span class="w"> </span>-u<span class="w"> </span>ps_script.py
+</span></code></pre></div>
+</div>
+<p>Outputs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bg.dat</span></code> — background evolution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ps.dat</span></code> — power spectrum</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PT_kp.dat</span></code> — tensor amplitude</p></li>
+</ul>
+<p>Use <code class="docutils literal notranslate"><span class="pre">Plotting_NB.ipynb</span></code> to visualize results and extract <span class="math notranslate nohighlight">\((A_s, n_s, r)\)</span>.</p>
+</section>
+<hr class="docutils"/>
+<section id="emulator-based-inference-optional">
+<h2>4. Emulator-Based Inference (Optional)<a class="headerlink" href="#emulator-based-inference-optional" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#emulator-based-inference-optional'"><span>#</span></a></h2>
+<p>Accelerate inference using a Random Forest emulator:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">cd</span><span class="w"> </span>../../Emulator/RF_Acc_Cobaya
+</span></code></pre></div>
+</div>
+<p>Remove previous chains:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">rm<span class="w"> </span>-rf<span class="w"> </span>chains
+</span></code></pre></div>
+</div>
+<p>Run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">cobaya-run<span class="w"> </span>Input_asns.yaml
+</span></code></pre></div>
+</div>
+<p>After ~100 valid samples, the emulator is trained and saved as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">rf_model</span><span class="o">.</span><span class="n">pkl</span>
+</span></code></pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The emulator is trained only for the chosen WI model. Any change in the model or perturbation settings requires retraining.</p>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#summary'"><span>#</span></a></h2>
+<ul class="simple">
+<li><p>Use <strong>GQ module</strong> → compute correction factor</p></li>
+<li><p>Use <strong>SA module</strong> → fast semi-analytical inference</p></li>
+<li><p>Use <strong>PS module</strong> → full numerical spectrum</p></li>
+<li><p>Use <strong>Emulator</strong> → speed up inference</p></li>
+</ul>
+<hr class="docutils"/>
+<p>For full details of each module, see the corresponding sections in the documentation.</p>
+</section>
+</section>
+</div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
+<div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
+<ul>
+<li><a :data-current="activeSection === '#overview'" class="reference internal" href="#overview">Overview</a></li>
+<li><a :data-current="activeSection === '#compute-g-q'" class="reference internal" href="#compute-g-q">1. Compute <span class="math notranslate nohighlight">\(G(Q)\)</span></a></li>
+<li><a :data-current="activeSection === '#semi-analytical-inference-optional'" class="reference internal" href="#semi-analytical-inference-optional">2. Semi-Analytical Inference (Optional)</a></li>
+<li><a :data-current="activeSection === '#numerical-power-spectrum'" class="reference internal" href="#numerical-power-spectrum">3. Numerical Power Spectrum</a></li>
+<li><a :data-current="activeSection === '#emulator-based-inference-optional'" class="reference internal" href="#emulator-based-inference-optional">4. Emulator-Based Inference (Optional)</a></li>
+<li><a :data-current="activeSection === '#summary'" class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</div>
+</aside>
 </main>
 </div>
 </div><footer class="py-6 border-t border-border md:py-0">
@@ -135,5 +264,7 @@
 <script src="_static/doctools.js?v=9bcbadda"></script>
 <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
 <script defer="defer" src="_static/theme.js?v=d6a9845b"></script>
+<script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+<script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>
