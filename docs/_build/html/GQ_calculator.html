@@ -21,15 +21,15 @@
 <meta content="#ffffff" media="(prefers-color-scheme: light)" name="theme-color"/>
 <meta content="#030711" media="(prefers-color-scheme: dark)" name="theme-color"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>:math:G(Q) Calculator | SWIM 1.0 documentation</title>
-<meta content=":math:G(Q) Calculator | SWIM 1.0 documentation" property="og:title"/>
-<meta content=":math:G(Q) Calculator | SWIM 1.0 documentation" name="twitter:title"/>
+<title>GQ Calculator | SWIM 1.0 documentation</title>
+<meta content="GQ Calculator | SWIM 1.0 documentation" property="og:title"/>
+<meta content="GQ Calculator | SWIM 1.0 documentation" name="twitter:title"/>
 <link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
 <link href="_static/theme.css?v=979577e3" rel="stylesheet" type="text/css"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
 <link href="SA_PS_calculator.html" rel="next" title="SA_PS Calculator"/>
-<link href="general_structure.html" rel="prev" title="General Structure of SWIM"/>
+<link href="implementation_details.html" rel="prev" title="Implementation Details"/>
 </head>
 <body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
 <div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
@@ -74,11 +74,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure of SWIM</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation_details.html">Implementation Details</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">GQ</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="additional_params.html"><code class="docutils literal notranslate"><span class="pre">verbosity</span></code></a></li>
 </ul>
 </nav>
 </div>
@@ -98,232 +98,479 @@
 <path d="M240 856h120V616h240v240h120V496L480 316 240 496v360Zm-80 80V456l320-240 320 240v480H520V696h-80v240H160Zm320-350Z"></path>
 </svg>
 </a>
-<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> Calculator</span>
+<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap"><code class="docutils literal notranslate"><span class="pre">GQ</span></code> Calculator</span>
 </nav>
 <div id="content" role="main">
-<section class="tex2jax_ignore mathjax_ignore" id="math-g-q-calculator">
-<h1>:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> Calculator<a class="headerlink" href="#math-g-q-calculator" title="Link to this heading"><span>#</span></a></h1>
-<p>This module is subdivided into <code class="docutils literal notranslate"><span class="pre">bg</span></code> and <code class="docutils literal notranslate"><span class="pre">pert</span></code> modules.</p>
-<p><code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule</p>
-<hr class="docutils"/>
-<p>The main function of this module is to compute the background dynamics of a specified WI model. As a part of :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> calculator this submodule is used to calculate the initial conditions for different :math:<code class="docutils literal notranslate"><span class="pre">Q</span></code> values.</p>
-<p>The directory itself contains 3 files:</p>
-<ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Bg.cpp</span></code> is the program that numerically integrates the background and computes the required parameters.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> is where the WI model is specified. It is only required to enter the model potential and its derivative if :math:<code class="docutils literal notranslate"><span class="pre">\Upsilon</span> <span class="pre">=</span> <span class="pre">C_{\Upsilon}</span> <span class="pre">T^p</span> <span class="pre">\phi^c</span></code>. Otherwise <code class="docutils literal notranslate"><span class="pre">Ups_wo_Cy</span></code> function needs to be modified with the form of :math:<code class="docutils literal notranslate"><span class="pre">\Upsilon</span></code> being considered.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">libbg.so</span></code> is the compiled library that interfaces with python helper scripts in the :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> calculator module.</p></li>
-</ol>
-<p>Some examples of potentials commonly seen in literature are already available in the code itself. To modify the WI model in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code>:</p>
-<ol class="arabic simple">
-<li><p>Modify the potential function <code class="docutils literal notranslate"><span class="pre">V</span></code> as such:</p></li>
-</ol>
-<p>.. code-block:: cpp</p>
-<p>auto V = [m] (double phi) -&gt; double {
-return 0.5<em>m</em>m<em>phi</em>phi; //V = 1/2 m^2 \phi^2
-};</p>
-<p>Most of the functions in SWIM are <code class="docutils literal notranslate"><span class="pre">lambda</span></code> functions that can take arguments as well as capture fixed parameters from the top-level function. The square brackets are where the captured parameters (fixed) specified. It should be modified accordingly to the potential specified.</p>
-<ol class="arabic simple" start="2">
-<li><p>Modify the potential derivative function <code class="docutils literal notranslate"><span class="pre">Vd</span></code> as such:</p></li>
-</ol>
-<p>.. code-block:: cpp</p>
-<p>auto Vd = [m] (double phi) -&gt; double {
-return m<em>m</em>phi; //V’ =  m^2 \phi
-};</p>
-<ol class="arabic simple" start="3">
-<li><p>Depending on the model, you can also modify the <code class="docutils literal notranslate"><span class="pre">Ups_wo_Cy</span></code> function. The default form is :math:<code class="docutils literal notranslate"><span class="pre">\Upsilon</span> <span class="pre">\propto</span> <span class="pre">T^p</span> <span class="pre">\phi^c</span></code> .</p></li>
-</ol>
-<p>.. code-block:: cpp</p>
-<p>auto Ups_wo_Cy = [p,c] (double phi,double T) -&gt; double {  //Form of Upsilon without the constant
-return pow(T,p) * pow(phi,c);
-};</p>
-<p>The constant <code class="docutils literal notranslate"><span class="pre">Cy</span></code> (:math:<code class="docutils literal notranslate"><span class="pre">C_{\Upsilon}</span></code>) is internally calculated using :math:<code class="docutils literal notranslate"><span class="pre">\Upsilon</span> <span class="pre">=</span> <span class="pre">3HQ</span></code>.</p>
-<ol class="arabic simple" start="4">
-<li><p>Finally, also modify the signature of the top-level function <code class="docutils literal notranslate"><span class="pre">model</span></code> to include your model parameters with their data types.</p></li>
-</ol>
-<p>.. code-block:: cpp</p>
-<p>void model (double phi_ini,double Q_ini, double gst, double m, int p, int c, int hybrid_inf)</p>
-<p>Generally, you can keep all the parameters (<code class="docutils literal notranslate"><span class="pre">phi_ini</span></code>, <code class="docutils literal notranslate"><span class="pre">Q_ini</span></code>, <code class="docutils literal notranslate"><span class="pre">gst</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code>, <code class="docutils literal notranslate"><span class="pre">hybrid_inf</span></code>) and add the other model parameters specific to your use case.</p>
-<p>Apart from these functions, no other function needs to be modified for WI model definition. Once done with the modification make sure to run the compilation script again.</p>
-<p><code class="docutils literal notranslate"><span class="pre">pert</span></code> submodule</p>
-<hr class="docutils"/>
-<p>This submodule performs the perturbation calculations for WI using the stochastic formalism. It is primarily used to calculate the growth function :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> using the python helper script <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code>. The directory structure of this submodule is similar to the <code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule with code files having exactly the same name. <code class="docutils literal notranslate"><span class="pre">Bg.cpp</span></code> contains functions to integrate the stochastic differential equations and finally compute :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code>. <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> is where the model has to be specified again so that the perturbation module uses the correct model for calculations.</p>
-<p>The set-up procedure is similar to <code class="docutils literal notranslate"><span class="pre">bg</span></code> module:</p>
-<ol class="arabic simple">
-<li><p>Specify the model potential and its derivative in the functions <code class="docutils literal notranslate"><span class="pre">V</span></code> and <code class="docutils literal notranslate"><span class="pre">Vd</span></code>.</p></li>
-<li><p>Additionally, also specify the second derivative of the potential in <code class="docutils literal notranslate"><span class="pre">Vdd</span></code>.</p></li>
-</ol>
-<p>.. code-block:: cpp</p>
-<p>auto Vdd = [m] (double phi) -&gt; double {
-return m*m; //V’’ = m^2
-};</p>
-<p>The second derivative of the potential is required for the perturbation equations.</p>
-<ol class="arabic simple" start="3">
-<li><p>If the model :math:<code class="docutils literal notranslate"><span class="pre">\Upsilon</span></code> differs from the default form of the code, modify the <code class="docutils literal notranslate"><span class="pre">Ups_wo_Cy</span></code> function similar to the <code class="docutils literal notranslate"><span class="pre">bg</span></code> module.</p></li>
-<li><p>Skip this step if no modification is done to :math:<code class="docutils literal notranslate"><span class="pre">\Upsilon</span></code>. Specify the partial derivatives of :math:<code class="docutils literal notranslate"><span class="pre">\Upsilon(\phi,T)</span></code> in the functions <code class="docutils literal notranslate"><span class="pre">pT_Ups</span></code> (temperature derivative) and <code class="docutils literal notranslate"><span class="pre">pph_Ups</span></code> (phi derivative).</p></li>
-</ol>
-<p>.. code-block:: cpp</p>
-<p>auto pT_Ups = [Cy,p,c] (double phi, double T) -&gt; double {
-return p * Cy * pow(T,p-1.0) * pow(phi,c);
-};</p>
-<p>auto pph_Ups = [Cy,p,c] (double phi, double T) -&gt; double {
-return c * Cy * pow(T,p) * pow(phi,c-1.0);
-};</p>
-<ol class="arabic simple" start="5">
-<li><p>Similar to the <code class="docutils literal notranslate"><span class="pre">bg</span></code> module, change the signature of the top-level <code class="docutils literal notranslate"><span class="pre">model</span></code> function to accept the newly added model parameters.</p></li>
-</ol>
-<p>.. code-block:: cpp</p>
-<p>void model (double phi_ini,double Q_ini, double gst, double m, int p, int c, int therm, int rad_noise, int hybrid_inf)</p>
-<p>Keep the parameters (<code class="docutils literal notranslate"><span class="pre">phi_ini</span></code>, <code class="docutils literal notranslate"><span class="pre">Q_ini</span></code>, <code class="docutils literal notranslate"><span class="pre">gst</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code>, <code class="docutils literal notranslate"><span class="pre">therm</span></code>, <code class="docutils literal notranslate"><span class="pre">rad_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">hybrid_inf</span></code>) as it is and add your model parameters with their data types.</p>
-<p>With this the model specification in the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module is done and the code should be re-compiled.</p>
-<p>Now we can move on to compute :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> by using the helper scripts <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> and <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code>. These scripts are a convenient way to interface with the <code class="docutils literal notranslate"><span class="pre">C++</span></code> code and thus is the preferred way of using the module. It it possible to directly interact with the <code class="docutils literal notranslate"><span class="pre">C++</span></code> code by compiling the code with the inclusion of a <code class="docutils literal notranslate"><span class="pre">main</span></code> function in the <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> files and removing the <code class="docutils literal notranslate"><span class="pre">-shared</span></code> and <code class="docutils literal notranslate"><span class="pre">-fPIC</span></code> compilation flags.</p>
-<p><code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script</p>
-<hr class="docutils"/>
-<p>The main function of this script is to generate initial values of :math:<code class="docutils literal notranslate"><span class="pre">\phi_i</span></code> such that the duration of inflation is equal to the required number of e-folds specified by <code class="docutils literal notranslate"><span class="pre">dur_N</span></code> parameter. The python script sets the global parameter values and repeatedly calls the compiled <code class="docutils literal notranslate"><span class="pre">C++</span></code> library from the <code class="docutils literal notranslate"><span class="pre">bg</span></code> submodule for different :math:<code class="docutils literal notranslate"><span class="pre">Q</span></code> values. Finally the computed values of :math:<code class="docutils literal notranslate"><span class="pre">\phi_i</span></code> and :math:<code class="docutils literal notranslate"><span class="pre">Q</span></code> are stored in a file which can then be used by the <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> script.</p>
-<p>To use the helper script:</p>
-<ol class="arabic">
-<li><p>Specify the model parameters at the top level in the script.</p>
-<p>.. data:: m
-:type: double
-:value: 1e-6</p>
-<p>Potential parameter</p>
-<p>.. data:: gst
-:type: double
-:value: 106.75</p>
-<p>Relativistic degrees of freedom (:math:<code class="docutils literal notranslate"><span class="pre">g_*</span></code>)</p>
-</li>
-<li><p>Specify the :math:<code class="docutils literal notranslate"><span class="pre">\Upsilon</span></code> parameters.</p>
-<p>.. data:: p
-:type: int
-:value: 3</p>
-<p>:math:<code class="docutils literal notranslate"><span class="pre">T^p</span></code></p>
-<p>.. data:: c
-:type: int
-:value: -2</p>
-<p>:math:<code class="docutils literal notranslate"><span class="pre">\phi^c</span></code></p>
-</li>
-<li><p>If working with hybrid inflation, set these two parameters.</p>
-<p>.. data:: hybrid_inf
-:type: int
-:value: 0 or 1</p>
-<p>Parameter indicating inflation type. Can be either <code class="docutils literal notranslate"><span class="pre">0</span></code> (disabled) or <code class="docutils literal notranslate"><span class="pre">1</span></code> (enabled).</p>
-<p>.. data:: ph_crit
-:type: double
-:value: 0.2</p>
-<p>Parameter to set the critical value of the field. To be used with <code class="docutils literal notranslate"><span class="pre">hybrid_inf=1</span></code>.</p>
-</li>
-<li><p>Finally, set the other code related parameters.</p>
-<p>.. data:: Qlow
-:type: double
-:value: 1e-9</p>
-<p>Lower limit for the range of :math:<code class="docutils literal notranslate"><span class="pre">Q</span></code> values.</p>
-<p>.. data:: Qup
-:type: double
-:value: 1e4</p>
-<p>Upper limit for the range of :math:<code class="docutils literal notranslate"><span class="pre">Q</span></code> values.</p>
-<p>.. data:: npts
-:type: int
-:value: 100</p>
-<p>Number of points to be generated between <code class="docutils literal notranslate"><span class="pre">Qlow</span></code> and <code class="docutils literal notranslate"><span class="pre">Qup</span></code>, logarithmically spaced.</p>
-<p>.. data:: dur_N
-:type: double
-:value: 60.0</p>
-<p>Parameter to specify the duration of inflation in e-folds.</p>
-<p>.. data:: Nprocs
-:type: int
-:value: 12</p>
-<p>Number of CPUs to be used for multiprocessing. To utilize all available CPU resources, set this number to the number of logical processors (threads/core :math:<code class="docutils literal notranslate"><span class="pre">\times</span></code> cores) in your system.</p>
-</li>
-<li><p>Finding the value of :math:<code class="docutils literal notranslate"><span class="pre">\phi</span></code> such that inflation ends at <code class="docutils literal notranslate"><span class="pre">dur_N</span></code> is effectively a minimization problem and a versatile albeit inefficient <code class="docutils literal notranslate"><span class="pre">brute_force</span></code> algorithm is used to achieve this in this code. The algorithm finds a local minima of the objective function specified by the parameters:</p>
-<p>.. data:: lower_bound
-:type: double
-:value: -1.0</p>
-<p>Parameter to specify the lower bound of the input parameter (:math:<code class="docutils literal notranslate"><span class="pre">\phi</span></code>) in :math:<code class="docutils literal notranslate"><span class="pre">\log_{10}</span></code>.</p>
-<p>.. data:: upper_bound
-:type: double
-:value: 1.0</p>
-<p>Parameter to specify the upper bound of the input parameter (:math:<code class="docutils literal notranslate"><span class="pre">\phi</span></code>) in :math:<code class="docutils literal notranslate"><span class="pre">\log_{10}</span></code>.</p>
-</li>
-</ol>
-<p>As the algorithm evaluates the objective function multiple times, it is an inefficient way to minimize the function. The algorithm used can be replaced by a more efficient algorithm better suited for your use case by modifying this line of the code:</p>
-<p>.. code-block:: python</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">soln = optimize.brute(objfn,ranges=ranges, args=(i,), Ns=1000, full_output=1, disp=False, workers=Nprocs,finish=optimize.fmin)
+<section class="tex2jax_ignore mathjax_ignore" id="gq-calculator">
+<h1><code class="docutils literal notranslate"><span class="pre">GQ</span></code> Calculator<a class="headerlink" href="#gq-calculator" title="Link to this heading"><span>#</span></a></h1>
+<p>This module computes the correction function <span class="math notranslate nohighlight">\(G(Q)\)</span> for a given Warm Inflation (WI) model by solving the background and perturbation equations numerically.</p>
+<p>It is organized into two main components <code class="docutils literal notranslate"><span class="pre">bg</span></code> and <code class="docutils literal notranslate"><span class="pre">pert</span></code> with helper Python scripts:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">GQ_Calculator/
+</span><span id="line-2">├── bg/                # Background evolution
+</span><span id="line-3">├── pert/              # Perturbations + power spectrum
+</span><span id="line-4">├── find_ICs.py        # Initial condition finder
+</span><span id="line-5">├── find_GQ.py         # Computes G(Q)
+</span><span id="line-6">└── GQ_Plotting_NB.ipynb  # Plotting and Smoothing G(Q)
 </span></code></pre></div>
 </div>
-<ol class="arabic" start="6">
-<li><p>Finally, modify the <code class="docutils literal notranslate"><span class="pre">C++</span></code> library definition and also the signature of the function being called from the loaded library.</p>
-<p>.. code-block:: python</p>
-<p>ffi.cdef(“void model (double phi_ini,double Q_ini, double gst, double m,int p, int c, int hybrid_inf);void clear_Nend();extern double Nend;void set_phi_crit (double x);”,override=True)</p>
-<p>The command above specifies the functions (and their signatures) that are to be loaded from the <code class="docutils literal notranslate"><span class="pre">C++</span></code> shared library of the <code class="docutils literal notranslate"><span class="pre">bg</span></code> module. You only need to modify the signature of <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">model</span></code> function to match with the definition in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> of the <code class="docutils literal notranslate"><span class="pre">bg</span></code> module.</p>
-<p>.. code-block:: python</p>
-<p>lib.model(phi0, Q0, gst, m, p, c,hybrid_inf)</p>
-<p>This is where we pass the python parameter values to the shared library and hence should match the signature of <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">model</span></code> exactly. The name of the python variables can be different from the <code class="docutils literal notranslate"><span class="pre">C++</span></code> variable names but the logical quantity held by these parameters should match. For instance, <code class="docutils literal notranslate"><span class="pre">phi0</span> <span class="pre">=</span> <span class="pre">phi_ini</span></code>.</p>
-</li>
-</ol>
-<p>Now the helper script is ready to compute the initial conditions. Run the command <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">find_ICs.py</span></code> in the conda environment setup during the installation stage. The script will create a file <code class="docutils literal notranslate"><span class="pre">ics.dat</span></code> in the same directory with the format: <code class="docutils literal notranslate"><span class="pre">phi_initial</span></code>, <code class="docutils literal notranslate"><span class="pre">Q_initial</span></code>.</p>
-<p>.. note::</p>
-<p>If the helper script is re-run, the new computation results will keep on appending to the same <code class="docutils literal notranslate"><span class="pre">ics.dat</span></code> file.</p>
-<p><code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> script</p>
 <hr class="docutils"/>
-<p>This script computes the growth function :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> utilizing the initial conditions calculated by the <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script in the previous step. The shared <code class="docutils literal notranslate"><span class="pre">C++</span></code> library of the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module is repeatedly called for each pair of initial conditions in the <code class="docutils literal notranslate"><span class="pre">ics.dat</span></code> file. The <code class="docutils literal notranslate"><span class="pre">pert</span></code> shared library will internally calculate both the numerical scalar power spectrum and analytical power spectrum and finally save the ratio of the two in a file <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code>.</p>
-<p>The usage of the helper script is similar to the <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script with a few additional parameters:</p>
-<ol class="arabic">
-<li><p>Specify the model and :math:<code class="docutils literal notranslate"><span class="pre">\Upsilon</span></code> parameters as before in <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> script.</p></li>
-<li><p>Include the parameters for hybrid inflation if required.</p></li>
-<li><p>Set the other parameters:</p>
-<p>.. data:: therm
-:type: int
-:value: 0 or 1</p>
-<p>Parameter indicating the state of thermalization of inflaton with the radiation bath. <code class="docutils literal notranslate"><span class="pre">0</span></code> for no thermalization and <code class="docutils literal notranslate"><span class="pre">1</span></code> inflaton is thermalized and we assume a Bose-Einstein distribution.</p>
-<p>.. data:: rad_noise
-:type: int
-:value: 0 or 1</p>
-<p>Set to <code class="docutils literal notranslate"><span class="pre">1</span></code> to include the thermal noise term in the radiation perturbation equation and <code class="docutils literal notranslate"><span class="pre">0</span></code> to not.</p>
-<p>.. data:: Nrealz
-:type: int
-:value: 1024</p>
-<p>Parameter that sets the number of realiazations of the stochastic noise term to average over. Higher values will increase computation time.</p>
-<p>.. data:: Nstar
-:type: double
-:value: 7.0</p>
-<p>Parameter that sets the e-folding value at which the power spectrum should be computed. It should be set in a way such that the mode under study should have enough e-folds before to initialize and after to freeze.</p>
-</li>
-<li><p>Like before, modify the <code class="docutils literal notranslate"><span class="pre">C++</span></code> library definition and also the signature of the function being called from the loaded library.</p>
-<p>.. code-block:: python</p>
-<p>ffi.cdef(“void model (double phi_ini,double Q_ini, double gst, double m, int p, int c, int therm, int rad_noise,int hybrid_inf);void clear_vars();void set_phi_crit (double x);extern double Nend;extern double GQ_val;extern double Q_val; void set_globals (int N_realizations, double Nstar, int verbosity);”,override=True)</p>
-<p>You only need to modify the signature of <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">model</span></code> function to match with the definition in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> of the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module.</p>
-<p>.. code-block:: python</p>
-<p>lib_pert.model(i,j,gst,m,p,c,therm,rad_noise,hybrid_inf)</p>
-<p>where <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">j</span></code> are dummy variables looping over the pair of :math:<code class="docutils literal notranslate"><span class="pre">\phi</span></code> and :math:<code class="docutils literal notranslate"><span class="pre">Q</span></code> values from <code class="docutils literal notranslate"><span class="pre">ics.dat</span></code>.</p>
-</li>
-</ol>
-<p>Now the helper script can be run using the command <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">find_GQ.py</span></code> in the conda environment setup during the installation stage. The script will create a file <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code> in the same directory with the format: :math:<code class="docutils literal notranslate"><span class="pre">Q_*</span></code>, :math:<code class="docutils literal notranslate"><span class="pre">G(Q_*)</span></code>.</p>
-<p>.. note::</p>
-<ol class="arabic">
-<li><p>If the helper script is re-run, the new computation results will keep on appending to the same <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code> file.</p></li>
-<li><p>The multiprocessing method in the <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> script is different from <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code>. In the <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> case, multiprocessing is implemented in the <code class="docutils literal notranslate"><span class="pre">C++</span></code> library itself using <code class="docutils literal notranslate"><span class="pre">OpenMP</span></code> and by default it uses all the available CPUs in the system. To change the number of CPUs available to <code class="docutils literal notranslate"><span class="pre">OpenMP</span></code> you can update the flag:</p>
-<p>.. code-block:: bash</p>
-<p>export OMP_NUM_THREADS=12</p>
-</li>
-</ol>
-<p>This change is temporary and is only valid untill the current shell is closed.</p>
-<p><code class="docutils literal notranslate"><span class="pre">GQ_Plotting_NB.ipynb</span></code> notebook</p>
-<hr class="docutils"/>
-<p>This is <code class="docutils literal notranslate"><span class="pre">Jupyter</span></code> notebook that includes codes to visualize the computation of the <code class="docutils literal notranslate"><span class="pre">GQ_Calculator</span></code>. It is optional to use this notebook and you can use your own preferred plotting facilities. However, it has an important code-block that smooths the raw output of the <code class="docutils literal notranslate"><span class="pre">GQ_Calculator</span></code>. This is important if you wish to use the computed :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> in the semi-analytical approach to compute the WI power-spectrum. <code class="docutils literal notranslate"><span class="pre">SWIM</span></code> provides another submodule <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code> that implements this approach, can read an external <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code> file and perform statistical analysis using <code class="docutils literal notranslate"><span class="pre">Cobaya</span></code> and recent cosmological likelihoods. It is important to smooth the raw output before using it in the <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code> module.</p>
-<p>The usage of the <code class="docutils literal notranslate"><span class="pre">Jupyter</span></code> notebook is mostly self-explanatory,</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#overview'"><span>#</span></a></h2>
+<p>The computation proceeds in two stages:</p>
 <ol class="arabic simple">
-<li><p>The notebook loads the raw output <code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code> and then plots it.</p></li>
-<li><p>In the next step smoothing is done using <code class="docutils literal notranslate"><span class="pre">UnivariateSpline</span></code> in log scale and then plots both the raw and smooth output to compare. Here, the parameter <code class="docutils literal notranslate"><span class="pre">s</span></code> can be tuned to achieve varying degree of smoothness. For more information on <code class="docutils literal notranslate"><span class="pre">s</span></code> and other paramters of <code class="docutils literal notranslate"><span class="pre">UnivariateSpline</span></code> visit <code class="docutils literal notranslate"><span class="pre">here</span> <span class="pre">&lt;https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.UnivariateSpline.html&gt;</span></code>_.</p></li>
-<li><p>The notebook also provides a code to compare the derivatives of raw and smooth :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code>. It can be used as a visual tool to check the smoothing effect of the previous step.</p></li>
-<li><p>Once you are satisfied with the smoothing of the raw data, the final code block can be run to save the smoothed data to a file <code class="docutils literal notranslate"><span class="pre">GQ_smooth.dat</span></code>. This file can then be used by the <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code>.</p></li>
+<li><p><strong>Initial condition search (<code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code>)</strong><br/>
+Determines the field value <span class="math notranslate nohighlight">\(\phi_{\text{initial}}\)</span> corresponding to a given <span class="math notranslate nohighlight">\(Q_{\text{initial}}\)</span> such that a desired duration of inflation is obtained.</p></li>
+<li><p><strong><span class="math notranslate nohighlight">\(G(Q)\)</span> computation (<code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code>)</strong><br/>
+Uses these initial conditions to solve the background as well as perturbation equations and computes:</p></li>
 </ol>
-<p>Optional functionality</p>
-<hr class="docutils"/>
-<p>In the <code class="docutils literal notranslate"><span class="pre">Bg.cpp</span></code> file of the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module a commented out version of the analytical power spectrum can be found that doesn’t drop the slow-roll parameters :math:<code class="docutils literal notranslate"><span class="pre">\eta_V</span></code> and :math:<code class="docutils literal notranslate"><span class="pre">\beta_V</span></code>. The implementation in the code directly follows from <code class="docutils literal notranslate"><span class="pre">R.O.Ramos</span> <span class="pre">and</span> <span class="pre">L.A.</span> <span class="pre">da</span> <span class="pre">Silva</span> <span class="pre">&lt;https://inspirehep.net/literature/1219309&gt;</span></code>_.</p>
-<p>To use this form of the analytical power spectrum just comment out the other implementation and uncomment:</p>
-<p>.. code-block:: cpp</p>
-<p>auto Pp = [Nask,phiasN,phpasN,TasN,H,Q,therm,V,Vd,Vdd,Ups,pph_Ups] (double k) -&gt; double {</p>
+<div class="math notranslate nohighlight">
+\[G(Q_*) = \left.\frac{P_{\mathrm{numerical}}}{P_{\mathrm{analytical}}}\right|_{Q = Q_*}\]</div>
 </section>
-</div></div>
+<hr class="docutils"/>
+<section id="defining-your-wi-model">
+<h2>Defining Your WI Model<a class="headerlink" href="#defining-your-wi-model" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#defining-your-wi-model'"><span>#</span></a></h2>
+<p>The WI model must be defined in C++ in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">bg</span><span class="o">/</span><span class="n">model_calc</span><span class="o">.</span><span class="n">cpp</span>
+</span><span id="line-2"><span class="n">pert</span><span class="o">/</span><span class="n">model_calc</span><span class="o">.</span><span class="n">cpp</span>
+</span></code></pre></div>
+</div>
+<section id="required-functions">
+<h3>Required Functions<a class="headerlink" href="#required-functions" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#required-functions'"><span>#</span></a></h3>
+<p>The user must define the following functions using C++ lambda expressions:</p>
+<ul class="simple">
+<li><p>Potential <span class="math notranslate nohighlight">\(V(\phi)\)</span>: <code class="docutils literal notranslate"><span class="pre">V(phi)</span></code></p></li>
+<li><p>First derivative <span class="math notranslate nohighlight">\(V_{,\phi}(\phi)\)</span>: <code class="docutils literal notranslate"><span class="pre">Vd(phi)</span></code></p></li>
+<li><p>(Perturbation module only) Second derivative <span class="math notranslate nohighlight">\(V_{,\phi\phi}(\phi)\)</span>: <code class="docutils literal notranslate"><span class="pre">Vdd(phi)</span></code></p></li>
+<li><p>Dissipation coefficient <span class="math notranslate nohighlight">\(\Upsilon(\phi,T)\)</span>: <code class="docutils literal notranslate"><span class="pre">Ups_wo_Cy(phi,T)</span></code></p></li>
+</ul>
+<p>Lambda functions are used throughout SWIM for flexibility, allowing model definitions to be modified without changing the solver structure.</p>
+</section>
+<section id="lambda-function-template">
+<h3>Lambda Function Template<a class="headerlink" href="#lambda-function-template" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#lambda-function-template'"><span>#</span></a></h3>
+<p>In SWIM, these functions are implemented using <strong>C++ lambda functions</strong>, which allow model parameters to be directly captured inside the function definition.</p>
+<p>General template:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">auto</span><span class="w"> </span><span class="n">function_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">captured_parameters</span><span class="p">](</span><span class="n">input_variables</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">return_type</span><span class="w"> </span><span class="p">{</span>
+</span><span id="line-2"><span class="w">    </span><span class="c1">// function definition</span>
+</span><span id="line-3"><span class="p">};</span>
+</span></code></pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">auto</span></code> lets the compiler infer the function type</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[captured_parameters]</span></code> allows passing model parameters (e.g. <span class="math notranslate nohighlight">\(V_0\)</span>) into the function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">(input_variables)</span></code> are the function arguments (e.g. <span class="math notranslate nohighlight">\(\phi\)</span>, <span class="math notranslate nohighlight">\(T\)</span>)</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="example-defining-the-potential">
+<h3>Example: Defining the Potential<a class="headerlink" href="#example-defining-the-potential" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#example-defining-the-potential'"><span>#</span></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">auto</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">V0</span><span class="p">](</span><span class="kt">double</span><span class="w"> </span><span class="n">phi</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
+</span><span id="line-2"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">V0</span><span class="o">/</span><span class="mf">4.0</span><span class="p">)</span><span class="o">*</span><span class="n">pow</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span><span class="mf">4.0</span><span class="p">);</span>
+</span><span id="line-3"><span class="p">};</span>
+</span></code></pre></div>
+</div>
+<p>This defines the quartic potential:</p>
+<div class="math notranslate nohighlight">
+\[V(\phi) = \frac{V_0}{4}\phi^4\]</div>
+</section>
+<hr class="docutils"/>
+<section id="example-first-derivative">
+<h3>Example: First Derivative<a class="headerlink" href="#example-first-derivative" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#example-first-derivative'"><span>#</span></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">auto</span><span class="w"> </span><span class="n">Vd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">V0</span><span class="p">](</span><span class="kt">double</span><span class="w"> </span><span class="n">phi</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
+</span><span id="line-2"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">V0</span><span class="o">*</span><span class="n">phi</span><span class="o">*</span><span class="n">phi</span><span class="o">*</span><span class="n">phi</span><span class="p">;</span>
+</span><span id="line-3"><span class="p">};</span>
+</span></code></pre></div>
+</div>
+<p>which corresponds to:</p>
+<div class="math notranslate nohighlight">
+\[V'(\phi) = V_0 \phi^3\]</div>
+</section>
+<section id="dissipation-coefficient">
+<h3>Dissipation Coefficient<a class="headerlink" href="#dissipation-coefficient" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dissipation-coefficient'"><span>#</span></a></h3>
+<p>If the dissipation coefficient has the form:</p>
+<div class="math notranslate nohighlight">
+\[\Upsilon(\phi, T) \propto T^p \phi^c\]</div>
+<p>then no modification in the C++ code is required. The functional form is already implemented internally, and the user only needs to specify the parameters <code class="docutils literal notranslate"><span class="pre">p</span></code> and <code class="docutils literal notranslate"><span class="pre">c</span></code> in the Python scripts.</p>
+<p>The constant <span class="math notranslate nohighlight">\(C_{\Upsilon}\)</span> is computed internally using the initial conditions <span class="math notranslate nohighlight">\((\phi_\text{initial}, Q_\text{initial})\)</span>.</p>
+<hr class="docutils"/>
+<p>For more general forms of <span class="math notranslate nohighlight">\(\Upsilon(\phi, T)\)</span>, the user must modify the function:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">auto</span><span class="w"> </span><span class="n">Ups_wo_Cy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">custom_parameters</span><span class="p">](</span><span class="kt">double</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="kt">double</span><span class="w"> </span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
+</span><span id="line-2"><span class="w">    </span><span class="c1">// define custom form here</span>
+</span><span id="line-3"><span class="p">};</span>
+</span></code></pre></div>
+</div>
+<p>In this case, the corresponding derivatives of <span class="math notranslate nohighlight">\(\Upsilon\)</span> must also be specified in the <code class="docutils literal notranslate"><span class="pre">pert/model_calc.cpp</span></code> file.</p>
+<hr class="docutils"/>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The model must be defined consistently in both <code class="docutils literal notranslate"><span class="pre">bg/model_calc.cpp</span></code> and <code class="docutils literal notranslate"><span class="pre">pert/model_calc.cpp</span></code>.</p>
+</div>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="c-python-interface">
+<h2>C++ – Python Interface<a class="headerlink" href="#c-python-interface" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#c-python-interface'"><span>#</span></a></h2>
+<p>The WI model is exposed from C++ to Python through a C-compatible function:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">extern</span><span class="w"> </span><span class="s">"C"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="line-2"><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi_ini</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">Q_ini</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">gst</span><span class="p">,</span>
+</span><span id="line-3"><span class="w">               </span><span class="kt">double</span><span class="w"> </span><span class="n">V0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">hybrid_inf</span><span class="p">);</span>
+</span><span id="line-4"><span class="p">}</span>
+</span></code></pre></div>
+</div>
+<hr class="docutils"/>
+<section id="matching-the-function-signature">
+<h3>“Matching The Function Signature”<a class="headerlink" href="#matching-the-function-signature" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#matching-the-function-signature'"><span>#</span></a></h3>
+<p>The <em>function signature</em> refers to:</p>
+<ul class="simple">
+<li><p>Function name (<code class="docutils literal notranslate"><span class="pre">model</span></code>)</p></li>
+<li><p>Number of arguments</p></li>
+<li><p>Order of arguments</p></li>
+<li><p>Type of each argument (<code class="docutils literal notranslate"><span class="pre">double</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, etc.)</p></li>
+</ul>
+<p>All of these must be <strong>identical everywhere</strong> the function is defined or called.</p>
+</section>
+<hr class="docutils"/>
+<section id="where-must-it-match">
+<h3>Where Must It Match?<a class="headerlink" href="#where-must-it-match" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#where-must-it-match'"><span>#</span></a></h3>
+<p>The same function signature must appear in:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bg/model_calc.cpp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pert/model_calc.cpp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> (via <code class="docutils literal notranslate"><span class="pre">ffi.cdef</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> (via <code class="docutils literal notranslate"><span class="pre">ffi.cdef</span></code>)</p></li>
+</ul>
+<p>If any of these differ, the code will either:</p>
+<ul class="simple">
+<li><p>fail at runtime, or</p></li>
+<li><p>produce incorrect results</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="when-do-you-need-to-modify-it">
+<h3>When Do You Need to Modify It?<a class="headerlink" href="#when-do-you-need-to-modify-it" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#when-do-you-need-to-modify-it'"><span>#</span></a></h3>
+<p>You must update the function signature if your WI model introduces new parameters.</p>
+<section id="example">
+<h4>Example<a class="headerlink" href="#example" title="Link to this heading"><span>#</span></a></h4>
+<p>Suppose your model potential <span class="math notranslate nohighlight">\(V(\phi)\)</span> depends on an additional parameter <span class="math notranslate nohighlight">\(\alpha\)</span>.</p>
+</section>
+<hr class="docutils"/>
+<section id="step-1-modify-c-model-calc-cpp">
+<h4>Step 1: Modify C++ (<code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code>)<a class="headerlink" href="#step-1-modify-c-model-calc-cpp" title="Link to this heading"><span>#</span></a></h4>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">extern</span><span class="w"> </span><span class="s">"C"</span><span class="w"> </span><span class="p">{</span>
+</span><span id="line-2"><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi_ini</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">Q_ini</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">gst</span><span class="p">,</span>
+</span><span id="line-3"><span class="w">               </span><span class="kt">double</span><span class="w"> </span><span class="n">V0</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">alpha</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">hybrid_inf</span><span class="p">);</span>
+</span><span id="line-4"><span class="p">}</span>
+</span></code></pre></div>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="step-2-use-alpha-in-the-model-definition">
+<h4>Step 2: Use <span class="math notranslate nohighlight">\(\alpha\)</span> in the Model Definition<a class="headerlink" href="#step-2-use-alpha-in-the-model-definition" title="Link to this heading"><span>#</span></a></h4>
+<p>Update your lambda functions (<code class="docutils literal notranslate"><span class="pre">V(phi),Vd(phi)</span></code>) to capture the new parameter:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">auto</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">V0</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="p">](</span><span class="kt">double</span><span class="w"> </span><span class="n">phi</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
+</span><span id="line-2"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">V0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">exp</span><span class="p">(</span><span class="o">-</span><span class="n">alpha</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">phi</span><span class="p">);</span>
+</span><span id="line-3"><span class="p">};</span>
+</span></code></pre></div>
+</div>
+<p>Here:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code> is included in the capture list <code class="docutils literal notranslate"><span class="pre">[V0,</span> <span class="pre">alpha]</span></code></p></li>
+<li><p>This makes it accessible inside the function</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If a parameter is not included in the capture list <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">...</span> <span class="pre">]</span></code>, it will not be available inside the lambda function and will lead to a compilation error.</p>
+</div>
+<hr class="docutils"/>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module as well, you must update the lambda functions (<code class="docutils literal notranslate"><span class="pre">V(phi),Vd(phi)</span></code> and <code class="docutils literal notranslate"><span class="pre">Vdd(phi)</span></code>) consistently with the modified potential.</p>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="step-3-update-python-binding-find-ics-py">
+<h4>Step 3: Update Python Binding (<code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code>)<a class="headerlink" href="#step-3-update-python-binding-find-ics-py" title="Link to this heading"><span>#</span></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">ffi</span><span class="o">.</span><span class="n">cdef</span><span class="p">(</span><span class="s2">"void model(double phi_ini,double Q_ini,double gst,double V0,double alpha,int p,int c,int hybrid_inf);"</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="step-4-update-python-binding-find-gq-py">
+<h4>Step 4: Update Python Binding (<code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code>)<a class="headerlink" href="#step-4-update-python-binding-find-gq-py" title="Link to this heading"><span>#</span></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">ffi</span><span class="o">.</span><span class="n">cdef</span><span class="p">(</span><span class="s2">"void model(double phi_ini,double Q_ini,double gst,double V0,double alpha,int p,int c,int therm,int rad_noise,int hybrid_inf);"</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="step-5-update-function-calls">
+<h4>Step 5: Update Function Calls<a class="headerlink" href="#step-5-update-function-calls" title="Link to this heading"><span>#</span></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">lib</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">phi0</span><span class="p">,</span> <span class="n">Q0</span><span class="p">,</span> <span class="n">gst</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">hybrid_inf</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+<hr class="docutils"/>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The number, order, and type of arguments must be identical in all locations. Even a small mismatch (e.g., missing parameter or wrong order) will break the interface.</p>
+</div>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="key-rules-safe-checklist">
+<h3>Key Rules (Safe Checklist)<a class="headerlink" href="#key-rules-safe-checklist" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#key-rules-safe-checklist'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p>Always copy the argument list from <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> into Python</p></li>
+<li><p>Keep the same order of parameters everywhere</p></li>
+<li><p>Use the same data types (<code class="docutils literal notranslate"><span class="pre">double</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>)</p></li>
+<li><p>Update both <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> and <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code></p></li>
+<li><p>Ensure new parameters are captured in lambda functions</p></li>
+</ul>
+<hr class="docutils"/>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Any modification to <code class="docutils literal notranslate"><span class="pre">.cpp</span></code> files requires recompilation of SWIM.</p>
+</div>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="input-parameters">
+<h2>Input Parameters<a class="headerlink" href="#input-parameters" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#input-parameters'"><span>#</span></a></h2>
+<p>All runtime parameters are configured in the Python scripts.<br/>
+The parameters are grouped below by functionality.</p>
+</section>
+<hr class="docutils"/>
+<section id="find-ics-py-initial-condition-setup">
+<h2><code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> — Initial Condition Setup<a class="headerlink" href="#find-ics-py-initial-condition-setup" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#find-ics-py-initial-condition-setup'"><span>#</span></a></h2>
+<section id="model-parameters">
+<h3>Model Parameters<a class="headerlink" href="#model-parameters" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#model-parameters'"><span>#</span></a></h3>
+<p>These define the underlying Warm Inflation model.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">V0</span></code> <em>(float)</em><br/>
+Overall normalization of the potential (<span class="math notranslate nohighlight">\(V_0\)</span>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gst</span></code> <em>(float)</em><br/>
+Effective number of relativistic degrees of freedom (<span class="math notranslate nohighlight">\(g_*\)</span>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">p,</span> <span class="pre">c</span></code> <em>(int, optional)</em><br/>
+Exponents for <span class="math notranslate nohighlight">\(\Upsilon \propto T^p \phi^c\)</span>.<br/>
+Only used if the dissipation coefficient follows this form.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hybrid_inf</span></code> <em>(int: 0 or 1)</em><br/>
+Disables (0)/Enables (1) hybrid inflation mode.<br/>
+If set to 1, the critical field value must also be specified.</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="inflation-control">
+<h3>Inflation Control<a class="headerlink" href="#inflation-control" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#inflation-control'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dur_N</span></code> <em>(float, default: 60.0)</em><br/>
+Desired duration of inflation in e-folds.</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="q-sampling">
+<h3><span class="math notranslate nohighlight">\(Q\)</span> Sampling<a class="headerlink" href="#q-sampling" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#q-sampling'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Qlow</span></code>, <code class="docutils literal notranslate"><span class="pre">Qup</span></code> <em>(float)</em><br/>
+Lower and upper bounds of <span class="math notranslate nohighlight">\(Q\)</span> range to be explored.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">npts</span></code> <em>(int, default: 150)</em><br/>
+Number of points used to sample the <span class="math notranslate nohighlight">\(Q\)</span> range.</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="root-finding-parameters">
+<h3>Root-Finding Parameters<a class="headerlink" href="#root-finding-parameters" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#root-finding-parameters'"><span>#</span></a></h3>
+<p>Used in the brute-force search for initial field values.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lower_bound</span></code>, <code class="docutils literal notranslate"><span class="pre">upper_bound</span></code> <em>(float)</em><br/>
+Defines the search interval for <span class="math notranslate nohighlight">\(\phi\)</span> (in log-space) and should be set according to the WI model being studied.<br/>
+Wider ranges increase robustness but also runtime.</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="parallelization">
+<h3>Parallelization<a class="headerlink" href="#parallelization" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#parallelization'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Nprocs</span></code> <em>(int)</em><br/>
+Number of CPU threads used for parallel root finding. Set depending upon your system, <code class="docutils literal notranslate"><span class="pre">nprocs</span> <span class="pre">--all</span></code> lists all available threads.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="find-gq-py-g-q-computation">
+<h2><code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> — <span class="math notranslate nohighlight">\(G(Q)\)</span> Computation<a class="headerlink" href="#find-gq-py-g-q-computation" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#find-gq-py-g-q-computation'"><span>#</span></a></h2>
+<section id="id1">
+<h3>Model Parameters<a class="headerlink" href="#id1" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id1'"><span>#</span></a></h3>
+<p>Same as in <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code>.<br/>
+These must be kept consistent.</p>
+</section>
+<hr class="docutils"/>
+<section id="physical-options">
+<h3>Physical Options<a class="headerlink" href="#physical-options" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#physical-options'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">therm</span></code> <em>(int: 0 or 1)</em><br/>
+Disables (0)/ Enables(1) thermalization effects in perturbations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rad_noise</span></code> <em>(int: 0 or 1)</em><br/>
+Excludes (0)/Includes (1) stochastic thermal noise in radiation perturbations.</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="numerical-controls">
+<h3>Numerical Controls<a class="headerlink" href="#numerical-controls" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#numerical-controls'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Nrealz</span></code> <em>(int, default: 2048)</em><br/>
+Number of stochastic realizations used for averaging.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Nstar</span></code> <em>(float, default: 7)</em><br/>
+E-fold at which the power spectrum is evaluated. Set it such that enough e-folds are available for the mode to initialize and freeze.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbosity</span></code> <em>(int, default: 0)</em><br/>
+Controls logging output (0 = silent).</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The number of CPU threads used to parallelize over independent stochastic realizations is controlled by the environment variable <code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span></code>. By default, all available threads are used. Set this environment variable to limit the threads used by the <code class="docutils literal notranslate"><span class="pre">GQ_Calculator</span></code>.</p>
+<p>The runtime scales approximately inversely with the number of threads (up to hardware limits), since realizations are computed independently.</p>
+</div>
+<hr class="docutils"/>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The parameters in <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> and <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> must be consistent.<br/>
+Mismatch in model parameters will lead to incorrect results.</p>
+</div>
+</section>
+</section>
+<section id="running-the-pipeline">
+<h2>Running the Pipeline<a class="headerlink" href="#running-the-pipeline" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#running-the-pipeline'"><span>#</span></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">python<span class="w"> </span>-u<span class="w"> </span>find_ICs.py
+</span><span id="line-2">python<span class="w"> </span>-u<span class="w"> </span>find_GQ.py
+</span></code></pre></div>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="output-files">
+<h2>Output Files<a class="headerlink" href="#output-files" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#output-files'"><span>#</span></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ics.dat</span></code>: <span class="math notranslate nohighlight">\((\phi_{\text{initial}}, Q_\text{initial})\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GQ.dat</span></code>: <span class="math notranslate nohighlight">\((Q_*, G(Q_*))\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GQ_smooth.dat</span></code>: smoothed version (via notebook)</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="methodology">
+<h2>Methodology<a class="headerlink" href="#methodology" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#methodology'"><span>#</span></a></h2>
+<section id="initial-conditions">
+<h3>Initial Conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#initial-conditions'"><span>#</span></a></h3>
+<p>The initial field value <span class="math notranslate nohighlight">\(\phi_\text{initial}\)</span> is obtained via a <strong>brute-force root-finding procedure</strong> over a user-defined interval, ensuring a fixed duration of inflation (<code class="docutils literal notranslate"><span class="pre">dur_N</span></code>).</p>
+</section>
+<section id="g-q-computation">
+<h3><span class="math notranslate nohighlight">\(G(Q)\)</span> Computation<a class="headerlink" href="#g-q-computation" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#g-q-computation'"><span>#</span></a></h3>
+<p>For each <span class="math notranslate nohighlight">\((\phi_\text{initial}, Q_\text{initial})\)</span>:</p>
+<ul class="simple">
+<li><p>Background evolution is solved</p></li>
+<li><p>Analytical power spectrum is computed</p></li>
+<li><p>Stochastic perturbation equations are solved and numerical power spectrum obtained after averaging</p></li>
+<li><p>The ratio gives <span class="math notranslate nohighlight">\(G(Q)\)</span></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="module-roles">
+<h2>Module Roles<a class="headerlink" href="#module-roles" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#module-roles'"><span>#</span></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bg/</span></code>: Background evolution only</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pert/</span></code>: Background + analytical PS + perturbations</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The analytical power spectrum is always computed inside the <code class="docutils literal notranslate"><span class="pre">pert</span></code> module.</p>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="smoothing">
+<h2>Smoothing<a class="headerlink" href="#smoothing" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#smoothing'"><span>#</span></a></h2>
+<p>Smoothing of <span class="math notranslate nohighlight">\(G(Q)\)</span> is performed in <code class="docutils literal notranslate"><span class="pre">GQ_Plotting_NB.ipynb</span></code> using 1-D splines with knots.</p>
+</section>
+<hr class="docutils"/>
+<section id="common-pitfalls">
+<h2>Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#common-pitfalls'"><span>#</span></a></h2>
+<ul class="simple">
+<li><p>Incorrect parameter ranges → invalid or incorrect initial conditions</p></li>
+<li><p>Function signature mismatch → runtime errors or incorrect results</p></li>
+<li><p>Forgetting to recompile after modifying <code class="docutils literal notranslate"><span class="pre">.cpp</span></code> files</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If no valid initial condition is found, the code may still write incorrect values to <code class="docutils literal notranslate"><span class="pre">ics.dat</span></code>. Users should verify the output of <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> by checking that the reported “function value at” is close to zero for all <span class="math notranslate nohighlight">\(Q\)</span> values.</p>
+<p>The function value corresponds to:</p>
+<div class="math notranslate nohighlight">
+\[N_{\mathrm{end}} - \texttt{dur_N}\]</div>
+<p>Typical acceptable values are <span class="math notranslate nohighlight">\(\sim 10^{-3}\)</span> or smaller. Significant deviation from zero indicates that the desired inflation duration was not achieved.</p>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#summary'"><span>#</span></a></h2>
+<ul class="simple">
+<li><p>Define your WI model in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code></p></li>
+<li><p>Ensure consistent function signatures across C++ and Python</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> → compute initial conditions</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> → compute <span class="math notranslate nohighlight">\(G(Q)\)</span></p></li>
+<li><p>Validate and smooth results</p></li>
+</ul>
+<p>This module provides a flexible and powerful framework for computing <span class="math notranslate nohighlight">\(G(Q)\)</span> for a wide range of Warm Inflation models.</p>
+</section>
+</section>
+</div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
+<div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
+<ul>
+<li><a :data-current="activeSection === '#overview'" class="reference internal" href="#overview">Overview</a></li>
+<li><a :data-current="activeSection === '#defining-your-wi-model'" class="reference internal" href="#defining-your-wi-model">Defining Your WI Model</a><ul>
+<li><a :data-current="activeSection === '#required-functions'" class="reference internal" href="#required-functions">Required Functions</a></li>
+<li><a :data-current="activeSection === '#lambda-function-template'" class="reference internal" href="#lambda-function-template">Lambda Function Template</a></li>
+<li><a :data-current="activeSection === '#example-defining-the-potential'" class="reference internal" href="#example-defining-the-potential">Example: Defining the Potential</a></li>
+<li><a :data-current="activeSection === '#example-first-derivative'" class="reference internal" href="#example-first-derivative">Example: First Derivative</a></li>
+<li><a :data-current="activeSection === '#dissipation-coefficient'" class="reference internal" href="#dissipation-coefficient">Dissipation Coefficient</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#c-python-interface'" class="reference internal" href="#c-python-interface">C++ – Python Interface</a><ul>
+<li><a :data-current="activeSection === '#matching-the-function-signature'" class="reference internal" href="#matching-the-function-signature">“Matching The Function Signature”</a></li>
+<li><a :data-current="activeSection === '#where-must-it-match'" class="reference internal" href="#where-must-it-match">Where Must It Match?</a></li>
+<li><a :data-current="activeSection === '#when-do-you-need-to-modify-it'" class="reference internal" href="#when-do-you-need-to-modify-it">When Do You Need to Modify It?</a><ul>
+<li><a :data-current="activeSection === '#example'" class="reference internal" href="#example">Example</a></li>
+<li><a :data-current="activeSection === '#step-1-modify-c-model-calc-cpp'" class="reference internal" href="#step-1-modify-c-model-calc-cpp">Step 1: Modify C++ (<code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code>)</a></li>
+<li><a :data-current="activeSection === '#step-2-use-alpha-in-the-model-definition'" class="reference internal" href="#step-2-use-alpha-in-the-model-definition">Step 2: Use <span class="math notranslate nohighlight">\(\alpha\)</span> in the Model Definition</a></li>
+<li><a :data-current="activeSection === '#step-3-update-python-binding-find-ics-py'" class="reference internal" href="#step-3-update-python-binding-find-ics-py">Step 3: Update Python Binding (<code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code>)</a></li>
+<li><a :data-current="activeSection === '#step-4-update-python-binding-find-gq-py'" class="reference internal" href="#step-4-update-python-binding-find-gq-py">Step 4: Update Python Binding (<code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code>)</a></li>
+<li><a :data-current="activeSection === '#step-5-update-function-calls'" class="reference internal" href="#step-5-update-function-calls">Step 5: Update Function Calls</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#key-rules-safe-checklist'" class="reference internal" href="#key-rules-safe-checklist">Key Rules (Safe Checklist)</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#input-parameters'" class="reference internal" href="#input-parameters">Input Parameters</a></li>
+<li><a :data-current="activeSection === '#find-ics-py-initial-condition-setup'" class="reference internal" href="#find-ics-py-initial-condition-setup"><code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> — Initial Condition Setup</a><ul>
+<li><a :data-current="activeSection === '#model-parameters'" class="reference internal" href="#model-parameters">Model Parameters</a></li>
+<li><a :data-current="activeSection === '#inflation-control'" class="reference internal" href="#inflation-control">Inflation Control</a></li>
+<li><a :data-current="activeSection === '#q-sampling'" class="reference internal" href="#q-sampling"><span class="math notranslate nohighlight">\(Q\)</span> Sampling</a></li>
+<li><a :data-current="activeSection === '#root-finding-parameters'" class="reference internal" href="#root-finding-parameters">Root-Finding Parameters</a></li>
+<li><a :data-current="activeSection === '#parallelization'" class="reference internal" href="#parallelization">Parallelization</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#find-gq-py-g-q-computation'" class="reference internal" href="#find-gq-py-g-q-computation"><code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> — <span class="math notranslate nohighlight">\(G(Q)\)</span> Computation</a><ul>
+<li><a :data-current="activeSection === '#id1'" class="reference internal" href="#id1">Model Parameters</a></li>
+<li><a :data-current="activeSection === '#physical-options'" class="reference internal" href="#physical-options">Physical Options</a></li>
+<li><a :data-current="activeSection === '#numerical-controls'" class="reference internal" href="#numerical-controls">Numerical Controls</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#running-the-pipeline'" class="reference internal" href="#running-the-pipeline">Running the Pipeline</a></li>
+<li><a :data-current="activeSection === '#output-files'" class="reference internal" href="#output-files">Output Files</a></li>
+<li><a :data-current="activeSection === '#methodology'" class="reference internal" href="#methodology">Methodology</a><ul>
+<li><a :data-current="activeSection === '#initial-conditions'" class="reference internal" href="#initial-conditions">Initial Conditions</a></li>
+<li><a :data-current="activeSection === '#g-q-computation'" class="reference internal" href="#g-q-computation"><span class="math notranslate nohighlight">\(G(Q)\)</span> Computation</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#module-roles'" class="reference internal" href="#module-roles">Module Roles</a></li>
+<li><a :data-current="activeSection === '#smoothing'" class="reference internal" href="#smoothing">Smoothing</a></li>
+<li><a :data-current="activeSection === '#common-pitfalls'" class="reference internal" href="#common-pitfalls">Common Pitfalls</a></li>
+<li><a :data-current="activeSection === '#summary'" class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</div>
+</aside>
 </main>
 </div>
 </div><footer class="py-6 border-t border-border md:py-0">
@@ -338,5 +585,7 @@ return c * Cy * pow(T,p) * pow(phi,c-1.0);
 <script src="_static/doctools.js?v=9bcbadda"></script>
 <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
 <script defer="defer" src="_static/theme.js?v=d6a9845b"></script>
+<script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+<script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>

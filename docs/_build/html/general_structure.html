@@ -21,14 +21,14 @@
 <meta content="#ffffff" media="(prefers-color-scheme: light)" name="theme-color"/>
 <meta content="#030711" media="(prefers-color-scheme: dark)" name="theme-color"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>General Structure of SWIM | SWIM 1.0 documentation</title>
-<meta content="General Structure of SWIM | SWIM 1.0 documentation" property="og:title"/>
-<meta content="General Structure of SWIM | SWIM 1.0 documentation" name="twitter:title"/>
+<title>General Structure | SWIM 1.0 documentation</title>
+<meta content="General Structure | SWIM 1.0 documentation" property="og:title"/>
+<meta content="General Structure | SWIM 1.0 documentation" name="twitter:title"/>
 <link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
 <link href="_static/theme.css?v=979577e3" rel="stylesheet" type="text/css"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
-<link href="GQ_calculator.html" rel="next" title=":math:G(Q) Calculator"/>
+<link href="implementation_details.html" rel="next" title="Implementation Details"/>
 <link href="quick_start.html" rel="prev" title="Quick Start"/>
 </head>
 <body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
@@ -74,11 +74,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">General Structure of SWIM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html">:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> Calculator</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">General Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation_details.html">Implementation Details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html"><code class="docutils literal notranslate"><span class="pre">GQ</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="additional_params.html"><code class="docutils literal notranslate"><span class="pre">verbosity</span></code></a></li>
 </ul>
 </nav>
 </div>
@@ -98,29 +98,152 @@
 <path d="M240 856h120V616h240v240h120V496L480 316 240 496v360Zm-80 80V456l320-240 320 240v480H520V696h-80v240H160Zm320-350Z"></path>
 </svg>
 </a>
-<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">General Structure of SWIM</span>
+<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">General Structure</span>
 </nav>
 <div id="content" role="main">
-<section class="tex2jax_ignore mathjax_ignore" id="general-structure-of-swim">
-<h1>General Structure of SWIM<a class="headerlink" href="#general-structure-of-swim" title="Link to this heading"><span>#</span></a></h1>
-<p>SWIM has been divided into following sub-modules:</p>
+<section class="tex2jax_ignore mathjax_ignore" id="general-structure">
+<h1>General Structure<a class="headerlink" href="#general-structure" title="Link to this heading"><span>#</span></a></h1>
+<p>SWIM is organized into three core modules:</p>
 <ol class="arabic simple">
-<li><p>:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> calculator</p></li>
-<li><p>Numerical power-spectrum calculator</p></li>
-<li><p>Semi-analytical power-spectrum calculator</p></li>
+<li><p><span class="math notranslate nohighlight">\(G(Q)\)</span> Calculator</p></li>
+<li><p>Semi-Analytical Power Spectrum Calculator</p></li>
+<li><p>Numerical Power Spectrum Calculator</p></li>
 </ol>
-<p>:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> Calculator</p>
+<p>These modules can be used independently or combined within a workflow, depending on the use case and objectives.</p>
 <hr class="docutils"/>
-<p>The function :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> accounts for the enhancement in the primordial power spectrum of Warm Inflation (WI) arising due to the coupling between inflaton and radiation fluctuations. This function has to be computed numerically by integrating WI fluctuation equations which is what this submodule does, similar to codes like <code class="docutils literal notranslate"><span class="pre">WI2Easy</span> <span class="pre">&lt;https://github.com/RudneiRamos/WI2easy&gt;</span></code>_ and <code class="docutils literal notranslate"><span class="pre">WarmSpy</span> <span class="pre">&lt;https://github.com/GabrieleMonte/WarmSPy&gt;</span></code>_.  Once obtained, it can be used to calculate the semi-analytical primordial power-spectrum :math:<code class="docutils literal notranslate"><span class="pre">P_{\mathcal{R}}(k)</span></code> for WI.</p>
-<p>.. math::</p>
-<p>P_{\mathcal{R}}(k) = \left(\dfrac{H^2}{2\pi \dot{\phi}}\right)^2\left[\dfrac{T}{H}\dfrac{2\sqrt{3}\pi Q}{\sqrt{3+4\pi Q}} + 1 + 2\mathcal{N}\right] G(Q) \ ,</p>
-<p>where all the quantities are evaluated at horizon crossing :math:<code class="docutils literal notranslate"><span class="pre">(k=aH)</span></code> and :math:<code class="docutils literal notranslate"><span class="pre">\mathcal{N}</span></code> denotes the thermal distribution of the inflaton field due to the presence of radiation.</p>
-<p>This submodule contains all the functionality required to compute the growth function :math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> for a given WI model, further divided into: <code class="docutils literal notranslate"><span class="pre">bg</span></code> and <code class="docutils literal notranslate"><span class="pre">pert</span></code> modules. It also includes python scripts and a Jupyter Notebook to interact with the numerical solver.</p>
-<p>Numerical Power Spectrum Calculator</p>
-<hr class="docutils"/>
-<p>Labelled as <code class="docutils literal notranslate"><span class="pre">PS_Calculator</span></code> in the code. It is the heart of SWIM as it directly computes the WI power spectrum numerically using a Stochastic-Langevin approach (similar to <code class="docutils literal notranslate"><span class="pre">WarmSpy</span></code>). This submodule can be run independently of all the other submodules within SWIM, as the power spectrum is directly calculated as a function of the comoving wavenumber :math:<code class="docutils literal notranslate"><span class="pre">k</span></code>.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#overview'"><span>#</span></a></h2>
+<ul class="simple">
+<li><p>The <strong><span class="math notranslate nohighlight">\(G(Q)\)</span> calculator module</strong> computes the correction factor that enters the semi-analytical power spectrum in Warm Inflation.</p></li>
+<li><p>The <strong>semi-analytical module</strong> uses this function to efficiently evaluate the power spectrum and perform parameter inference via <code class="docutils literal notranslate"><span class="pre">Cobaya</span></code>.</p></li>
+<li><p>The <strong>numerical module</strong> computes the full primordial power spectrum directly and also provides emulator-based acceleration for parameter inference via <code class="docutils literal notranslate"><span class="pre">Cobaya</span></code>.</p></li>
+</ul>
 </section>
-</div></div>
+<hr class="docutils"/>
+<section id="g-q-calculator">
+<h2><span class="math notranslate nohighlight">\(G(Q)\)</span> Calculator<a class="headerlink" href="#g-q-calculator" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#g-q-calculator'"><span>#</span></a></h2>
+<p>The correction function <span class="math notranslate nohighlight">\(G(Q)\)</span> accounts for the effect of the coupling between inflaton and radiation fluctuations on the primordial power spectrum in Warm Inflation. It is obtained by numerically solving the full-set of perturbation equations.</p>
+<p>This module is conceptually similar to existing tools such as <a class="reference external" href="https://github.com/RudneiRamos/WI2easy">WI2Easy</a> and <a class="reference external" href="https://github.com/GabrieleMonte/WarmSPy">WarmSpy</a>.</p>
+<p>Once computed, <span class="math notranslate nohighlight">\(G(Q)\)</span> can be used in the semi-analytical expression for the power spectrum:</p>
+<div class="math notranslate nohighlight">
+\[
+P_{\mathcal{R}}(k) =
+\left(\dfrac{H^2}{2\pi \dot{\phi}}\right)^2
+\left[
+\dfrac{T}{H}\dfrac{2\sqrt{3}\pi Q}{\sqrt{3+4\pi Q}} + 1 + 2\mathcal{N}
+\right]
+G(Q)
+\]</div>
+<p>where all quantities are evaluated at horizon crossing <span class="math notranslate nohighlight">\((k = aH)\)</span>, and <span class="math notranslate nohighlight">\(\mathcal{N}\)</span> denotes the thermal distribution of inflaton fluctuations.</p>
+<section id="structure">
+<h3>Structure<a class="headerlink" href="#structure" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#structure'"><span>#</span></a></h3>
+<p>This module is implemented in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">GQ_Calculator/
+</span><span id="line-2">├── bg/      # Background evolution
+</span><span id="line-3">├── pert/    # Perturbation equations
+</span></code></pre></div>
+</div>
+<p>It also includes Python scripts and notebooks to:</p>
+<ul class="simple">
+<li><p>compute initial conditions</p></li>
+<li><p>evaluate <span class="math notranslate nohighlight">\(G(Q)\)</span></p></li>
+<li><p>visualize and smooth the results</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="semi-analytical-power-spectrum-calculator">
+<h2>Semi-Analytical Power Spectrum Calculator<a class="headerlink" href="#semi-analytical-power-spectrum-calculator" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#semi-analytical-power-spectrum-calculator'"><span>#</span></a></h2>
+<p>This module uses the computed <span class="math notranslate nohighlight">\(G(Q)\)</span> to evaluate the Warm Inflation (WI) power spectrum within the semi-analytical framework. It provides a computationally efficient pipeline for constraining model parameters using cosmological observations.</p>
+<p>Two modes of operation are available, depending on the desired level of constraints and computational cost:</p>
+<section id="constraints-on-a-s-n-s-and-r">
+<h3>Constraints on <span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span>, and <span class="math notranslate nohighlight">\(r\)</span>:<a class="headerlink" href="#constraints-on-a-s-n-s-and-r" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#constraints-on-a-s-n-s-and-r'"><span>#</span></a></h3>
+<p>In this mode, constraints are placed directly on the predicted values of <span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span>, and <span class="math notranslate nohighlight">\(r\)</span>. The likelihood assumes that <span class="math notranslate nohighlight">\(A_s\)</span> and <span class="math notranslate nohighlight">\(n_s\)</span> are uncorrelated and is implemented in <code class="docutils literal notranslate"><span class="pre">llihood.py</span></code> using a Gaussian log-likelihood.</p>
+<p>Since this approach does not require computation of the full CMB power spectrum, it is significantly faster and well-suited for rapid parameter exploration.</p>
+</section>
+<section id="full-cmb-constraints">
+<h3>Full CMB Constraints:<a class="headerlink" href="#full-cmb-constraints" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#full-cmb-constraints'"><span>#</span></a></h3>
+<p>In this mode, parameter inference is performed by computing the full CMB power spectrum using <code class="docutils literal notranslate"><span class="pre">CAMB</span></code>, with the WI primordial power spectrum supplied as an external input.</p>
+<p>This approach provides more robust and accurate constraints, as it directly compares the full CMB power spectrum with observational data. However, it is computationally more expensive than the <span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span> constraints mode.</p>
+<p>This functionality is implemented in <code class="docutils literal notranslate"><span class="pre">An_CAMB.py</span></code>.</p>
+</section>
+<section id="id1">
+<h3>Structure<a class="headerlink" href="#id1" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id1'"><span>#</span></a></h3>
+<p>This module is implemented in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">SA_PS_Calculator</span><span class="o">/</span>
+</span></code></pre></div>
+</div>
+<p>It includes example configuration files for use with <code class="docutils literal notranslate"><span class="pre">Cobaya</span></code>.</p>
+</section>
+</section>
+<section id="numerical-power-spectrum-calculator">
+<h2>Numerical Power Spectrum Calculator<a class="headerlink" href="#numerical-power-spectrum-calculator" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#numerical-power-spectrum-calculator'"><span>#</span></a></h2>
+<p>This module directly computes the WI primordial power spectrum <span class="math notranslate nohighlight">\(P_{\mathcal{R}}(k)\)</span> by solving the full set of stochastic perturbation equations. It can be used independently of the other modules of SWIM.</p>
+<p>Key features:</p>
+<ul class="simple">
+<li><p>Full stochastic-Langevin evolution of perturbations</p></li>
+<li><p>Direct computation of <span class="math notranslate nohighlight">\(P_{\mathcal{R}}(k)\)</span> as a function of <span class="math notranslate nohighlight">\(k\)</span></p></li>
+<li><p>No reliance on the <span class="math notranslate nohighlight">\(G(Q)\)</span> approximation</p></li>
+</ul>
+<section id="id2">
+<h3>Structure<a class="headerlink" href="#id2" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id2'"><span>#</span></a></h3>
+<p>This module is implemented in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">PS_Calculator</span><span class="o">/</span>
+</span></code></pre></div>
+</div>
+<p>It includes two sub-directories- 1) <code class="docutils literal notranslate"><span class="pre">Power_Spectrum</span></code> and 2) <code class="docutils literal notranslate"><span class="pre">Emulator</span></code></p>
+</section>
+<hr class="docutils"/>
+<section id="power-spectrum">
+<h3>Power Spectrum<a class="headerlink" href="#power-spectrum" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#power-spectrum'"><span>#</span></a></h3>
+<p>This subdirectory contains Python scripts for computing the numerical power spectrum of a WI model, along with Jupyter notebooks for visualizing and analysing the results. The outputs are stored as <code class="docutils literal notranslate"><span class="pre">.dat</span></code> files, including both the primordial power spectrum and the corresponding background evolution. These files can be used for further analysis and for extracting observables such as <span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span>, and <span class="math notranslate nohighlight">\(r\)</span>. This mode requires the WI model parameters to be known and explicitly specified.</p>
+</section>
+<section id="emulator">
+<h3>Emulator<a class="headerlink" href="#emulator" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#emulator'"><span>#</span></a></h3>
+<p>To reduce the computational cost of parameter inference, the numerical power spectrum module includes an emulator based on Random Forest Regression (RFR).</p>
+<ul class="simple">
+<li><p>The emulator is trained on outputs of the numerical power spectrum solver</p></li>
+<li><p>It maps model parameters to power spectrum parameters (<span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span>, <span class="math notranslate nohighlight">\(\alpha_s\)</span> and <span class="math notranslate nohighlight">\(\beta_s\)</span>)</p></li>
+<li><p>It is trained and used dynamically during inference to replace expensive numerical evaluations</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">Emulator</span></code> subdirectory is organized into two components:</p>
+<ol class="arabic simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">RF_Acc_Cobaya</span></code></strong><br/>
+Performs parameter inference using <code class="docutils literal notranslate"><span class="pre">Cobaya</span></code> with the full numerical solver. During the run, the RFR emulator is trained on-the-fly and progressively replaces calls to the computationally expensive numerical solver.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">RF_Only_Cobaya</span></code></strong><br/>
+Performs parameter inference using the pre-trained emulator. This mode is highly efficient and is suitable for more detailed or extended analyses once the emulator has been trained.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The trained emulator is specific to the Warm Inflation model under consideration. Any change in the model, including modifications to the perturbation setup (e.g., thermalization assumptions or radiation noise), requires retraining the emulator.</p>
+</div>
+<hr class="docutils"/>
+</section>
+</section>
+</section>
+</div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
+<div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
+<ul>
+<li><a :data-current="activeSection === '#overview'" class="reference internal" href="#overview">Overview</a></li>
+<li><a :data-current="activeSection === '#g-q-calculator'" class="reference internal" href="#g-q-calculator"><span class="math notranslate nohighlight">\(G(Q)\)</span> Calculator</a><ul>
+<li><a :data-current="activeSection === '#structure'" class="reference internal" href="#structure">Structure</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#semi-analytical-power-spectrum-calculator'" class="reference internal" href="#semi-analytical-power-spectrum-calculator">Semi-Analytical Power Spectrum Calculator</a><ul>
+<li><a :data-current="activeSection === '#constraints-on-a-s-n-s-and-r'" class="reference internal" href="#constraints-on-a-s-n-s-and-r">Constraints on <span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span>, and <span class="math notranslate nohighlight">\(r\)</span>:</a></li>
+<li><a :data-current="activeSection === '#full-cmb-constraints'" class="reference internal" href="#full-cmb-constraints">Full CMB Constraints:</a></li>
+<li><a :data-current="activeSection === '#id1'" class="reference internal" href="#id1">Structure</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#numerical-power-spectrum-calculator'" class="reference internal" href="#numerical-power-spectrum-calculator">Numerical Power Spectrum Calculator</a><ul>
+<li><a :data-current="activeSection === '#id2'" class="reference internal" href="#id2">Structure</a></li>
+<li><a :data-current="activeSection === '#power-spectrum'" class="reference internal" href="#power-spectrum">Power Spectrum</a></li>
+<li><a :data-current="activeSection === '#emulator'" class="reference internal" href="#emulator">Emulator</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</aside>
 </main>
 </div>
 </div><footer class="py-6 border-t border-border md:py-0">
@@ -135,5 +258,7 @@
 <script src="_static/doctools.js?v=9bcbadda"></script>
 <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
 <script defer="defer" src="_static/theme.js?v=d6a9845b"></script>
+<script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+<script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>

@@ -108,11 +108,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure of SWIM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html">:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation_details.html">Implementation Details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html"><code class="docutils literal notranslate"><span class="pre">GQ</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="additional_params.html"><code class="docutils literal notranslate"><span class="pre">verbosity</span></code></a></li>
 </ul>
 
 </nav>
@@ -151,20 +151,56 @@
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quick_start.html#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quick_start.html#compute-g-q">1. Compute <span class="math notranslate nohighlight">\(G(Q)\)</span></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html#semi-analytical-inference-optional">2. Semi-Analytical Inference (Optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#semi-analytical-inference">2. Semi-Analytical Inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quick_start.html#numerical-power-spectrum">3. Numerical Power Spectrum</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html#emulator-based-inference-optional">4. Emulator-Based Inference (Optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#emulator-based-inference">4. Emulator-Based Inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quick_start.html#summary">Summary</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure of SWIM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html">:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> Calculator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="additional_params.html"><code class="docutils literal notranslate"><span class="pre">verbosity</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="additional_params.html#kp"><code class="docutils literal notranslate"><span class="pre">kp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="general_structure.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general_structure.html#g-q-calculator"><span class="math notranslate nohighlight">\(G(Q)\)</span> Calculator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general_structure.html#semi-analytical-power-spectrum-calculator">Semi-Analytical Power Spectrum Calculator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general_structure.html#numerical-power-spectrum-calculator">Numerical Power Spectrum Calculator</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="implementation_details.html">Implementation Details</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="implementation_details.html#architecture-overview">Architecture Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation_details.html#c-backend">C++ Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation_details.html#python-interface">Python Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation_details.html#data-flow">Data Flow</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html"><code class="docutils literal notranslate"><span class="pre">GQ</span></code> Calculator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#defining-your-wi-model">Defining Your WI Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#c-python-interface">C++ – Python Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#input-parameters">Input Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#find-ics-py-initial-condition-setup"><code class="docutils literal notranslate"><span class="pre">find_ICs.py</span></code> — Initial Condition Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#find-gq-py-g-q-computation"><code class="docutils literal notranslate"><span class="pre">find_GQ.py</span></code> — <span class="math notranslate nohighlight">\(G(Q)\)</span> Computation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#running-the-pipeline">Running the Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#output-files">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#methodology">Methodology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#module-roles">Module Roles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#smoothing">Smoothing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#common-pitfalls">Common Pitfalls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GQ_calculator.html#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SA_PS_calculator.html#directory-structure">Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SA_PS_calculator.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SA_PS_calculator.html#defining-your-wi-model">Defining Your WI Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SA_PS_calculator.html#role-of-core-files">Role of Core Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SA_PS_calculator.html#g-q-handling"><span class="math notranslate nohighlight">\(G(Q)\)</span> Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SA_PS_calculator.html#c-python-interface">C++–Python Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SA_PS_calculator.html#running-parameter-inference">Running Parameter Inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SA_PS_calculator.html#workflow">Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SA_PS_calculator.html#common-pitfalls">Common Pitfalls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SA_PS_calculator.html#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
 </ul>
 </div>
 </section>

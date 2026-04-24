@@ -21,13 +21,15 @@
 <meta content="#ffffff" media="(prefers-color-scheme: light)" name="theme-color"/>
 <meta content="#030711" media="(prefers-color-scheme: dark)" name="theme-color"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>&lt;no title&gt; | SWIM 1.0 documentation</title>
-<meta content="&lt;no title&gt; | SWIM 1.0 documentation" property="og:title"/>
-<meta content="&lt;no title&gt; | SWIM 1.0 documentation" name="twitter:title"/>
+<title>Implementation Details | SWIM 1.0 documentation</title>
+<meta content="Implementation Details | SWIM 1.0 documentation" property="og:title"/>
+<meta content="Implementation Details | SWIM 1.0 documentation" name="twitter:title"/>
 <link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
 <link href="_static/theme.css?v=979577e3" rel="stylesheet" type="text/css"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
+<link href="GQ_calculator.html" rel="next" title="GQ Calculator"/>
+<link href="general_structure.html" rel="prev" title="General Structure"/>
 </head>
 <body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
 <div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
@@ -69,11 +71,11 @@
 <div class="relative overflow-hidden md:overflow-auto my-4 md:my-0">
 <div class="overflow-y-auto h-full w-full relative pr-6"><nav class="table w-full min-w-full my-6 lg:my-8">
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="implementation_details.html">Implementation Details</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Implementation Details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html"><code class="docutils literal notranslate"><span class="pre">GQ</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
@@ -96,33 +98,122 @@
 <path d="M240 856h120V616h240v240h120V496L480 316 240 496v360Zm-80 80V456l320-240 320 240v480H520V696h-80v240H160Zm320-350Z"></path>
 </svg>
 </a>
-<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">&lt;no title&gt;</span>
+<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">Implementation Details</span>
 </nav>
 <div id="content" role="main">
-<blockquote>
-<div><dl class="py data">
-<dt class="sig sig-object py" id="verbosity">
-<span class="sig-name descname"><span class="pre">verbosity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span> <span class="pre">or</span> <span class="pre">1</span></em><a class="headerlink" href="#verbosity" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#verbosity'"><span>#</span></a></dt>
-<dd><p>Set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if you wish to see any errors that occured during computation and <code class="docutils literal notranslate"><span class="pre">0</span></code> otherwise.</p>
-<dl class="py data">
-<dt class="sig sig-object py" id="kp">
-<span class="sig-name descname"><span class="pre">kp</span></span><a class="headerlink" href="#kp" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#kp'"><span>#</span></a></dt>
-<dd></dd></dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>double</p>
-</dd>
-<dt class="field-even">Value<span class="colon">:</span></dt>
-<dd class="field-even"><p>0.05</p>
-</dd>
-</dl>
-<p>Parameter to set the pivot scale in <span class="math notranslate nohighlight">\(Mpc^{-1}\)</span>. Planck mission sets it at <span class="math notranslate nohighlight">\(0.05 Mpc^{-1}\)</span>.</p>
-</dd></dl>
-</div></blockquote>
+<section class="tex2jax_ignore mathjax_ignore" id="implementation-details">
+<h1>Implementation Details<a class="headerlink" href="#implementation-details" title="Link to this heading"><span>#</span></a></h1>
+<p>SWIM is designed with a hybrid architecture that combines the computational efficiency of C++ with the flexibility and ease of use of Python.</p>
+<p>The computationally intensive components—such as background evolution and stochastic perturbation dynamics—are implemented in C++, while Python provides a lightweight interface for running pipelines, managing data, and performing analysis.</p>
+<hr class="docutils"/>
+<section id="architecture-overview">
+<h2>Architecture Overview<a class="headerlink" href="#architecture-overview" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#architecture-overview'"><span>#</span></a></h2>
+<ul class="simple">
+<li><p><strong>C++ backend</strong>: Handles all heavy numerical computations</p></li>
+<li><p><strong>Python interface</strong>: Provides user-facing scripts, plotting, and inference tools</p></li>
+<li><p><strong>Interfacing</strong>: Python interacts with compiled C++ shared libraries via <code class="docutils literal notranslate"><span class="pre">cffi</span></code></p></li>
+</ul>
+<p>Each module compiles into shared libraries (<code class="docutils literal notranslate"><span class="pre">.so</span></code> files), which are dynamically loaded and executed from Python.</p>
+</section>
+<hr class="docutils"/>
+<section id="c-backend">
+<h2>C++ Backend<a class="headerlink" href="#c-backend" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#c-backend'"><span>#</span></a></h2>
+<section id="ode-solver-background-evolution">
+<h3>ODE Solver (Background Evolution)<a class="headerlink" href="#ode-solver-background-evolution" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#ode-solver-background-evolution'"><span>#</span></a></h3>
+<p>The background dynamics are solved using the Boost ODEInt library with an adaptive step-size integrator:</p>
+<ul class="simple">
+<li><p><strong>Method</strong>: Runge–Kutta–Fehlberg 7(8) (<code class="docutils literal notranslate"><span class="pre">runge_kutta_fehlberg78</span></code>)</p></li>
+<li><p><strong>Variables evolved</strong>: <span class="math notranslate nohighlight">\((\phi, \phi', T)\)</span></p></li>
+<li><p><strong>Time variable</strong>: Number of e-folds <span class="math notranslate nohighlight">\(N\)</span> (with <span class="math notranslate nohighlight">\(' \equiv d/dN\)</span>)</p></li>
+</ul>
+<p>All quantities are expressed in reduced Planck units (<span class="math notranslate nohighlight">\(M_{\mathrm{Pl}} = 1\)</span>).</p>
+<p>The end of different phases is determined using:</p>
+<ul class="simple">
+<li><p><strong>End of inflation</strong>: <span class="math notranslate nohighlight">\(\epsilon_H = 1\)</span></p></li>
+<li><p><strong>End of reheating / start of radiation domination</strong>: <span class="math notranslate nohighlight">\(\epsilon_H = 2\)</span></p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="sde-solver-perturbations">
+<h3>SDE Solver (Perturbations)<a class="headerlink" href="#sde-solver-perturbations" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#sde-solver-perturbations'"><span>#</span></a></h3>
+<p>The stochastic evolution of perturbations is implemented using a custom scheme:</p>
+<ul class="simple">
+<li><p><strong>Method</strong>: RI1W1 scheme (Rößler) for Itô stochastic differential equations</p></li>
+<li><p><strong>Step-size</strong>: Controlled via an internal empirical prescription (neither fixed nor fully adaptive)</p></li>
+<li><p><strong>Noise</strong>: Gaussian with zero mean, scaled with the e-fold step</p></li>
+</ul>
+<p>The curvature perturbation is obtained by averaging over multiple stochastic realizations.</p>
+</section>
+<hr class="docutils"/>
+<section id="parallelization">
+<h3>Parallelization<a class="headerlink" href="#parallelization" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#parallelization'"><span>#</span></a></h3>
+<p>Parallelization is implemented using <strong>OpenMP</strong>:</p>
+<ul class="simple">
+<li><p>Independent stochastic realizations are computed in parallel</p></li>
+<li><p>The final power spectrum is obtained by averaging over these realizations</p></li>
+</ul>
+<p>For parameter inference, parallelization across chains is handled externally via <code class="docutils literal notranslate"><span class="pre">Cobaya</span></code> using MPI.</p>
+</section>
+<hr class="docutils"/>
+<section id="boost-libraries">
+<h3>Boost Libraries<a class="headerlink" href="#boost-libraries" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#boost-libraries'"><span>#</span></a></h3>
+<p>SWIM makes extensive use of Boost for numerical routines:</p>
+<ul class="simple">
+<li><p>ODE integration (<code class="docutils literal notranslate"><span class="pre">boost::numeric::odeint</span></code>)</p></li>
+<li><p>Root finding  (<code class="docutils literal notranslate"><span class="pre">boost::math::tools</span></code>)</p></li>
+<li><p>Interpolation  (<code class="docutils literal notranslate"><span class="pre">boost::math::interpolators</span></code>)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="python-interface">
+<h2>Python Interface<a class="headerlink" href="#python-interface" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#python-interface'"><span>#</span></a></h2>
+<p>Python provides a lightweight interface to the C++ backend:</p>
+<ul class="simple">
+<li><p>Loads shared libraries using <code class="docutils literal notranslate"><span class="pre">cffi</span></code></p></li>
+<li><p>Passes model parameters to the C++ solvers</p></li>
+<li><p>Handles execution pipelines</p></li>
+<li><p>Performs plotting and data analysis</p></li>
+<li><p>Implements the Random Forest Regression (RFR) emulator</p></li>
+</ul>
+<p>No computationally intensive tasks are performed in Python. All heavy calculations are delegated to the C++ layer.</p>
+</section>
+<hr class="docutils"/>
+<section id="data-flow">
+<h2>Data Flow<a class="headerlink" href="#data-flow" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#data-flow'"><span>#</span></a></h2>
+<p>The typical workflow is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">Python → C++ (computation) → output (.dat files) → Python (analysis/plotting)
+</span></code></pre></div>
+</div>
+<ul class="simple">
+<li><p>C++ solvers write outputs (e.g., background evolution, power spectrum) to <code class="docutils literal notranslate"><span class="pre">.dat</span></code> files</p></li>
+<li><p>Python scripts and notebooks read these files for visualization and post-processing</p></li>
+</ul>
+<hr class="docutils"/>
+<div class="tip admonition">
+<p class="admonition-title">Design Philosophy</p>
+<p>SWIM is designed to balance computational efficiency with usability:</p>
+<ul class="simple">
+<li><p>C++ is used for performance-critical numerical computations</p></li>
+<li><p>Python provides a flexible interface for workflow management and analysis</p></li>
+<li><p>Modular design allows independent use of different components</p></li>
+</ul>
+</div>
+</section>
+</section>
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
 <div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
 <ul>
-<li><a :data-current="activeSection === '#kp'" class="reference internal" href="#kp"><code class="docutils literal notranslate"><span class="pre">kp</span></code></a></li>
+<li><a :data-current="activeSection === '#architecture-overview'" class="reference internal" href="#architecture-overview">Architecture Overview</a></li>
+<li><a :data-current="activeSection === '#c-backend'" class="reference internal" href="#c-backend">C++ Backend</a><ul>
+<li><a :data-current="activeSection === '#ode-solver-background-evolution'" class="reference internal" href="#ode-solver-background-evolution">ODE Solver (Background Evolution)</a></li>
+<li><a :data-current="activeSection === '#sde-solver-perturbations'" class="reference internal" href="#sde-solver-perturbations">SDE Solver (Perturbations)</a></li>
+<li><a :data-current="activeSection === '#parallelization'" class="reference internal" href="#parallelization">Parallelization</a></li>
+<li><a :data-current="activeSection === '#boost-libraries'" class="reference internal" href="#boost-libraries">Boost Libraries</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#python-interface'" class="reference internal" href="#python-interface">Python Interface</a></li>
+<li><a :data-current="activeSection === '#data-flow'" class="reference internal" href="#data-flow">Data Flow</a></li>
 </ul>
 </div>
 </aside>

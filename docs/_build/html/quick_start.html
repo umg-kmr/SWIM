@@ -28,7 +28,7 @@
 <link href="_static/theme.css?v=979577e3" rel="stylesheet" type="text/css"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
-<link href="general_structure.html" rel="next" title="General Structure of SWIM"/>
+<link href="general_structure.html" rel="next" title="General Structure"/>
 <link href="installation.html" rel="prev" title="Installation"/>
 </head>
 <body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
@@ -74,11 +74,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure of SWIM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html">:math:<code class="docutils literal notranslate"><span class="pre">G(Q)</span></code> Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general_structure.html">General Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation_details.html">Implementation Details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GQ_calculator.html"><code class="docutils literal notranslate"><span class="pre">GQ</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SA_PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">SA_PS</span></code> Calculator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="PS_calculator.html"><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="additional_params.html"><code class="docutils literal notranslate"><span class="pre">verbosity</span></code></a></li>
 </ul>
 </nav>
 </div>
@@ -116,8 +116,11 @@ V(\phi) = \dfrac{1}{4} V_0 \phi^4, \qquad
 <ol class="arabic simple">
 <li><p>Compute the correction function <span class="math notranslate nohighlight">\(G(Q)\)</span></p></li>
 <li><p>Perform semi-analytical parameter inference using the computed <span class="math notranslate nohighlight">\(G(Q)\)</span></p></li>
-<li><p>Compute the full numerical power spectrum</p></li>
-<li><p>Perform parameter inference using full numerical power spectrum accelerated using the emulator</p></li>
+</ol>
+<p><strong>or</strong></p>
+<ol class="arabic simple">
+<li><p>Bypass the semi-analytical approach and compute the full numerical power spectrum</p></li>
+<li><p>Perform parameter inference using full numerical power spectrum accelerated using a RandomForest regression emulator</p></li>
 </ol>
 </section>
 <hr class="docutils"/>
@@ -147,8 +150,8 @@ V(\phi) = \dfrac{1}{4} V_0 \phi^4, \qquad
 <p>Use the notebook <code class="docutils literal notranslate"><span class="pre">GQ_Plotting_NB.ipynb</span></code> to visualize and smooth the output (<code class="docutils literal notranslate"><span class="pre">GQ_smooth.dat</span></code>).</p>
 </section>
 <hr class="docutils"/>
-<section id="semi-analytical-inference-optional">
-<h2>2. Semi-Analytical Inference (Optional)<a class="headerlink" href="#semi-analytical-inference-optional" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#semi-analytical-inference-optional'"><span>#</span></a></h2>
+<section id="semi-analytical-inference">
+<h2>2. Semi-Analytical Inference<a class="headerlink" href="#semi-analytical-inference" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#semi-analytical-inference'"><span>#</span></a></h2>
 <p>Requires <code class="docutils literal notranslate"><span class="pre">Cobaya</span></code> and cosmological likelihoods.</p>
 <p>Navigate to:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">cd</span><span class="w"> </span>../SA_PS_Calculator
@@ -177,15 +180,15 @@ V(\phi) = \dfrac{1}{4} V_0 \phi^4, \qquad
 <hr class="docutils"/>
 <section id="numerical-power-spectrum">
 <h2>3. Numerical Power Spectrum<a class="headerlink" href="#numerical-power-spectrum" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#numerical-power-spectrum'"><span>#</span></a></h2>
-<p>Compute the full stochastic WI power spectrum:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">cd</span><span class="w"> </span>../SPS_Calculator/Power_Spectrum
+<p>Compute the full numerica WI power spectrum:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">cd</span><span class="w"> </span>../PS_Calculator/Power_Spectrum
 </span></code></pre></div>
 </div>
 <p>Clean outputs:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">rm<span class="w"> </span>bg.dat<span class="w"> </span>ps.dat<span class="w"> </span>PT_kp.dat
 </span></code></pre></div>
 </div>
-<p>(Optional) use all CPU threads:</p>
+<p>use all CPU threads:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="k">$(</span>nproc<span class="w"> </span>--all<span class="k">)</span>
 </span></code></pre></div>
 </div>
@@ -202,9 +205,9 @@ V(\phi) = \dfrac{1}{4} V_0 \phi^4, \qquad
 <p>Use <code class="docutils literal notranslate"><span class="pre">Plotting_NB.ipynb</span></code> to visualize results and extract <span class="math notranslate nohighlight">\((A_s, n_s, r)\)</span>.</p>
 </section>
 <hr class="docutils"/>
-<section id="emulator-based-inference-optional">
-<h2>4. Emulator-Based Inference (Optional)<a class="headerlink" href="#emulator-based-inference-optional" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#emulator-based-inference-optional'"><span>#</span></a></h2>
-<p>Accelerate inference using a Random Forest emulator:</p>
+<section id="emulator-based-inference">
+<h2>4. Emulator-Based Inference<a class="headerlink" href="#emulator-based-inference" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#emulator-based-inference'"><span>#</span></a></h2>
+<p>Accelerated inference using a Random Forest emulator:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">cd</span><span class="w"> </span>../../Emulator/RF_Acc_Cobaya
 </span></code></pre></div>
 </div>
@@ -216,10 +219,7 @@ V(\phi) = \dfrac{1}{4} V_0 \phi^4, \qquad
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">cobaya-run<span class="w"> </span>Input_asns.yaml
 </span></code></pre></div>
 </div>
-<p>After ~100 valid samples, the emulator is trained and saved as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">rf_model</span><span class="o">.</span><span class="n">pkl</span>
-</span></code></pre></div>
-</div>
+<p>After ~100 valid samples, the emulator is trained and saved as: <code class="docutils literal notranslate"><span class="pre">rf_model.pkl</span></code></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The emulator is trained only for the chosen WI model. Any change in the model or perturbation settings requires retraining.</p>
@@ -232,7 +232,7 @@ V(\phi) = \dfrac{1}{4} V_0 \phi^4, \qquad
 <li><p>Use <strong>GQ module</strong> → compute correction factor</p></li>
 <li><p>Use <strong>SA module</strong> → fast semi-analytical inference</p></li>
 <li><p>Use <strong>PS module</strong> → full numerical spectrum</p></li>
-<li><p>Use <strong>Emulator</strong> → speed up inference</p></li>
+<li><p>Use <strong>PS module - Emulator</strong> → efficient parameter inference using numerical power spectrum</p></li>
 </ul>
 <hr class="docutils"/>
 <p>For full details of each module, see the corresponding sections in the documentation.</p>
@@ -243,9 +243,9 @@ V(\phi) = \dfrac{1}{4} V_0 \phi^4, \qquad
 <ul>
 <li><a :data-current="activeSection === '#overview'" class="reference internal" href="#overview">Overview</a></li>
 <li><a :data-current="activeSection === '#compute-g-q'" class="reference internal" href="#compute-g-q">1. Compute <span class="math notranslate nohighlight">\(G(Q)\)</span></a></li>
-<li><a :data-current="activeSection === '#semi-analytical-inference-optional'" class="reference internal" href="#semi-analytical-inference-optional">2. Semi-Analytical Inference (Optional)</a></li>
+<li><a :data-current="activeSection === '#semi-analytical-inference'" class="reference internal" href="#semi-analytical-inference">2. Semi-Analytical Inference</a></li>
 <li><a :data-current="activeSection === '#numerical-power-spectrum'" class="reference internal" href="#numerical-power-spectrum">3. Numerical Power Spectrum</a></li>
-<li><a :data-current="activeSection === '#emulator-based-inference-optional'" class="reference internal" href="#emulator-based-inference-optional">4. Emulator-Based Inference (Optional)</a></li>
+<li><a :data-current="activeSection === '#emulator-based-inference'" class="reference internal" href="#emulator-based-inference">4. Emulator-Based Inference</a></li>
 <li><a :data-current="activeSection === '#summary'" class="reference internal" href="#summary">Summary</a></li>
 </ul>
 </div>

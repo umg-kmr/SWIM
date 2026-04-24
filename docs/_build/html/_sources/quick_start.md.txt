@@ -15,8 +15,11 @@ The typical workflow in SWIM is:
 
 1. Compute the correction function $G(Q)$  
 2. Perform semi-analytical parameter inference using the computed $G(Q)$
-3. Compute the full numerical power spectrum  
-4. Perform parameter inference using full numerical power spectrum accelerated using the emulator  
+   
+**or**
+
+1. Bypass the semi-analytical approach and compute the full numerical power spectrum 
+2. Perform parameter inference using full numerical power spectrum accelerated using a RandomForest regression emulator  
 
 ---
 
@@ -54,7 +57,7 @@ Use the notebook `GQ_Plotting_NB.ipynb` to visualize and smooth the output (`GQ_
 
 ---
 
-## 2. Semi-Analytical Inference (Optional)
+## 2. Semi-Analytical Inference 
 
 Requires `Cobaya` and cosmological likelihoods.
 
@@ -92,10 +95,10 @@ When running multiple chains, limit CPU usage per chain:
 
 ## 3. Numerical Power Spectrum
 
-Compute the full stochastic WI power spectrum:
+Compute the full numerica WI power spectrum:
 
 ```bash
-cd ../SPS_Calculator/Power_Spectrum
+cd ../PS_Calculator/Power_Spectrum
 ```
 
 Clean outputs:
@@ -104,7 +107,7 @@ Clean outputs:
 rm bg.dat ps.dat PT_kp.dat
 ```
 
-(Optional) use all CPU threads:
+use all CPU threads:
 
 ```bash
 export OMP_NUM_THREADS=$(nproc --all)
@@ -125,9 +128,9 @@ Use `Plotting_NB.ipynb` to visualize results and extract $(A_s, n_s, r)$.
 
 ---
 
-## 4. Emulator-Based Inference (Optional)
+## 4. Emulator-Based Inference 
 
-Accelerate inference using a Random Forest emulator:
+Accelerated inference using a Random Forest emulator:
 
 ```bash
 cd ../../Emulator/RF_Acc_Cobaya
@@ -145,11 +148,7 @@ Run:
 cobaya-run Input_asns.yaml
 ```
 
-After ~100 valid samples, the emulator is trained and saved as:
-
-```
-rf_model.pkl
-```
+After ~100 valid samples, the emulator is trained and saved as: `rf_model.pkl`
 
 ```{note}
 The emulator is trained only for the chosen WI model. Any change in the model or perturbation settings requires retraining.
@@ -162,7 +161,7 @@ The emulator is trained only for the chosen WI model. Any change in the model or
 - Use **GQ module** → compute correction factor  
 - Use **SA module** → fast semi-analytical inference  
 - Use **PS module** → full numerical spectrum  
-- Use **Emulator** → speed up inference  
+- Use **PS module - Emulator** → efficient parameter inference using numerical power spectrum  
 
 ---
 
