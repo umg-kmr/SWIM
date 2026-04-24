@@ -171,10 +171,10 @@
 <li><p>Implements likelihood for:</p>
 <ul>
 <li><p><span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span></p></li>
-<li><p>optionally <span class="math notranslate nohighlight">\(\alpha_s\)</span></p></li>
+<li><p>optionally <span class="math notranslate nohighlight">\(\alpha_s\)</span> (<em>running of the spectral index</em>)</p></li>
 </ul>
 </li>
-<li><p>The tensor-to-scalar ratio <span class="math notranslate nohighlight">\(r\)</span> is constrained internally (upper bound)</p></li>
+<li><p>The tensor-to-scalar ratio <span class="math notranslate nohighlight">\(r\)</span> is constrained internally (upper bound) in <code class="docutils literal notranslate"><span class="pre">Bg.cpp</span></code>.</p></li>
 </ul>
 <p>This script is used with <code class="docutils literal notranslate"><span class="pre">Input_asns.yaml</span></code>.</p>
 </section>
@@ -183,8 +183,8 @@
 <h3><code class="docutils literal notranslate"><span class="pre">An_CAMB.py</span></code><a class="headerlink" href="#an-camb-py" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#an-camb-py'"><span>#</span></a></h3>
 <ul class="simple">
 <li><p>Injects the WI primordial power spectrum into CAMB</p></li>
-<li><p>Computes CMB angular power spectra</p></li>
-<li><p>Used for full CMB likelihood analysis</p></li>
+<li><p>Used for computing the CMB angular power spectra using CAMB</p></li>
+<li><p>Performs full CMB likelihood analysis with Cobaya</p></li>
 </ul>
 </section>
 </section>
@@ -193,14 +193,14 @@
 <h2><span class="math notranslate nohighlight">\(G(Q)\)</span> Handling<a class="headerlink" href="#g-q-handling" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#g-q-handling'"><span>#</span></a></h2>
 <p>The semi-analytical power spectrum requires <span class="math notranslate nohighlight">\(G(Q)\)</span>, which can be supplied in multiple ways.</p>
 <hr class="docutils"/>
-<section id="option-1-precomputed-g-q-recommended">
-<h3>Option 1: Precomputed <span class="math notranslate nohighlight">\(G(Q)\)</span> (Recommended)<a class="headerlink" href="#option-1-precomputed-g-q-recommended" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#option-1-precomputed-g-q-recommended'"><span>#</span></a></h3>
+<section id="option-1-external-g-q-recommended">
+<h3>Option 1: External <span class="math notranslate nohighlight">\(G(Q)\)</span> (Recommended)<a class="headerlink" href="#option-1-external-g-q-recommended" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#option-1-external-g-q-recommended'"><span>#</span></a></h3>
 <p>Set:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">read_GQ_from_file</span> <span class="o">=</span> <span class="mi">1</span>
 </span></code></pre></div>
 </div>
 <ul>
-<li><p>Uses precomputed data (e.g. from SWIM GQ calculator)</p></li>
+<li><p>Uses precomputed <span class="math notranslate nohighlight">\(G(Q)\)</span> data</p></li>
 <li><p>File format:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">Q</span>   <span class="n">G</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
 </span></code></pre></div>
@@ -208,9 +208,15 @@
 </li>
 <li><p>Interpolation is handled internally in C++</p></li>
 </ul>
+<p><span class="math notranslate nohighlight">\(G(Q)\)</span> can be generated using:</p>
+<ul class="simple">
+<li><p>SWIM GQ Calculator</p></li>
+<li><p>WI2Easy</p></li>
+</ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>It is strongly recommended to smooth <span class="math notranslate nohighlight">\(G(Q)\)</span> using the notebook provided in the GQ module.</p>
+<p>If using SWIM’s GQ Calculator, it is strongly recommended to smooth <span class="math notranslate nohighlight">\(G(Q)\)</span> using the notebook provided in the GQ module before using it here.</p>
+<p>If using a <span class="math notranslate nohighlight">\(G(Q)\)</span> file computed with WI2Easy, update the path to the file in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> by modifying the parameter <code class="docutils literal notranslate"><span class="pre">GQfname</span></code> of type <code class="docutils literal notranslate"><span class="pre">string</span></code>.</p>
 </div>
 </section>
 <hr class="docutils"/>
@@ -220,7 +226,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">read_GQ_from_file</span> <span class="o">=</span> <span class="mi">0</span>
 </span></code></pre></div>
 </div>
-<p>The code uses built-in fitting functions in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code>:</p>
+<p>The code uses analytical fitting functions defined in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code>:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">auto</span><span class="w"> </span><span class="n">GQ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">p</span><span class="p">](</span><span class="kt">double</span><span class="w"> </span><span class="n">Q</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">{</span>
 </span><span id="line-2"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">GQ_from_file</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span><span id="line-3"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">exp10</span><span class="p">(</span><span class="n">logGasQ</span><span class="p">(</span><span class="n">log10</span><span class="p">(</span><span class="n">Q</span><span class="p">)));</span>
@@ -231,21 +237,16 @@
 </span><span id="line-8"><span class="p">};</span>
 </span></code></pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>These fits are available only for specific cases (e.g. <span class="math notranslate nohighlight">\(p=3,1,-1\)</span>).<br/>
-Users must modify <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> to add new fits if required.</p>
-</div>
-</section>
-<hr class="docutils"/>
-<section id="external-sources">
-<h3>External Sources<a class="headerlink" href="#external-sources" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#external-sources'"><span>#</span></a></h3>
-<p><span class="math notranslate nohighlight">\(G(Q)\)</span> can also be generated using:</p>
 <ul class="simple">
-<li><p>SWIM GQ Calculator</p></li>
-<li><p>WI2Easy</p></li>
-<li><p>WarmSPy</p></li>
+<li><p>Several commonly used fits are already implemented</p></li>
+<li><p>These are available only for specific cases (e.g. <span class="math notranslate nohighlight">\(p = 3, 1, -1\)</span>)</p></li>
 </ul>
+<p>Additional fitting functions can be:</p>
+<ul class="simple">
+<li><p>computed using WarmSPy</p></li>
+<li><p>implemented by modifying the <code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">GQ</span></code> function</p></li>
+</ul>
+<hr class="docutils"/>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Ensure that the <span class="math notranslate nohighlight">\(G(Q)\)</span> used corresponds to the same WI model being analyzed.</p>
@@ -254,7 +255,7 @@ Users must modify <code class="docutils literal notranslate"><span class="pre">m
 </section>
 <hr class="docutils"/>
 <section id="c-python-interface">
-<h2>C++–Python Interface<a class="headerlink" href="#c-python-interface" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#c-python-interface'"><span>#</span></a></h2>
+<h2>C++ – Python Interface<a class="headerlink" href="#c-python-interface" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#c-python-interface'"><span>#</span></a></h2>
 <p>As in the <span class="math notranslate nohighlight">\(G(Q)\)</span> module, the function signature must match between C++ and Python.</p>
 <p>Example:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kt">void</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">phi_ini</span><span class="p">,</span><span class="kt">double</span><span class="w"> </span><span class="n">gst</span><span class="p">,</span><span class="kt">double</span><span class="w"> </span><span class="n">Q_ini</span><span class="p">,</span><span class="kt">double</span><span class="w"> </span><span class="n">V0</span><span class="p">,</span><span class="kt">double</span><span class="w"> </span><span class="n">Np</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">therm</span><span class="p">);</span>
@@ -263,13 +264,168 @@ Users must modify <code class="docutils literal notranslate"><span class="pre">m
 <p>This must be consistent in:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">llihood.py</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">An_CAMB.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">llihood.py</span></code>  (<em>modify the function <code class="docutils literal notranslate"><span class="pre">logp</span></code></em>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">An_CAMB.py</span></code>  (<em>modify the function <code class="docutils literal notranslate"><span class="pre">feature_power_spectrum</span></code></em>)</p></li>
 </ul>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Any mismatch in function signature will lead to runtime errors or incorrect results.</p>
 </div>
+<section id="full-cmb-parameter-interface-an-camb-py">
+<h3>Full CMB Parameter Interface (<code class="docutils literal notranslate"><span class="pre">An_CAMB.py</span></code>)<a class="headerlink" href="#full-cmb-parameter-interface-an-camb-py" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#full-cmb-parameter-interface-an-camb-py'"><span>#</span></a></h3>
+<p>When using full CMB constraints, the WI model parameters must also be defined in the <code class="docutils literal notranslate"><span class="pre">FeaturePrimordialPk</span></code> class inside <code class="docutils literal notranslate"><span class="pre">An_CAMB.py</span></code>.</p>
+<p>This step is required for Cobaya to correctly recognize and pass the model parameters.</p>
+<hr class="docutils"/>
+<section id="what-needs-to-be-modified">
+<h4>What Needs to Be Modified<a class="headerlink" href="#what-needs-to-be-modified" title="Link to this heading"><span>#</span></a></h4>
+<p>Update the following section to include your WI model parameters:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">class</span><span class="w"> </span><span class="nc">FeaturePrimordialPk</span><span class="p">(</span><span class="n">Theory</span><span class="p">):</span>
+</span><span id="line-2">    <span class="c1"># define parameter names here</span>
+</span><span id="line-3">    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"phi0"</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span><span class="s2">"gst"</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span><span class="s2">"Q0"</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span><span class="s2">"V0"</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span><span class="s2">"Np"</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span><span class="s2">"c"</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span><span class="s2">"p"</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span><span class="s2">"therm"</span><span class="p">:</span><span class="kc">None</span><span class="p">}</span>
+</span><span id="line-4">
+</span><span id="line-5">    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">want_derived</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">params_values_dict</span><span class="p">):</span>
+</span><span id="line-6">        <span class="c1"># extract parameters here</span>
+</span><span id="line-7">        <span class="n">phi0</span><span class="p">,</span><span class="n">gst</span><span class="p">,</span><span class="n">Q0</span><span class="p">,</span><span class="n">V0</span><span class="p">,</span><span class="n">Np</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">therm</span> <span class="o">=</span> \
+</span><span id="line-8">        <span class="p">[</span><span class="n">params_values_dict</span><span class="p">[</span><span class="n">itr</span><span class="p">]</span> <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"phi0"</span><span class="p">,</span><span class="s2">"gst"</span><span class="p">,</span><span class="s2">"Q0"</span><span class="p">,</span><span class="s2">"V0"</span><span class="p">,</span><span class="s2">"Np"</span><span class="p">,</span><span class="s2">"c"</span><span class="p">,</span><span class="s2">"p"</span><span class="p">,</span><span class="s2">"therm"</span><span class="p">]]</span> 
+</span><span id="line-9">
+</span><span id="line-10">        <span class="n">ks</span><span class="p">,</span> <span class="n">Pks</span> <span class="o">=</span> <span class="n">feature_power_spectrum</span><span class="p">(</span><span class="n">phi0</span><span class="p">,</span><span class="n">gst</span><span class="p">,</span><span class="n">Q0</span><span class="p">,</span><span class="n">V0</span><span class="p">,</span><span class="n">Np</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">therm</span><span class="p">,</span><span class="n">kp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kp</span><span class="p">)</span> <span class="c1">#match function signature</span>
+</span><span id="line-11">
+</span></code></pre></div>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="key-points">
+<h4>Key Points<a class="headerlink" href="#key-points" title="Link to this heading"><span>#</span></a></h4>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">params</span></code> dictionary must include <strong>all WI model parameters</strong></p></li>
+<li><p>The order of parameters extracted in <code class="docutils literal notranslate"><span class="pre">calculate()</span></code> must match:</p>
+<ul>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">params</span></code> dictionary</p></li>
+<li><p>the C++ function signature</p></li>
+</ul>
+</li>
+<li><p>The call to <code class="docutils literal notranslate"><span class="pre">feature_power_spectrum(...)</span></code> must also follow the same ordering</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If you add or remove model parameters, you must update:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">feature_power_spectrum</span></code> arguments list</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">params</span></code> dictionary</p></li>
+<li><p>the parameter extraction list</p></li>
+<li><p>the function call to <code class="docutils literal notranslate"><span class="pre">feature_power_spectrum(...)</span></code></p></li>
+</ul>
+</div>
+</section>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="input-parameters">
+<h2>Input Parameters<a class="headerlink" href="#input-parameters" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#input-parameters'"><span>#</span></a></h2>
+<p>All runtime parameters are configured in the Python scripts.</p>
+</section>
+<hr class="docutils"/>
+<section id="llihood-py-a-s-n-s-inference">
+<h2><code class="docutils literal notranslate"><span class="pre">llihood.py</span></code> — <span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span> Inference<a class="headerlink" href="#llihood-py-a-s-n-s-inference" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#llihood-py-a-s-n-s-inference'"><span>#</span></a></h2>
+<section id="pivot-scale-handling">
+<h3>Pivot Scale Handling<a class="headerlink" href="#pivot-scale-handling" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pivot-scale-handling'"><span>#</span></a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Np_autocalc</span></code> <em>(int, default = 1)</em><br/>
+Controls how the pivot scale exit is determined.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> → Automatically compute the e-fold <span class="math notranslate nohighlight">\(N_*\)</span> at which the pivot scale exits the horizon</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> → Use user-specified value of <code class="docutils literal notranslate"><span class="pre">Np</span></code></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The integration starts from <span class="math notranslate nohighlight">\(N = 0\)</span>, so <code class="docutils literal notranslate"><span class="pre">Np</span></code> must be specified consistently in this convention when <code class="docutils literal notranslate"><span class="pre">Np_autocalc</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
+<p>Automatic computation is recommended unless precise control over the pivot scale is required.</p>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kp</span></code> <em>(float, default = 0.05)</em><br/>
+Pivot scale in <span class="math notranslate nohighlight">\(\mathrm{Mpc}^{-1}\)</span>.</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="id1">
+<h3><span class="math notranslate nohighlight">\(G(Q)\)</span> Handling<a class="headerlink" href="#id1" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id1'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">read_GQ_from_file</span></code> <em>(int, default = 1)</em></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> → Use precomputed <span class="math notranslate nohighlight">\(G(Q)\)</span> from file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> → Use internal analytical fits</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="spectrum-control">
+<h3>Spectrum Control<a class="headerlink" href="#spectrum-control" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#spectrum-control'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">want_full_spectrum</span></code> <em>(int, do not modify default = 0)</em></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> → Compute only <span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> → Compute full power spectrum (not used in this mode)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="numerical-parameters">
+<h3>Numerical Parameters<a class="headerlink" href="#numerical-parameters" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#numerical-parameters'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">verbosity</span></code> <em>(int, default = 0)</em><br/>
+Controls logging output.</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="auxiliary-parameters">
+<h3>Auxiliary Parameters<a class="headerlink" href="#auxiliary-parameters" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#auxiliary-parameters'"><span>#</span></a></h3>
+<p><em>(Required by the interface but not used in this mode)</em></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kmin</span></code> <em>(float, default = 1e-6)</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kmax</span></code> <em>(float, default = 100.0)</em></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="an-camb-py-full-cmb-inference">
+<h2><code class="docutils literal notranslate"><span class="pre">An_CAMB.py</span></code> — Full CMB Inference<a class="headerlink" href="#an-camb-py-full-cmb-inference" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#an-camb-py-full-cmb-inference'"><span>#</span></a></h2>
+<section id="id2">
+<h3>Pivot Scale Handling<a class="headerlink" href="#id2" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id2'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Np_autocalc</span></code> <em>(int, default = 1)</em><br/>
+Same meaning as in <code class="docutils literal notranslate"><span class="pre">llihood.py</span></code>.</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="id3">
+<h3><span class="math notranslate nohighlight">\(G(Q)\)</span> Handling<a class="headerlink" href="#id3" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id3'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">read_GQ_from_file</span></code> <em>(int, default = 1)</em><br/>
+Same meaning as in <code class="docutils literal notranslate"><span class="pre">llihood.py</span></code>.</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="id4">
+<h3>Spectrum Control<a class="headerlink" href="#id4" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id4'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">want_full_spectrum</span></code> <em>(int, do not modify default = 1)</em></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> → Required for full CMB computation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> → Not suitable for this mode</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="id5">
+<h3>Numerical Parameters<a class="headerlink" href="#id5" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id5'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">verbosity</span></code> <em>(int, default = 0)</em><br/>
+Controls logging output.</p></li>
+</ul>
+</section>
 </section>
 <hr class="docutils"/>
 <section id="running-parameter-inference">
@@ -300,7 +456,7 @@ Users must modify <code class="docutils literal notranslate"><span class="pre">m
 </ul>
 </li>
 </ul>
-<p>Refer to the Cobaya documentation for installation.</p>
+<p>Refer to the <a class="reference external" href="https://cobaya.readthedocs.io/en/latest/likelihood_external.html">Cobaya documentation</a> for installation.</p>
 </section>
 </section>
 <hr class="docutils"/>
@@ -320,17 +476,17 @@ Users must modify <code class="docutils literal notranslate"><span class="pre">m
 <h2>Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#common-pitfalls'"><span>#</span></a></h2>
 <ul class="simple">
 <li><p>Using incorrect or inconsistent <span class="math notranslate nohighlight">\(G(Q)\)</span></p></li>
-<li><p>Not smoothing <span class="math notranslate nohighlight">\(G(Q)\)</span> (can introduce noise in inference)</p></li>
+<li><p>Not smoothing <span class="math notranslate nohighlight">\(G(Q)\)</span> computed by SWIM (can introduce noise in inference)</p></li>
 <li><p>Insufficient <span class="math notranslate nohighlight">\(Q\)</span> range in <span class="math notranslate nohighlight">\(G(Q)\)</span> data</p></li>
 <li><p>Function signature mismatch between C++ and Python</p></li>
 <li><p>CAMB overusing threads in multi-chain runs</p></li>
 </ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When running multiple chains, limit CAMB threads using:</p>
-</div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span>...
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When running multiple chains (<code class="docutils literal notranslate"><span class="pre">mpirun</span></code>), limit CAMB threads using:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">export OMP_NUM_THREADS=$(( $(nproc --all) / &lt;number-of-chains&gt; ))
 </span></code></pre></div>
+</div>
 </div>
 </section>
 <hr class="docutils"/>
@@ -357,12 +513,34 @@ Users must modify <code class="docutils literal notranslate"><span class="pre">m
 </ul>
 </li>
 <li><a :data-current="activeSection === '#g-q-handling'" class="reference internal" href="#g-q-handling"><span class="math notranslate nohighlight">\(G(Q)\)</span> Handling</a><ul>
-<li><a :data-current="activeSection === '#option-1-precomputed-g-q-recommended'" class="reference internal" href="#option-1-precomputed-g-q-recommended">Option 1: Precomputed <span class="math notranslate nohighlight">\(G(Q)\)</span> (Recommended)</a></li>
+<li><a :data-current="activeSection === '#option-1-external-g-q-recommended'" class="reference internal" href="#option-1-external-g-q-recommended">Option 1: External <span class="math notranslate nohighlight">\(G(Q)\)</span> (Recommended)</a></li>
 <li><a :data-current="activeSection === '#option-2-internal-analytical-fits'" class="reference internal" href="#option-2-internal-analytical-fits">Option 2: Internal Analytical Fits</a></li>
-<li><a :data-current="activeSection === '#external-sources'" class="reference internal" href="#external-sources">External Sources</a></li>
 </ul>
 </li>
-<li><a :data-current="activeSection === '#c-python-interface'" class="reference internal" href="#c-python-interface">C++–Python Interface</a></li>
+<li><a :data-current="activeSection === '#c-python-interface'" class="reference internal" href="#c-python-interface">C++ – Python Interface</a><ul>
+<li><a :data-current="activeSection === '#full-cmb-parameter-interface-an-camb-py'" class="reference internal" href="#full-cmb-parameter-interface-an-camb-py">Full CMB Parameter Interface (<code class="docutils literal notranslate"><span class="pre">An_CAMB.py</span></code>)</a><ul>
+<li><a :data-current="activeSection === '#what-needs-to-be-modified'" class="reference internal" href="#what-needs-to-be-modified">What Needs to Be Modified</a></li>
+<li><a :data-current="activeSection === '#key-points'" class="reference internal" href="#key-points">Key Points</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#input-parameters'" class="reference internal" href="#input-parameters">Input Parameters</a></li>
+<li><a :data-current="activeSection === '#llihood-py-a-s-n-s-inference'" class="reference internal" href="#llihood-py-a-s-n-s-inference"><code class="docutils literal notranslate"><span class="pre">llihood.py</span></code> — <span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span> Inference</a><ul>
+<li><a :data-current="activeSection === '#pivot-scale-handling'" class="reference internal" href="#pivot-scale-handling">Pivot Scale Handling</a></li>
+<li><a :data-current="activeSection === '#id1'" class="reference internal" href="#id1"><span class="math notranslate nohighlight">\(G(Q)\)</span> Handling</a></li>
+<li><a :data-current="activeSection === '#spectrum-control'" class="reference internal" href="#spectrum-control">Spectrum Control</a></li>
+<li><a :data-current="activeSection === '#numerical-parameters'" class="reference internal" href="#numerical-parameters">Numerical Parameters</a></li>
+<li><a :data-current="activeSection === '#auxiliary-parameters'" class="reference internal" href="#auxiliary-parameters">Auxiliary Parameters</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#an-camb-py-full-cmb-inference'" class="reference internal" href="#an-camb-py-full-cmb-inference"><code class="docutils literal notranslate"><span class="pre">An_CAMB.py</span></code> — Full CMB Inference</a><ul>
+<li><a :data-current="activeSection === '#id2'" class="reference internal" href="#id2">Pivot Scale Handling</a></li>
+<li><a :data-current="activeSection === '#id3'" class="reference internal" href="#id3"><span class="math notranslate nohighlight">\(G(Q)\)</span> Handling</a></li>
+<li><a :data-current="activeSection === '#id4'" class="reference internal" href="#id4">Spectrum Control</a></li>
+<li><a :data-current="activeSection === '#id5'" class="reference internal" href="#id5">Numerical Parameters</a></li>
+</ul>
+</li>
 <li><a :data-current="activeSection === '#running-parameter-inference'" class="reference internal" href="#running-parameter-inference">Running Parameter Inference</a><ul>
 <li><a :data-current="activeSection === '#mode-1-a-s-n-s-fast'" class="reference internal" href="#mode-1-a-s-n-s-fast">Mode 1: <span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span> (fast)</a></li>
 <li><a :data-current="activeSection === '#mode-2-full-cmb-constraints'" class="reference internal" href="#mode-2-full-cmb-constraints">Mode 2: Full CMB Constraints</a></li>

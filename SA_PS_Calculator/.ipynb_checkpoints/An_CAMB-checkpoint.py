@@ -44,7 +44,7 @@ class FeaturePrimordialPk(Theory):
         #list the parameters here
         phi0,gst,Q0,V0,Np,c,p,therm = \
         [params_values_dict[itr] for itr in ["phi0","gst","Q0","V0","Np","c","p","therm"]] 
-        ks, Pks = feature_power_spectrum(phi0,gst,Q0,V0,Np,c,p,therm,kp=self.kp) #math the function signature
+        ks, Pks = feature_power_spectrum(phi0,gst,Q0,V0,Np,c,p,therm,kp=self.kp) #match the function signature
         state['primordial_scalar_pk'] = {'k': ks, 'Pk': Pks, 'log_regular': False}
     def get_primordial_scalar_pk(self):
         return self.current_state['primordial_scalar_pk']

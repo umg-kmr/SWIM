@@ -172,7 +172,7 @@ V(\phi) = \dfrac{1}{4} V_0 \phi^4, \qquad
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>When running multiple chains, limit CPU usage per chain:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">export OMP_NUM_THREADS=$(nproc --all)/8
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">export OMP_NUM_THREADS=$(( $(nproc --all) / 8 ))
 </span></code></pre></div>
 </div>
 </div>

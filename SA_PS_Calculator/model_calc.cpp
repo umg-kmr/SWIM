@@ -13,7 +13,7 @@ int verbose = 1; //Set to one if you want to see the error messages
 int GQ_from_file = 1; //If you want to interpolate GQ from a file then 1 otherwise 0 for analytical forms
 /* #################################################### */
 
-string GQfname = "../GQ_Calculator/GQ_smooth.dat";
+string GQfname = "../GQ_Calculator/GQ_smooth.dat";  //Specify the path of GQ file here. Default only works if SWIM's GQ calculator was run before.
 
 extern "C" {
     int npts = 2000; //No of points to evaluate between klow and kup

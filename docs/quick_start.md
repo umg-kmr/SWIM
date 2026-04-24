@@ -88,7 +88,7 @@ mpirun -n 8 cobaya-run Input.yaml
 ```{note}
 When running multiple chains, limit CPU usage per chain:
 
-    export OMP_NUM_THREADS=$(nproc --all)/8
+    export OMP_NUM_THREADS=$(( $(nproc --all) / 8 ))
 ```
 
 ---
