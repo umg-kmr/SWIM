@@ -102,78 +102,508 @@
 <div id="content" role="main">
 <section class="tex2jax_ignore mathjax_ignore" id="ps-calculator">
 <h1><code class="docutils literal notranslate"><span class="pre">PS</span></code> Calculator<a class="headerlink" href="#ps-calculator" title="Link to this heading"><span>#</span></a></h1>
-<p>The numerical power spectrum calculator forms the core functionality of <code class="docutils literal notranslate"><span class="pre">SWIM</span></code>. This module has the functionality to generate the full power-spectrum for any WI model by numerically solving the full-set of perturbation equations. It is based on the stochastic formalism and needs to average over multiple realizations to compute the power spectrum. For Fokker-Planck implementation check <code class="docutils literal notranslate"><span class="pre">WI2Easy</span> <span class="pre">&lt;https://github.com/RudneiRamos/WI2easy&gt;</span></code>_ .</p>
-<p>Similar to the other modules of <code class="docutils literal notranslate"><span class="pre">SWIM</span></code> the WI model has to be specified in the <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> file and the code should be recompiled after making the changes.</p>
-<p><code class="docutils literal notranslate"><span class="pre">ps_script</span></code></p>
+<p>This module computes the full Warm Inflation (WI) primordial power spectrum numerically using a stochastic approach. It also provides a framework for parameter inference using a Random Forest Regression (RFR) emulator.</p>
+<p>This is the most complete and physically accurate module in SWIM, as it does not rely on semi-analytical approximations and other modules of SWIM.</p>
 <hr class="docutils"/>
-<p>The sub-directory <code class="docutils literal notranslate"><span class="pre">Power_Spectrum</span></code> contains a helper script <code class="docutils literal notranslate"><span class="pre">ps_script.py</span></code> to interface with the <code class="docutils literal notranslate"><span class="pre">C++</span></code> code.</p>
-<p>Script parameters:</p>
-<p>.. data:: em_step
-:type: double
-:value: 1e-5</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">  The SDE solver within the code tunes the step-size depending on the value of :math:`Q`. This parameter sets the step-size to be used when :math:`Q&gt;10^4` .
+<section id="directory-structure">
+<h2>Directory Structure<a class="headerlink" href="#directory-structure" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#directory-structure'"><span>#</span></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">PS_Calculator/
+</span><span id="line-2">├── model_calc.cpp
+</span><span id="line-3">├── Bg.cpp
+</span><span id="line-4">├── Power_Spectrum/
+</span><span id="line-5">│   ├── ps_script.py
+</span><span id="line-6">│   ├── functions_bg_diag.py
+</span><span id="line-7">│   └── Plotting_NB.ipynb
+</span><span id="line-8">└── Emulator/
+</span><span id="line-9">    ├── RF_Acc_Cobaya/
+</span><span id="line-10">    └── RF_Only_Cobaya/
 </span></code></pre></div>
 </div>
-<p>.. data:: Nrealz
-:noindex:
-:type: int
-:value: 1024</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">  Parameter that sets the number of realiazations of the stochastic noise term to average over.
-</span></code></pre></div>
-</div>
-<p>.. data:: kmin
-:noindex:
-:type: double
-:value: -6.0</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">  Parameter that sets the lower bound of :math:`k` values in :math:`\log_{10}`.
-</span></code></pre></div>
-</div>
-<p>.. data:: kmax
-:noindex:
-:type: double
-:value: 2.0</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">  Parameter that sets the upper bound of :math:`k` values in :math:`\log_{10}`.
-</span></code></pre></div>
-</div>
-<p>.. data:: points_k
-:type: int
-:value: 48</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">  Number of points to generate between ``kmin`` and ``kmax``.
-</span></code></pre></div>
-</div>
-<p>.. data:: Np_autocalc
-:noindex:
-:type: int
-:value: 0 or 1</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">  Parameter that tells the code whether to automatically calculate (``1``) the pivot scale exit or not (``0``). If you set it to ``0`` then you will have to supply a value of ``Np`` (e-folds at pivot scale exit) in the ``.yaml`` file.
-</span></code></pre></div>
-</div>
-<p>.. data:: write_bg
-:type: boolean
-:value: True</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">  Set to True if you wish to save the background computations in a file.
-</span></code></pre></div>
-</div>
-<p>.. data:: fname_bg
-:type: string
-:value: “bg.dat”</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">  Set the filename for saving the background computations. Requires ``write_bg=True`` to work.
-</span></code></pre></div>
-</div>
-<p>.. data:: fname_ps
-:type: string
-:value: “ps.dat”</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">  Set the filename for saving the power-spectrum computations. 
-</span></code></pre></div>
-</div>
-<p>The model parameters follow the same logic and naming scheme as <code class="docutils literal notranslate"><span class="pre">GQ_Calculator</span></code>. The only difference being the parameter <code class="docutils literal notranslate"><span class="pre">Np</span></code> which is different from <code class="docutils literal notranslate"><span class="pre">Nstar</span></code> parameter. If <code class="docutils literal notranslate"><span class="pre">Np_autocalc=1</span></code> then <code class="docutils literal notranslate"><span class="pre">Np</span></code> could be set to any value as it will anyway be internally calculated. On the other hand, if <code class="docutils literal notranslate"><span class="pre">Np_autocalc=0</span></code> then the code will use the value set in <code class="docutils literal notranslate"><span class="pre">Np</span></code> as the pivot scale exit. Note that in <code class="docutils literal notranslate"><span class="pre">SWIM</span></code> all background integrations starts at <code class="docutils literal notranslate"><span class="pre">N=0</span></code> and ends at <code class="docutils literal notranslate"><span class="pre">Nend</span></code> where :math:<code class="docutils literal notranslate"><span class="pre">\epsilon_H=1</span></code>.</p>
-<p>Similar to <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code> you need to supply :math:<code class="docutils literal notranslate"><span class="pre">C_{\Upsilon}</span></code> as :math:<code class="docutils literal notranslate"><span class="pre">Q_{\text{initial}}</span></code> is the quantity that is internally calculated. This behaviour can be modified, refer to <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator</span></code> documentation for more details.</p>
-<p>Make sure that the signature of function in <code class="docutils literal notranslate"><span class="pre">ffi.cdef(...)</span></code> matches with that in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> and modify <code class="docutils literal notranslate"><span class="pre">lib_pert.model(...)</span></code> to include your model parameters.</p>
-<p><code class="docutils literal notranslate"><span class="pre">Plotting_NB</span></code></p>
-<hr class="docutils"/>
-<p><code class="docutils literal notranslate"><span class="pre">Plotting_NB.ipynb</span></code> is a Jupyter notebook that provides various utilities to load, analyse and visualize the computation of the numerical power spectrum.</p>
 </section>
-</div></div>
+<hr class="docutils"/>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#overview'"><span>#</span></a></h2>
+<p>This module has two main components:</p>
+<ol class="arabic simple">
+<li><p><strong>Direct Numerical Power Spectrum</strong></p>
+<ul class="simple">
+<li><p>Computes <span class="math notranslate nohighlight">\(P_{\mathcal{R}}(k)\)</span> for a given WI model and parameters</p></li>
+</ul>
+</li>
+<li><p><strong>Emulator-Based Parameter Inference</strong></p>
+<ul class="simple">
+<li><p>Uses the numerical solver to perform parameter inference</p></li>
+<li><p>Accelerates computation using a Random Forest surrogate</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<hr class="docutils"/>
+<section id="direct-numerical-power-spectrum">
+<h2>Direct Numerical Power Spectrum<a class="headerlink" href="#direct-numerical-power-spectrum" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#direct-numerical-power-spectrum'"><span>#</span></a></h2>
+<p>This component computes the full numerical power spectrum for a given WI model.</p>
+<hr class="docutils"/>
+<section id="defining-your-wi-model">
+<h3>Defining Your WI Model<a class="headerlink" href="#defining-your-wi-model" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#defining-your-wi-model'"><span>#</span></a></h3>
+<p>The model must be defined in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">model_calc</span><span class="o">.</span><span class="n">cpp</span>
+</span></code></pre></div>
+</div>
+<p>As in the GQ module, define:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(V(\phi)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(V'(\phi)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(V''(\phi)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\Upsilon(\phi, T)\)</span> <em>(if not of the form <span class="math notranslate nohighlight">\(T^p \phi^c\)</span>)</em></p></li>
+<li><p>Derivatives of <span class="math notranslate nohighlight">\(\Upsilon\)</span> <em>(if not of the form <span class="math notranslate nohighlight">\(T^p \phi^c\)</span>)</em></p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Any modification to <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code> requires recompilation.</p>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="running-the-solver">
+<h3>Running the Solver<a class="headerlink" href="#running-the-solver" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#running-the-solver'"><span>#</span></a></h3>
+<p>Navigate to:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">cd</span><span class="w"> </span>PS_Calculator/Power_Spectrum
+</span></code></pre></div>
+</div>
+<p>Run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">python<span class="w"> </span>-u<span class="w"> </span>ps_script.py
+</span></code></pre></div>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="input-parameters-ps-script-py">
+<h3>Input Parameters (<code class="docutils literal notranslate"><span class="pre">ps_script.py</span></code>)<a class="headerlink" href="#input-parameters-ps-script-py" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#input-parameters-ps-script-py'"><span>#</span></a></h3>
+<section id="numerical-controls">
+<h4>Numerical Controls<a class="headerlink" href="#numerical-controls" title="Link to this heading"><span>#</span></a></h4>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">kp</span></code> <em>(float, default = 0.05)</em><br/>
+Pivot scale in <span class="math notranslate nohighlight">\(\mathrm{Mpc}^{-1}\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">em_step</span></code> <em>(float, default = 1e-5)</em><br/>
+Minimum step size used for SDE solver</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Nrealz</span></code> <em>(int, default = 2048)</em><br/>
+Number of stochastic realizations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kmin</span></code>, <code class="docutils literal notranslate"><span class="pre">kmax</span></code> <em>(float, default = -6.0, 2.0)</em><br/>
+Logarithmic range of <span class="math notranslate nohighlight">\(k\)</span> (actual range is <span class="math notranslate nohighlight">\(10^{k_{\min}}\)</span> to <span class="math notranslate nohighlight">\(10^{k_{\max}}\)</span>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">points_k</span></code> <em>(int, default = 50)</em><br/>
+Number of <span class="math notranslate nohighlight">\(k\)</span> points to sample in the defined <span class="math notranslate nohighlight">\(k\)</span>-range</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Np_autocalc</span></code> <em>(int, default = 1)</em><br/>
+Controls pivot scale exit calculation</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Automatic computation is recommended unless precise control over the pivot scale is required.</p>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">verbosity</span></code> <em>(int, default = 1)</em><br/>
+Controls logging</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="output-control">
+<h4>Output Control<a class="headerlink" href="#output-control" title="Link to this heading"><span>#</span></a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">write_bg</span></code> <em>(bool, default = True)</em><br/>
+Save background evolution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fname_bg</span></code>, <code class="docutils literal notranslate"><span class="pre">fname_ps</span></code><br/>
+Output file names. If changed here then should be modified in the plotting notebook as well consistently.</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="model-parameters">
+<h4>Model Parameters<a class="headerlink" href="#model-parameters" title="Link to this heading"><span>#</span></a></h4>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">V0</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="line-2"><span class="n">gst</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="line-3"><span class="n">Q0</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="line-4"><span class="n">phi0</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="line-5"><span class="n">Np</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="line-6"><span class="n">therm</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="line-7"><span class="n">rad_noise</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="line-8"><span class="n">p</span> <span class="o">=</span> <span class="o">...</span>
+</span><span id="line-9"><span class="n">c</span> <span class="o">=</span> <span class="o">...</span>
+</span></code></pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>These must match the function signature in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code>.</p>
+</div>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="output-files">
+<h3>Output Files<a class="headerlink" href="#output-files" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#output-files'"><span>#</span></a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">bg.dat</span></code></p>
+<p><span class="math notranslate nohighlight">\(N \quad \phi \quad \phi' \quad T\)</span></p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ps.dat</span></code></p>
+<p><span class="math notranslate nohighlight">\(k \quad  P_{\mathcal{R}}(k)\)</span></p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PT_kp.dat</span></code></p>
+<ul class="simple">
+<li><p>Tensor amplitude at pivot scale</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="analysis-and-plotting">
+<h3>Analysis and Plotting<a class="headerlink" href="#analysis-and-plotting" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#analysis-and-plotting'"><span>#</span></a></h3>
+<p>The notebook:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">Plotting_NB</span><span class="o">.</span><span class="n">ipynb</span>
+</span></code></pre></div>
+</div>
+<ul class="simple">
+<li><p>Plots the raw power spectrum</p></li>
+<li><p>Fits the spectrum to extract:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span>, <span class="math notranslate nohighlight">\(\alpha_s\)</span>, <span class="math notranslate nohighlight">\(\beta_s\)</span></p></li>
+</ul>
+</li>
+<li><p>Computes <span class="math notranslate nohighlight">\(r\)</span></p></li>
+<li><p>Plots background evolution (if enabled)</p></li>
+</ul>
+<hr class="docutils"/>
+<section id="power-spectrum-fitting">
+<h4>Power Spectrum Fitting<a class="headerlink" href="#power-spectrum-fitting" title="Link to this heading"><span>#</span></a></h4>
+<p>The following functional form is used:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">def</span><span class="w"> </span><span class="nf">fitting_fn</span><span class="p">(</span><span class="n">lnk</span><span class="p">,</span> <span class="n">lnAs</span><span class="p">,</span> <span class="n">ns</span><span class="p">,</span> <span class="n">alphs</span><span class="p">,</span> <span class="n">betas</span><span class="p">):</span>
+</span><span id="line-2">    <span class="k">return</span> <span class="n">lnAs</span> <span class="o">+</span> <span class="p">(</span><span class="n">lnk</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">kp</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span>
+</span><span id="line-3">        <span class="n">ns</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span id="line-4">        <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">alphs</span> <span class="o">*</span> <span class="p">(</span><span class="n">lnk</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">kp</span><span class="p">))</span>
+</span><span id="line-5">        <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">6</span><span class="p">)</span> <span class="o">*</span> <span class="n">betas</span> <span class="o">*</span> <span class="p">(</span><span class="n">lnk</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">kp</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+</span><span id="line-6">    <span class="p">)</span>
+</span></code></pre></div>
+</div>
+<p>This corresponds to a power-law spectrum with running.</p>
+</section>
+<hr class="docutils"/>
+<section id="functions-bg-diag-py">
+<h4><code class="docutils literal notranslate"><span class="pre">functions_bg_diag.py</span></code><a class="headerlink" href="#functions-bg-diag-py" title="Link to this heading"><span>#</span></a></h4>
+<p>This file is used <strong>only for plotting</strong>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The WI model must be redefined here so that Python can evaluate background quantities for visualization. This does not affect the numerical solver.</p>
+</div>
+</section>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="emulator-based-parameter-inference">
+<h2>Emulator-Based Parameter Inference<a class="headerlink" href="#emulator-based-parameter-inference" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#emulator-based-parameter-inference'"><span>#</span></a></h2>
+<p>This module enables parameter inference using the numerical solver.</p>
+<hr class="docutils"/>
+<section id="rf-acc-cobaya-accelerated-inference">
+<h3>RF_Acc_Cobaya (Accelerated Inference)<a class="headerlink" href="#rf-acc-cobaya-accelerated-inference" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#rf-acc-cobaya-accelerated-inference'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p>Uses full numerical solver during MCMC</p></li>
+<li><p>Trains a Random Forest model on-the-fly</p></li>
+<li><p>Gradually replaces expensive solver evaluations</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This mode must be run with a single chain.</p>
+</div>
+<hr class="docutils"/>
+<section id="key-features">
+<h4>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"><span>#</span></a></h4>
+<ul class="simple">
+<li><p>Computes and fits numerical <span class="math notranslate nohighlight">\(P(k)\)</span> → extracts observables</p></li>
+<li><p>Compares with observational constraints using Gaussian likelihood</p></li>
+<li><p>Incorporates solver uncertainty into likelihood</p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="solver-uncertainty">
+<h4>Solver Uncertainty<a class="headerlink" href="#solver-uncertainty" title="Link to this heading"><span>#</span></a></h4>
+<p>The script:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">std_gen</span><span class="o">.</span><span class="n">py</span>
+</span></code></pre></div>
+</div>
+<p>estimates the intrinsic stochastic variance of the solver by repeated evaluations at the same parameters.</p>
+<p>This contributes to the total uncertainty in:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(A_s\)</span>, <span class="math notranslate nohighlight">\(n_s\)</span>, <span class="math notranslate nohighlight">\(\alpha_s\)</span>, <span class="math notranslate nohighlight">\(\beta_s\)</span></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The result of this script should be used to modify <code class="docutils literal notranslate"><span class="pre">yerr_solver</span></code> in <code class="docutils literal notranslate"><span class="pre">llihood_Observables.py</span></code>.</p>
+</div>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="rf-training-and-control-parameters">
+<h3>RF Training and Control Parameters<a class="headerlink" href="#rf-training-and-control-parameters" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#rf-training-and-control-parameters'"><span>#</span></a></h3>
+<p>The Random Forest (RF) emulator is trained dynamically during MCMC to approximate the mapping:</p>
+<div class="math notranslate nohighlight">
+\[\{\text{model parameters}\} \rightarrow \{A_s, n_s, \alpha_s, \beta_s\}\]</div>
+<p>This section lists all configurable parameters controlling training, usage, and reliability of the emulator.</p>
+<hr class="docutils"/>
+<section id="model-loading">
+<h4>Model Loading<a class="headerlink" href="#model-loading" title="Link to this heading"><span>#</span></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">load_previous_rf</span> <span class="o">=</span> <span class="kc">False</span>
+</span></code></pre></div>
+</div>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, loads an existing trained model (<code class="docutils literal notranslate"><span class="pre">rf_model.pkl</span></code>)</p></li>
+<li><p>Useful for:</p>
+<ul>
+<li><p>restarting runs</p></li>
+<li><p>continuing training</p></li>
+<li><p>using pre-trained emulator</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="training-schedule">
+<h3>Training Schedule<a class="headerlink" href="#training-schedule" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#training-schedule'"><span>#</span></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">update_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+</span><span id="line-2"><span class="n">min_points_before_rf</span> <span class="o">=</span> <span class="mi">100</span>
+</span><span id="line-3"><span class="n">max_training_points</span> <span class="o">=</span> <span class="mi">3000</span>
+</span></code></pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">min_points_before_rf</span></code><br/>
+Minimum number of <strong>true solver evaluations</strong> before the RF is first trained</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">update_frequency</span></code><br/>
+RF is retrained every <code class="docutils literal notranslate"><span class="pre">update_frequency</span></code> true evaluations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_training_points</span></code><br/>
+Maximum number of training samples retained</p></li>
+</ul>
+<hr class="docutils"/>
+<section id="sliding-window-training">
+<h4>Sliding Window Training<a class="headerlink" href="#sliding-window-training" title="Link to this heading"><span>#</span></a></h4>
+<p>When the number of training samples exceeds <code class="docutils literal notranslate"><span class="pre">max_training_points</span></code>, only the <strong>most recent samples</strong> are retained.</p>
+<p>This is referred to as a <em>sliding window</em>:</p>
+<ul class="simple">
+<li><p>Old data points are discarded</p></li>
+<li><p>New data continuously replaces them</p></li>
+<li><p>Keeps training focused on the <strong>high-likelihood region</strong></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sliding window training improves local accuracy near the posterior peak and avoids memory growth.</p>
+</div>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="rf-usage-control">
+<h3>RF Usage Control<a class="headerlink" href="#rf-usage-control" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#rf-usage-control'"><span>#</span></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">rf_uncertainty_tol</span> <span class="o">=</span> <span class="mf">3.0</span>
+</span><span id="line-2"><span class="n">forced_true_fraction</span> <span class="o">=</span> <span class="mf">0.05</span>
+</span></code></pre></div>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">rf_uncertainty_tol</span></code><br/>
+Controls when the RF prediction is trusted</p>
+<p>The RF prediction is used if:</p>
+<div class="math notranslate nohighlight">
+\[
+  \frac{\text{RF variance}}{\text{observational variance}} &lt; \text{rf_uncertainty_tol}
+  \]</div>
+<ul class="simple">
+<li><p>Lower values → more conservative (more true evaluations)</p></li>
+<li><p>Higher values → more aggressive RF usage (faster, less accurate)</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forced_true_fraction</span></code><br/>
+Fraction of samples where the <strong>true numerical solver is forced</strong>, even if RF is trusted. For example, if <code class="docutils literal notranslate"><span class="pre">forced_true_fraction</span> <span class="pre">=</span> <span class="pre">0.05</span></code>, then the true solver is used in approximately 5% of evaluations regardless of RF confidence.</p>
+<p>Purpose:</p>
+<ul class="simple">
+<li><p>Prevent RF drift</p></li>
+<li><p>Maintain training quality</p></li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Typical values: 0.01–0.1.<br/>
+Higher values improve robustness but increase runtime.</p>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="numerical-solver-parameters">
+<h3>Numerical Solver Parameters<a class="headerlink" href="#numerical-solver-parameters" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#numerical-solver-parameters'"><span>#</span></a></h3>
+<p>These must also be set consistently (same as direct PS computation):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">kp</span> <span class="o">=</span> <span class="mf">0.05</span>
+</span><span id="line-2"><span class="n">em_step</span> <span class="o">=</span> <span class="mf">1e-5</span>
+</span><span id="line-3"><span class="n">Nrealz</span> <span class="o">=</span> <span class="mi">2048</span>
+</span><span id="line-4"><span class="n">kmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">1e2</span><span class="p">)</span>
+</span><span id="line-5"><span class="n">kmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">)</span>
+</span><span id="line-6"><span class="n">points_k</span> <span class="o">=</span> <span class="mi">50</span>
+</span><span id="line-7"><span class="n">Np_autocalc</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span id="line-8"><span class="n">verbosity</span> <span class="o">=</span> <span class="mi">0</span>
+</span></code></pre></div>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="practical-recommendations">
+<h3>Practical Recommendations<a class="headerlink" href="#practical-recommendations" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#practical-recommendations'"><span>#</span></a></h3>
+<section id="for-initial-runs">
+<h4>For Initial Runs<a class="headerlink" href="#for-initial-runs" title="Link to this heading"><span>#</span></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">min_points_before_rf</span> <span class="o">=</span> <span class="mi">100</span>
+</span><span id="line-2"><span class="n">update_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+</span><span id="line-3"><span class="n">rf_uncertainty_tol</span> <span class="o">=</span> <span class="mi">3</span><span class="o">-</span><span class="mi">4</span>
+</span><span id="line-4"><span class="n">forced_true_fraction</span> <span class="o">=</span> <span class="mf">0.05</span>
+</span></code></pre></div>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="for-faster-runs">
+<h4>For Faster Runs<a class="headerlink" href="#for-faster-runs" title="Link to this heading"><span>#</span></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">rf_uncertainty_tol</span> <span class="o">=</span> <span class="mi">5</span>
+</span><span id="line-2"><span class="n">forced_true_fraction</span> <span class="o">=</span> <span class="mf">0.01</span>
+</span></code></pre></div>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="for-maximum-accuracy-increased-runtimes">
+<h4>For Maximum Accuracy (increased runtimes)<a class="headerlink" href="#for-maximum-accuracy-increased-runtimes" title="Link to this heading"><span>#</span></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">rf_uncertainty_tol</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="mi">2</span>
+</span><span id="line-2"><span class="n">forced_true_fraction</span> <span class="o">=</span> <span class="mf">0.1</span>
+</span></code></pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="summary">
+<h3>Summary<a class="headerlink" href="#summary" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#summary'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p>RF training and usage starts after sufficient true evaluations</p></li>
+<li><p>Uses sliding window to focus on relevant parameter space</p></li>
+<li><p>Dynamically balances:</p>
+<ul>
+<li><p>accuracy (true solver)</p></li>
+<li><p>speed (RF emulator)</p></li>
+</ul>
+</li>
+<li><p>Controlled via uncertainty threshold <code class="docutils literal notranslate"><span class="pre">rf_uncertainty_tol</span></code> and forced sampling <code class="docutils literal notranslate"><span class="pre">forced_true_fraction</span></code></p></li>
+</ul>
+</section>
+<hr class="docutils"/>
+<section id="rf-only-cobaya-emulator-only-inference">
+<h3>RF_Only_Cobaya (Emulator Only Inference)<a class="headerlink" href="#rf-only-cobaya-emulator-only-inference" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#rf-only-cobaya-emulator-only-inference'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p>Uses pre-trained model (<code class="docutils literal notranslate"><span class="pre">rf_model.pkl</span></code>)</p></li>
+<li><p>Does not call numerical solver</p></li>
+<li><p>Extremely fast</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This mode is useful for validating emulator performance and running extended analyses (full CMB likelihood).</p>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="limitations">
+<h3>Limitations<a class="headerlink" href="#limitations" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#limitations'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p>Full CMB likelihood not yet implemented</p></li>
+<li><p>RF_Acc_Cobaya supports only single-chain runs</p></li>
+<li><p>Parameter inference is still computationally expensive and initial burn-in can take a long time</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>It is recommended to run the numerical solver based inference on HPCs with many CPU threads enabled.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Full CMB inference can be implemented by adapting the approach in <code class="docutils literal notranslate"><span class="pre">SA_PS_Calculator/An_CAMB.py</span></code>.</p>
+</div>
+</section>
+<hr class="docutils"/>
+<section id="workflow">
+<h3>Workflow<a class="headerlink" href="#workflow" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#workflow'"><span>#</span></a></h3>
+<ol class="arabic simple">
+<li><p>Define WI model in <code class="docutils literal notranslate"><span class="pre">model_calc.cpp</span></code></p></li>
+<li><p>(Optional) Run <code class="docutils literal notranslate"><span class="pre">ps_script.py</span></code> to inspect spectrum</p></li>
+<li><p>Run RF_Acc_Cobaya to train emulator</p></li>
+<li><p>Use RF_Only_Cobaya for fast inference</p></li>
+<li><p>Analyze chains using <code class="docutils literal notranslate"><span class="pre">getdist</span></code></p></li>
+</ol>
+</section>
+<hr class="docutils"/>
+<section id="common-pitfalls">
+<h3>Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#common-pitfalls'"><span>#</span></a></h3>
+<ul class="simple">
+<li><p>Incorrect function signature</p></li>
+<li><p>Too few realizations → noisy spectrum</p></li>
+<li><p>Poor RF training → inaccurate inference</p></li>
+<li><p>Not accounting for solver uncertainty</p></li>
+<li><p>Using RF_Acc_Cobaya with multiple chains</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils"/>
+<section id="id1">
+<h2>Summary<a class="headerlink" href="#id1" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id1'"><span>#</span></a></h2>
+<ul class="simple">
+<li><p>Computes full numerical WI power spectrum</p></li>
+<li><p>Most accurate but computationally expensive</p></li>
+<li><p>Emulator enables efficient inference</p></li>
+<li><p>Modular design</p></li>
+</ul>
+</section>
+</section>
+</div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
+<div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
+<ul>
+<li><a :data-current="activeSection === '#directory-structure'" class="reference internal" href="#directory-structure">Directory Structure</a></li>
+<li><a :data-current="activeSection === '#overview'" class="reference internal" href="#overview">Overview</a></li>
+<li><a :data-current="activeSection === '#direct-numerical-power-spectrum'" class="reference internal" href="#direct-numerical-power-spectrum">Direct Numerical Power Spectrum</a><ul>
+<li><a :data-current="activeSection === '#defining-your-wi-model'" class="reference internal" href="#defining-your-wi-model">Defining Your WI Model</a></li>
+<li><a :data-current="activeSection === '#running-the-solver'" class="reference internal" href="#running-the-solver">Running the Solver</a></li>
+<li><a :data-current="activeSection === '#input-parameters-ps-script-py'" class="reference internal" href="#input-parameters-ps-script-py">Input Parameters (<code class="docutils literal notranslate"><span class="pre">ps_script.py</span></code>)</a><ul>
+<li><a :data-current="activeSection === '#numerical-controls'" class="reference internal" href="#numerical-controls">Numerical Controls</a></li>
+<li><a :data-current="activeSection === '#output-control'" class="reference internal" href="#output-control">Output Control</a></li>
+<li><a :data-current="activeSection === '#model-parameters'" class="reference internal" href="#model-parameters">Model Parameters</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#output-files'" class="reference internal" href="#output-files">Output Files</a></li>
+<li><a :data-current="activeSection === '#analysis-and-plotting'" class="reference internal" href="#analysis-and-plotting">Analysis and Plotting</a><ul>
+<li><a :data-current="activeSection === '#power-spectrum-fitting'" class="reference internal" href="#power-spectrum-fitting">Power Spectrum Fitting</a></li>
+<li><a :data-current="activeSection === '#functions-bg-diag-py'" class="reference internal" href="#functions-bg-diag-py"><code class="docutils literal notranslate"><span class="pre">functions_bg_diag.py</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#emulator-based-parameter-inference'" class="reference internal" href="#emulator-based-parameter-inference">Emulator-Based Parameter Inference</a><ul>
+<li><a :data-current="activeSection === '#rf-acc-cobaya-accelerated-inference'" class="reference internal" href="#rf-acc-cobaya-accelerated-inference">RF_Acc_Cobaya (Accelerated Inference)</a><ul>
+<li><a :data-current="activeSection === '#key-features'" class="reference internal" href="#key-features">Key Features</a></li>
+<li><a :data-current="activeSection === '#solver-uncertainty'" class="reference internal" href="#solver-uncertainty">Solver Uncertainty</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#rf-training-and-control-parameters'" class="reference internal" href="#rf-training-and-control-parameters">RF Training and Control Parameters</a><ul>
+<li><a :data-current="activeSection === '#model-loading'" class="reference internal" href="#model-loading">Model Loading</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#training-schedule'" class="reference internal" href="#training-schedule">Training Schedule</a><ul>
+<li><a :data-current="activeSection === '#sliding-window-training'" class="reference internal" href="#sliding-window-training">Sliding Window Training</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#rf-usage-control'" class="reference internal" href="#rf-usage-control">RF Usage Control</a></li>
+<li><a :data-current="activeSection === '#numerical-solver-parameters'" class="reference internal" href="#numerical-solver-parameters">Numerical Solver Parameters</a></li>
+<li><a :data-current="activeSection === '#practical-recommendations'" class="reference internal" href="#practical-recommendations">Practical Recommendations</a><ul>
+<li><a :data-current="activeSection === '#for-initial-runs'" class="reference internal" href="#for-initial-runs">For Initial Runs</a></li>
+<li><a :data-current="activeSection === '#for-faster-runs'" class="reference internal" href="#for-faster-runs">For Faster Runs</a></li>
+<li><a :data-current="activeSection === '#for-maximum-accuracy-increased-runtimes'" class="reference internal" href="#for-maximum-accuracy-increased-runtimes">For Maximum Accuracy (increased runtimes)</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#summary'" class="reference internal" href="#summary">Summary</a></li>
+<li><a :data-current="activeSection === '#rf-only-cobaya-emulator-only-inference'" class="reference internal" href="#rf-only-cobaya-emulator-only-inference">RF_Only_Cobaya (Emulator Only Inference)</a></li>
+<li><a :data-current="activeSection === '#limitations'" class="reference internal" href="#limitations">Limitations</a></li>
+<li><a :data-current="activeSection === '#workflow'" class="reference internal" href="#workflow">Workflow</a></li>
+<li><a :data-current="activeSection === '#common-pitfalls'" class="reference internal" href="#common-pitfalls">Common Pitfalls</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#id1'" class="reference internal" href="#id1">Summary</a></li>
+</ul>
+</div>
+</aside>
 </main>
 </div>
 </div><footer class="py-6 border-t border-border md:py-0">
@@ -188,5 +618,7 @@
 <script src="_static/doctools.js?v=9bcbadda"></script>
 <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
 <script defer="defer" src="_static/theme.js?v=d6a9845b"></script>
+<script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+<script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>
