@@ -1,3 +1,4 @@
 sphinx>=7.0
 myst-parser
 sphinxawesome-theme
+linkify-it-py
