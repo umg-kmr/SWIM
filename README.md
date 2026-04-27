@@ -1,9 +1,11 @@
 # SWIM: Stochastic Warm Inflation Module
 
 [![Docs](https://img.shields.io/readthedocs/swim?label=docs)](https://swim.readthedocs.io/en/latest/)
-![Platform](https://img.shields.io/badge/platform-Linux-blue)
-![Python](https://img.shields.io/badge/python-3.10+-blue)
+[![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)]() 
+[![Language](https://img.shields.io/badge/language-C++%20%26%20Python-blue)]()
 ![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b)
+
+**Documentation:** [SWIM-Documentation](https://swim.readthedocs.io/en/latest/)
 
 SWIM is a numerical framework for computing the power spectrum in Warm Inflation (WI) models and performing parameter inference using `Cobaya`. The code provides a flexible and modular pipeline for both semi-analytical and fully numerical approaches.
 

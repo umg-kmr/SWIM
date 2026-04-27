@@ -1,6 +1,11 @@
 # SWIM: Stochastic Warm Inflation Module
 
-[![Docs](https://img.shields.io/readthedocs/<your-doc-name>?label=docs)](<your-doc-url>) [![License](https://img.shields.io/badge/license-MIT-blue)]() [![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)]() [![Language](https://img.shields.io/badge/language-C++%20%26%20Python-blue)]() [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](<repo-link>) [![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b.svg)]()
+[![Docs](https://img.shields.io/readthedocs/swim?label=docs)](https://swim.readthedocs.io/en/latest/)
+[![License](https://img.shields.io/badge/license-MIT-blue)]() 
+[![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)]() 
+[![Language](https://img.shields.io/badge/language-C++%20%26%20Python-blue)]() 
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/umg-kmr/SWIM) 
+[![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b.svg)]()
 
 SWIM is a numerical framework for computing the primordial power spectrum in warm inflation models.  
 It combines a full stochastic solver, semi-analytical approximations, and fast inference tools within a modular C++/Python architecture.
