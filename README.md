@@ -1,8 +1,8 @@
 # SWIM: Stochastic Warm Inflation Module
 
 [![Docs](https://img.shields.io/readthedocs/swim?label=docs)](https://swim.readthedocs.io/en/latest/)
-[![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)]() 
-[![Language](https://img.shields.io/badge/language-C++%20%26%20Python-blue)]()
+![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)
+![Language](https://img.shields.io/badge/language-C++%20%26%20Python-blue)
 ![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b)
 
 **Documentation:** [SWIM-Documentation](https://swim.readthedocs.io/en/latest/)
