@@ -5,7 +5,7 @@
 ![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)
 ![Language](https://img.shields.io/badge/language-C++%20%26%20Python-blue)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/umg-kmr/SWIM) 
-[![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b.svg)]()
+[![arXiv](https://img.shields.io/badge/arXiv-2604.24654-b31b1b.svg)](https://arxiv.org/abs/2604.24654)
 
 SWIM is a numerical framework for computing the primordial power spectrum in warm inflation models.  
 It combines a full stochastic solver, semi-analytical approximations, and fast inference tools within a modular C++/Python architecture.
