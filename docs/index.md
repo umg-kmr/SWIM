@@ -99,9 +99,7 @@ The following configuration was used for testing:
 
 ## Citation
 
-If you use SWIM in your work, please cite:
-
-> *[Reference to SWIM paper — to be added]*
+If you use SWIM in your work, please cite: [arXiv:2604.24654](https://arxiv.org/abs/2604.24654)
 
 ---
 
