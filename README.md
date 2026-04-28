@@ -7,7 +7,9 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19831717.svg)](https://doi.org/10.5281/zenodo.19831717)
 
 
-**Documentation:** [SWIM-Documentation](https://swim.readthedocs.io/en/latest/)
+### Documentation: [SWIM-Documentation](https://swim.readthedocs.io/en/latest/)
+
+### Preprint: [arXiv:2604.24654](https://arxiv.org/abs/2604.24654)
 
 SWIM is a numerical framework for computing the power spectrum in Warm Inflation (WI) models and performing parameter inference using `Cobaya`. The code provides a flexible and modular pipeline for both semi-analytical and fully numerical approaches.
 
