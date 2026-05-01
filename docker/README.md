@@ -34,9 +34,7 @@ The container includes:
   - Boost (v1.91.0, locally installed at `/home/swim/boost`)
 
 - **SWIM source code**
-  - Cloned into:
-    ```
-    /home/swim/SWIM
-    ```
+  - Cloned into: `/home/swim/SWIM`
+  - Compile with: `compile_SWIM.sh`
 
 ---
