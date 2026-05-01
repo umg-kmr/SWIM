@@ -132,7 +132,7 @@ The compilation flags provided above correspond to those used during testing and
 
 SWIM is now ready to be used.
 
-### For Mac/Windows users
+## For Mac/Windows users
 
 Install Docker from the official website: https://www.docker.com/ and pull the latest image of SWIM:
 
