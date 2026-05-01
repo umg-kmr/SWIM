@@ -19,7 +19,7 @@ theory:
       theta_H0_range:
       - 20
       - 100
-packages_path: /mnt/misc/cobaya/
+packages_path: /mnt/misc/cobaya/   #change path to your cobaya installation.
 
 #requires that the Planck, DESI DR2, ACT DR6, SPT likelihoods are installed. Follow the Cobaya documentation to install these likelihoods
 likelihood:
