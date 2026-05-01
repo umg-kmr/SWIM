@@ -353,7 +353,7 @@ This trained model can then be used to perform parameter inference more efficien
 
 ## Platform Compatibility
 
-SWIM has currently been tested only on Linux-based systems. Compatibility with macOS or Windows has not been extensively verified.
+SWIM has been developed and tested on Linux-based systems. Support for macOS and Windows is provided via Docker only.
 
 ---
 
