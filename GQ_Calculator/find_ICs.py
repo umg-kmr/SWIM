@@ -47,13 +47,17 @@ def objfn(x,Q0):
     Nend = lib.Nend
     lib.clear_Nend()
     return np.abs(Nend-dur_N)
-for i in Qs:
-    print(f"Finding initial condition for Q = {i:.4e}")  
-    soln = optimize.brute(objfn,ranges=ranges, args=(i,), Ns=1000, full_output=1, disp=False, workers=Nprocs,finish=optimize.fmin)
-    phi_in = 10**(soln[0][0])
-    print(f"Function value at {i:.4e}: {soln[1]:.4e}")
-    # logging.info(f"Function value at {i:.4e}: {soln[1]:.4e}")
-    with open("ics.dat", "a") as fl:
-        fl.write(str(phi_in)+","+str(i)+"\n")
+
+def main():
+    for i in Qs:
+        print(f"Finding initial condition for Q = {i:.4e}")  
+        soln = optimize.brute(objfn,ranges=ranges, args=(i,), Ns=1000, full_output=1, disp=False, workers=Nprocs,finish=optimize.fmin)
+        phi_in = 10**(soln[0][0])
+        print(f"Function value at {i:.4e}: {soln[1]:.4e}")
+        # logging.info(f"Function value at {i:.4e}: {soln[1]:.4e}")
+        with open("ics.dat", "a") as fl:
+            fl.write(str(phi_in)+","+str(i)+"\n")
+
         
-ffi.dlclose(lib)
+if __name__ == "__main__":
+    main()
