@@ -134,6 +134,7 @@ jupyter-lab --port=8888 --ip=0.0.0.0 --no-browser --ServerApp.token=''
 
 Then open in your browser: `http://localhost:8888`
 
+The following commands should be run on your host system (not inside the container).
 To copy files from the container to your host system:
 
 ```bash
