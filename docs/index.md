@@ -2,7 +2,7 @@
 
 [![Docs](https://img.shields.io/readthedocs/swim?label=docs)](https://swim.readthedocs.io/en/latest/)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue)](https://github.com/umg-kmr/SWIM/blob/main/LICENSE)
-![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Docker-lightgrey)
 ![Language](https://img.shields.io/badge/language-C++%20%26%20Python-blue)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/umg-kmr/SWIM) 
 [![arXiv](https://img.shields.io/badge/arXiv-2604.24654-b31b1b.svg)](https://arxiv.org/abs/2604.24654)

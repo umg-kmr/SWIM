@@ -1,7 +1,7 @@
 # Installation
 
 ```{note}
-SWIM has currently been tested only on Linux-based systems.
+SWIM is supported natively on Linux-based systems, with macOS and Windows support is provided through Docker.
 ```
 
 ## Clone Repository
@@ -131,3 +131,52 @@ The compilation flags provided above correspond to those used during testing and
 ## Ready to Use
 
 SWIM is now ready to be used.
+
+### For Mac/Windows users
+
+Install Docker from the official website: https://www.docker.com/ and pull the latest image of SWIM:
+
+```bash
+docker pull umgkmr/swim:latest
+```
+
+Run the container in interactive mode and expose port 8888 for JupyterLab:
+
+```bash
+docker run -it -p 8888:8888 --name swim_container umgkmr/swim:latest
+```
+
+The image includes all required dependencies to run and compile SWIM, including Cobaya. To keep the image size manageable, external likelihoods and cosmological codes are not preinstalled. These can be installed following the Cobaya documentation: https://cobaya.readthedocs.io/en/latest/installation_cosmo.html
+
+Once the container starts, you are placed in a bash shell as the default user `swim`. From this shell, SWIM can be compiled using:
+
+```bash
+./compile_SWIM.sh
+```
+
+To run JupyterLab:
+
+```bash
+jupyter-lab --port=8888 --ip=0.0.0.0 --no-browser --ServerApp.token=''
+```
+
+Then open in your browser: `http://localhost:8888`
+
+The following commands should be run on your host system (not inside the container).
+To copy files from the container to your host system:
+
+```bash
+docker cp swim_container:/path/in/container /path/on/host
+```
+
+To restart the container:
+
+```bash
+docker start -ai swim_container
+```
+
+```{note} 
+GUI applications from Cobaya (e.g. `getdist-gui`) are not supported within the Docker container.
+```
+
+A Dockerfile is available in the `docker/` directory and can be modified to suit individual use cases.
