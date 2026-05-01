@@ -193,6 +193,9 @@ To perform parameter inference including full CMB power spectrum constraints (re
 mpirun -n 8 cobaya-run Input.yaml
 ```
 
+```{note}
+Make sure to set the packages_path: in Input.yaml to the location of your Cobaya installation. Otherwise, Cobaya will not be able to locate external codes (e.g. CAMB) and likelihoods.
+```
 By default, CAMB uses all available CPU threads. When running multiple chains in parallel, it is recommended to limit the number of threads per chain.
 
 You can check the total number of available CPU threads using:
