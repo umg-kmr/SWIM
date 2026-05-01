@@ -1,7 +1,7 @@
 # Installation
 
 ```{note}
-SWIM is supported natively on Linux-based systems, with macOS and Windows support is provided through Docker.
+SWIM is supported natively on Linux-based systems, with macOS and Windows support provided through Docker.
 ```
 
 ## Clone Repository
