@@ -91,6 +91,10 @@ When running multiple chains, limit CPU usage per chain:
     export OMP_NUM_THREADS=$(( $(nproc --all) / 8 ))
 ```
 
+```{important}
+Make sure to set the `packages_path:` in `Input.yaml` to the location of your Cobaya installation. Otherwise, Cobaya will not be able to locate external codes (e.g. CAMB) and likelihoods.
+```
+
 ---
 
 ## 3. Numerical Power Spectrum
