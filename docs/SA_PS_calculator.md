@@ -340,6 +340,10 @@ cobaya-run Input.yaml
 
 Refer to the [Cobaya documentation](https://cobaya.readthedocs.io/en/latest/likelihood_external.html) for installation.
 
+```{important}
+Make sure to set the `packages_path:` in `Input.yaml` to the location of your Cobaya installation. Otherwise, Cobaya will not be able to locate external codes (e.g. CAMB) and likelihoods.
+```
+
 ---
 
 ## Workflow
