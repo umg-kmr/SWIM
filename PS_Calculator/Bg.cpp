@@ -49,7 +49,7 @@ struct root_stop  {
 };
 
 //Passing model functions by reference as the background code doesn't modify the original model functions like potential and upsilon.
-void bg_solver (const function<double(double)> &V, const function<double(double)>& Vd,const function<double(double)>& Vdd,const function<double(double,double)>& Ups, const function<double(double,double)>& pT_Ups,const function<double(double,double)>& pph_Ups,double Cr,double Np,double phi_ini,double php_ini, double T_ini,int therm, double kp, double klow, double kup, double EM_step, int npts, int Nrealz, int want_Np_autocalc, int verbose,int rad_noise) {
+void bg_solver (const function<double(double)> &V, const function<double(double)>& Vd,const function<double(double)>& Vdd,const function<double(double,double)>& Ups, const function<double(double,double)>& pT_Ups,const function<double(double,double)>& pph_Ups,double Cr,double Np,double phi_ini,double php_ini, double T_ini,int therm, double kp, double klow, double kup, double EM_step, int npts, int Nrealz, int want_Np_autocalc, int want_FP, int verbose,int rad_noise) {
 
 
     typedef boost::array< double , 3 > state_type; //For boost ode solver, number of differential equations (3)
@@ -431,7 +431,288 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             return 0.0;
         }
     };
+    
+    /* Fokker-Planck Implementation */
 
+    auto compute_A = [Cr] (double A[5][5],double k,double ai,double Hn, double phpn, double Tn, double Upsn, double Upsphn, double UpsTn, double Hpn, double Vdn, double Vddn) -> void {
+
+        double Tn4 = Tn*Tn*Tn*Tn;
+        double Cr4T4 = 4.0*Cr*Tn4;
+        double Hn2 = Hn*Hn;
+        double k2a2 = k*k/(ai*ai);
+        double phpn2 = phpn*phpn;
+        
+        // clear
+       for(int i=0;i<5;i++) {
+           for(int j=0;j<5;j++) {
+               A[i][j] = 0.0;
+           }
+        }
+
+        //1st row
+        A[0][0] = -1.0;
+        A[0][1] = -0.5/Hn;
+        A[0][2] = 0.5*phpn;
+        //2nd row
+        A[1][0] = -( (Cr4T4)/(3.0*Hn) );
+        A[1][1] = -3.0;
+        A[1][2] = -Upsn*phpn;
+        A[1][3] = -1.0/(3.0*Hn);
+        //3rd row
+        A[2][4] = 1.0;
+        //4th row
+        A[3][0] = -(Upsn*Hn*phpn2) -(Cr4T4);
+        A[3][1] = ( k2a2/Hn ) -( 0.5*Cr4T4/Hn );
+        A[3][2] = (0.5*Cr4T4*phpn) +(Upsphn*Hn*phpn2);
+        A[3][3] = -4.0 + ( UpsTn*Hn*phpn2*Tn/(Cr4T4) );
+        A[3][4] = 2.0*Upsn*Hn*phpn;
+        //5th row
+        A[4][0] = -(Upsn*phpn/Hn) -(2.0*Vdn/Hn2) -(4.0*phpn);
+        A[4][1] = -(2.0*phpn/Hn);
+        A[4][2] = -(k2a2/Hn2) -(Vddn/Hn2) -(Upsphn*phpn/Hn) + 2.0*phpn2;
+        A[4][3] = -( (UpsTn*Tn*phpn) / (Hn*Cr4T4) );
+        A[4][4] = -3.0 -(Upsn/Hn) - (Hpn/Hn);
+    };
+
+    auto compute_D = [nT,nq,rad_noise] (double D[5][5],double Upsn,double phpn,double Tn,double ai,double Hn) -> void {
+        
+        double nTi = nT(Upsn,Tn,ai,Hn);
+        double nqi = nq(Upsn,Tn,ai,Hn);
+        double nT2 = nTi*nTi;
+        double nq2 = nqi*nqi;
+        double Hn2 = Hn*Hn;
+        double Hn4 = Hn2*Hn2;
+
+        // clear
+       for(int i=0;i<5;i++) {
+           for(int j=0;j<5;j++) {
+               D[i][j] = 0.0;
+           }
+       }
+
+        if (rad_noise == 1) {
+            D[3][3]= Hn4*phpn*phpn*nT2;
+            D[3][4]= -(Hn2*phpn*nT2);
+            D[4][3]= D[3][4];
+            D[4][4] = nT2 + nq2;
+        }
+
+        else {
+            D[4][4] = nT2 + nq2;
+        }
+
+    };
+
+    auto compute_C = [phiasN,phpasN,TasN,H,V,Cr] (double C[5][1], double Ne) -> void {
+       
+        double phiNe = phiasN(Ne);
+        double TNe = TasN(Ne);
+        double phpNe = phpasN(Ne);
+        double Hn = H(phiNe,phpNe,TNe);
+        double VNe = V(phiNe);
+
+        double CrT4 = Cr*pow(TNe,4.0);
+        double HNephpNe2 = (Hn*phpNe)*(Hn*phpNe);
+
+        double rhotot = CrT4 + ( (HNephpNe2/2.0) + VNe );
+        double ptot = ((1.0/3.0)*CrT4) + ( (HNephpNe2/2.0) - VNe );
+        
+        // clear
+        for(int i=0;i<5;i++) {
+               C[i][0] = 0.0;
+        }
+
+        C[0][0] = -1.0;
+        C[1][0] = Hn/(rhotot+ptot);
+        C[2][0] = -Hn*Hn*phpNe/(rhotot+ptot);
+
+    };
+
+    typedef boost::array<long double,25> state_type_Q; //25 equations
+
+    auto k_mtrxQ = [phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,Calc_Ni_Ne] (double k) -> state_type_Q {
+        auto func_mtrxQ = [k,phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups] ( const state_type_Q &Qflat , state_type_Q &dQflatdt ,double t ) -> void {
+             
+            double Qm[5][5];
+            for(int i=0;i<5;i++) {
+                for(int j=0;j<5;j++) {
+                    Qm[i][j] = Qflat[i*5 + j];  //Convert from flattened array to 2D array. Eg. Q[4][4] = Qflat[24]
+                }
+            }
+    
+            //Bg quantities
+    	    double phn = phiasN(t);
+            double phpn = phpasN(t);
+            double Tn = TasN(t);
+            double Upsn = Ups(phn,Tn);
+            double Hn = H(phn,phpn,Tn);
+            double Hpn = Hp(phn,phpn,Tn);
+            double Vdn = Vd(phn);
+            double Vddn = Vdd(phn);
+            double Upsphn = pph_Ups(phn,Tn);
+            double UpsTn = pT_Ups(phn,Tn);
+            double an  = a(t);
+            
+            //build A and D 
+            double A[5][5], D[5][5];
+    
+            compute_A(A,k,an,Hn,phpn,Tn,Upsn,Upsphn,UpsTn,Hpn,Vdn,Vddn);
+    
+            compute_D(D,Upsn,phpn,Tn,an,Hn);
+    
+            // evolve Q matrix 
+            double dQm[5][5];
+    
+            for(int i=0;i<5;i++){
+                for(int j=0;j<5;j++){
+    
+                    dQm[i][j] = D[i][j];
+    
+                    for(int k2=0;k2<5;k2++){
+                        dQm[i][j] += A[i][k2]*Qm[k2][j];
+                        dQm[i][j] += Qm[i][k2]*A[j][k2];
+                    }
+                }
+            }
+            /* enforce symmetry
+            for(int i=0;i<5;i++){
+                for(int j=i;j<5;j++){
+                    double sym = 0.5*(dQm[i][j] + dQm[j][i]);
+                    dQm[i][j] = sym;
+                    dQm[j][i] = sym;
+                }
+            }*/
+            
+            // flatten 2D array to 1D for 25 ODEs
+            for(int i=0;i<5;i++) {
+                for(int j=0;j<5;j++) {
+                    dQflatdt[i*5 + j] = dQm[i][j];
+                }
+            }
+        };
+       
+    
+        //ODE solver
+        auto SolveODE_dQm = [func_mtrxQ,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H] () -> state_type_Q {
+            auto stepper = make_controlled( 1e-18 , 1e-16 , runge_kutta_fehlberg78 < state_type_Q >() );
+
+            //Integration limits
+            Ni_Ne nn = Calc_Ni_Ne(k);
+            double Ni = nn.Ni;
+            double Ne = nn.Ne;
+            
+            // initial conditions
+            state_type_Q Qflat = {0.0}; //noise dominates the evolution of perturbations, ICs are not too relevant
+            double ai = a(Ni);
+            double phii = phiasN(Ni);
+            double phpi = phpasN(Ni);
+            double Ti = TasN(Ni);
+            double Hi = H(phii,phpi,Ti);
+
+            integrate_adaptive( stepper ,func_mtrxQ , Qflat , Ni , Ne, 1e-6 ); 
+            
+            return Qflat;
+        };
+
+        state_type_Q Qflat_Ne = SolveODE_dQm();
+
+        return Qflat_Ne;
+
+    };
+
+    auto modR2 = [Calc_Ni_Ne,k_mtrxQ,compute_C] (double k) -> double {
+            Ni_Ne nn = Calc_Ni_Ne(k);
+            long double Ni = nn.Ni;
+            long double Ne = nn.Ne;
+            long double Qmatrix_Ne[5][5];
+
+            state_type_Q Qflat_Ne = k_mtrxQ(k);
+            for(int i=0;i<5;i++){
+                for(int j=0;j<5;j++){
+                    Qmatrix_Ne[i][j] = Qflat_Ne[i*5 + j];
+                }
+            }
+
+            double C[5][1];
+
+            compute_C(C,Ne);
+
+            double R2sol = 0.0;
+
+            for(int i=0;i<5;i++) {
+                for(int j=0;j<5;j++) {
+                    R2sol = R2sol + C[i][0]*Qmatrix_Ne[i][j]*C[j][0];
+                }
+            }
+
+            return R2sol;
+    };
+
+    auto P_num_FP = [modR2] (double k) -> double {
+        double Rmean = modR2(k);
+        return ( (k*k*k)/(2.0*(M_PI*M_PI)) ) * Rmean;
+    };
+
+    //Generate power spectrum between 10^klow and 10^kup
+    auto Calc_FP = [P_num_FP,Calc_Nh,Calc_Ni_Ne,verbose] (vector <double> &klist, vector <double> &Plist) -> void {
+    
+        size_t N = klist.size();
+        
+        vector<double> Plist_tmp(N, 0.0);
+        vector<int> valid(N, 1);   // mask for modes that cannot be initialized or frozen
+        
+        vector<string> messages(N); //verbosity messages
+        
+        #pragma omp parallel for schedule(dynamic,2)
+        for (long i=0;i<(long)N;i++) {
+            double ki = klist[i];
+            double Nh = Calc_Nh(ki);
+            Ni_Ne nn = Calc_Ni_Ne(ki);
+            
+            //Exit if there aren't enough efolds for the mode to freeze/initialize
+            if (nn.Ne == Nend) {
+                if (verbose == 1) {
+                    messages[i] = "Not enough efolds to freeze mode: " + to_string(ki);
+                }
+                valid[i] = 0;
+                continue;
+            }
+
+            else if (nn.Ni == 0.0) {
+                if (verbose == 1) {
+                    messages[i] = "Not enough efolds to initialize mode: " + to_string(ki);
+                }
+                valid[i] = 0;
+                continue;
+            } 
+            Plist_tmp[i] = P_num_FP(ki);
+        }
+        
+        //thread-safe print of verbosity messages
+        if (verbose == 1) {
+            for (size_t i = 0; i < N; i++) {
+                if (!messages[i].empty()) {
+                    cout << messages[i] << endl;
+                }
+            }
+        }
+        
+        vector<double> k_new; k_new.reserve(N);
+        vector<double> P_new; P_new.reserve(N);
+
+        //serial result saving - thread safe
+        for (size_t i = 0; i < N; i++) { 
+            if (valid[i]) {
+                k_new.push_back(klist[i]);
+                P_new.push_back(Plist_tmp[i]);
+            }
+       }
+
+       klist = k_new;
+       Plist = P_new;
+    };
+    
+    /* ------------------------------------------------------- */
     auto dW = [] (double h) -> double {
         //Create distribution object from the rng engine
         normal_distribution dist(0.0,sqrt(h));
@@ -746,7 +1027,12 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     };
 
     try {
-        Calc_P(klist,Plist); //Calculate the power spectrum.
+        if (want_FP == 1) {
+            Calc_FP(klist,Plist); //Calculate the power spectrum using Fokker-Planck approach
+        }
+        else {
+            Calc_P(klist,Plist); //Calculate the power spectrum.
+        }
     }
 
     catch (const exception& e) {
