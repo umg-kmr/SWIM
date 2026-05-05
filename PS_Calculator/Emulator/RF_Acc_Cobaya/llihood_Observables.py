@@ -46,9 +46,6 @@ yerr_solver = np.array([0.008,0.003]) #,0.0009])
 
 scale = yerr + yerr_solver
 
-# =========================================================
-# YOUR TRUE SOLVER (PUT YOUR EXPENSIVE CODE HERE)
-# =========================================================
 ffi = FFI() 
 
 #Power spectrum fitting function with running
@@ -62,7 +59,7 @@ em_step = 1e-5 #step-size for SDE solver
 Nrealz = int(2048) #number of realizations over which to average, higher number leads to more compute time 
 kmax = np.log10(1e2) #in log10 -> actual kmax used internally is 10^kmax 
 kmin = np.log10(1e-6) #in log10 
-points_k = int(1000) #number of points to be calculated between the k values specified 
+points_k = int(250) #number of points to be calculated between the k values specified 
 Np_autocalc = int(1) # can be set to either 1 (for internal automatic calculation of N_pivot) or 0 (specify an N_pivot value) | in both cases a value for the Np parameter needs to be passed. 
 verbosity = int(0) #can be set to either 1 or 0, when set to 1 the error messages will be printed if encountered any.
 want_FP = int(1) #Enable faster Fokker-Planck approach
@@ -154,7 +151,6 @@ def train_rf():
 
 #The function signature of logp should match with "void model" function of C++ library
 def logp(phi0,gst,Q0,V0,Np,p,c,therm,rad_noise):
-
     global rf_trained, rf_std_values
     global rf_calls, solver_calls, new_valid_points
     global best_logL_seen
@@ -164,88 +160,103 @@ def logp(phi0,gst,Q0,V0,Np,p,c,therm,rad_noise):
     theta_rf = np.array([phi0, gst, Q0, V0], dtype=float)
     theta_rf = np.log10(theta_rf)
 
-    # Try RF
-    if rf_trained:
+    # Fokker-Planck branch
+    if want_FP == 1:
+        obs = true_solver_obs(theta_true)
+        if obs is None:
+            return -np.inf
         
-
-        preds = np.array([
-        tree.predict(theta_rf.reshape(1, -1))[0]
-        for tree in rf.estimators_
-        ])
-
-        mean_pred = np.mean(preds, axis=0)
-        std_pred  = np.std(preds, axis=0)
-
-        # normalize uncertainty
-        rel_std = std_pred[:len(yobs)] / scale
-        score = np.mean(rel_std)
-
-        rf_std_values.append(score)
+        # Use only first two observables for likelihood
+        model_fin = obs[:len(yobs)]
     
-        model_fin = mean_pred[:len(yobs)]
+        sigma2 = (yerr**2)
+        log_lik = -0.5 * np.sum(np.log(2*np.pi*sigma2)+ ((yobs - model_fin)**2)/sigma2)
+        return log_lik
+
+    # Stochastic branch with RF emulator
+    else:
+        # Try RF
+        if rf_trained:
+            
     
-        # RF trust gate
-        if score < rf_uncertainty_tol:
-            if random.random() > forced_true_fraction:
+            preds = np.array([
+            tree.predict(theta_rf.reshape(1, -1))[0]
+            for tree in rf.estimators_
+            ])
     
-                sigma2 = (yerr**2) + (yerr_solver**2)
+            mean_pred = np.mean(preds, axis=0)
+            std_pred  = np.std(preds, axis=0)
     
-                log_lik = -0.5 * np.sum(np.log(2*np.pi*sigma2) +((yobs - model_fin)**2)/sigma2)
+            # normalize uncertainty
+            rel_std = std_pred[:len(yobs)] / scale
+            score = np.mean(rel_std)
     
-                if log_lik > best_logL_seen:
-                    pass
-                else:
-                    rf_calls += 1
-                    return log_lik
-
-    # True solver fallback
-    solver_calls += 1
-    obs = true_solver_obs(theta_true)
-
-     # Print usage statistics every 100 calls
-    total_calls = rf_calls + solver_calls
-    if total_calls > 0 and total_calls % 100 == 0:
-
-        print("\n------ Adaptive Stats ------")
-        print("Total calls:", total_calls)
-        print("Valid Points Stored for RF:", len(X_data))
-        print("RF usage:", round(100*rf_calls/total_calls,2), "%")
-        print("Solver usage:", round(100*solver_calls/total_calls,2), "%")
-    
-        if len(rf_std_values) > 0:
-            print("Mean RF std:", round(np.mean(rf_std_values),4))
-            print("Median RF std:", round(np.median(rf_std_values),4))
-            print("Max RF std:", round(np.max(rf_std_values),4))
-    
-        print("----------------------------\n")
-
-    if obs is None:
-        return -np.inf
-
-    # Store training data
-    X_data.append(theta_rf)
-    y_data.append(obs)
-    new_valid_points += 1
-
-    if len(X_data) > 2*max_training_points:
-        X_data.pop(0)
-        y_data.pop(0)
-
-    # Retrain if needed
-    if len(X_data) >= min_points_before_rf and new_valid_points >= update_frequency:
-        train_rf()
-        new_valid_points = 0
+            rf_std_values.append(score)
         
-        # Save RF model occasionally
-        joblib.dump({"rf": rf,}, "rf_model.pkl")
+            model_fin = mean_pred[:len(yobs)]
         
-    # Use only first two observables for likelihood
-    model_fin = obs[:len(yobs)]
-
-    sigma2 = (yerr**2) + (yerr_solver**2)
-    log_lik = -0.5 * np.sum(np.log(2*np.pi*sigma2)+ ((yobs - model_fin)**2)/sigma2)
-
-    if log_lik > best_logL_seen:
-        best_logL_seen = log_lik
-
-    return log_lik
+            # RF trust gate
+            if score < rf_uncertainty_tol:
+                if random.random() > forced_true_fraction:
+        
+                    sigma2 = (yerr**2) + (yerr_solver**2)
+        
+                    log_lik = -0.5 * np.sum(np.log(2*np.pi*sigma2) +((yobs - model_fin)**2)/sigma2)
+        
+                    if log_lik > best_logL_seen:
+                        pass
+                    else:
+                        rf_calls += 1
+                        return log_lik
+    
+        # True solver fallback
+        solver_calls += 1
+        obs = true_solver_obs(theta_true)
+    
+         # Print usage statistics every 100 calls
+        total_calls = rf_calls + solver_calls
+        if total_calls > 0 and total_calls % 100 == 0:
+    
+            print("\n------ Adaptive Stats ------")
+            print("Total calls:", total_calls)
+            print("Valid Points Stored for RF:", len(X_data))
+            print("RF usage:", round(100*rf_calls/total_calls,2), "%")
+            print("Solver usage:", round(100*solver_calls/total_calls,2), "%")
+        
+            if len(rf_std_values) > 0:
+                print("Mean RF std:", round(np.mean(rf_std_values),4))
+                print("Median RF std:", round(np.median(rf_std_values),4))
+                print("Max RF std:", round(np.max(rf_std_values),4))
+        
+            print("----------------------------\n")
+    
+        if obs is None:
+            return -np.inf
+    
+        # Store training data
+        X_data.append(theta_rf)
+        y_data.append(obs)
+        new_valid_points += 1
+    
+        if len(X_data) > 2*max_training_points:
+            X_data.pop(0)
+            y_data.pop(0)
+    
+        # Retrain if needed
+        if len(X_data) >= min_points_before_rf and new_valid_points >= update_frequency:
+            train_rf()
+            new_valid_points = 0
+            
+            # Save RF model occasionally
+            joblib.dump({"rf": rf,}, "rf_model.pkl")
+            
+        # Use only first two observables for likelihood
+        model_fin = obs[:len(yobs)]
+    
+        sigma2 = (yerr**2) + (yerr_solver**2)
+        log_lik = -0.5 * np.sum(np.log(2*np.pi*sigma2)+ ((yobs - model_fin)**2)/sigma2)
+    
+        if log_lik > best_logL_seen:
+            best_logL_seen = log_lik
+    
+        return log_lik

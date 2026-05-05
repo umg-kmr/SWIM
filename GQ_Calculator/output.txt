@@ -275,3 +275,7 @@ Function value at 4.7188e+03: 7.3184e-04
 Finding initial condition for Q = 4.9373e+03
 Function value at 4.9373e+03: 1.8575e+00
 Finding initial condition for Q = 5.1660e+03
+Function value at 5.1660e+03: 4.8264e+00
+Finding initial condition for Q = 5.4052e+03
+Function value at 5.4052e+03: 7.9320e+00
+Finding initial condition for Q = 5.6555e+03
