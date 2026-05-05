@@ -58,8 +58,8 @@ extern "C" {
 
         Cy = 3.0*sqrt(V(phi_ini)/3.0)*Q_ini/Ups_wo_Cy(phi_ini,T_ini);
         
-        auto Ups = [Cy,p,c] (double phi,double T) -> double {
-            return Cy * pow(T,p) * pow(phi,c);
+        auto Ups = [Cy,Ups_wo_Cy] (double phi,double T) -> double {
+            return Cy * Ups_wo_Cy(phi,T);
         };
         
         /*  Define the partial derivatives of Upsilon if not of the form T^p \phi^c  */
