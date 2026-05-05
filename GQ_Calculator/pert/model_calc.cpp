@@ -5,15 +5,16 @@ double kp = 0.05;
 //int therm : Thermalization of inflaton, 1 = yes = Bose-Einstein; 0 = no
 
 double EM_step = 1e-5; //SDE solver step-size after Q>1e4 (fixed)
-int Nrealz = 2048; //Number of realizations for SDE
+int Nrealz = 5000; //Number of realizations for SDE
 
 int want_Np_autocalc = 0; //Set to 1 if you want the solver to calculate Np itself (only when smooth transition to RD after Inflation) otherwise set 0. In both cases supply Np
 int verbose = 0; //Set to one if you want to see the error messages
+int want_FP = 1;
 /* ###################################### */
 
 extern "C" {
 
-    void model (double phi_ini,double Q_ini, double gst, double V0, int p, int c, int therm, int rad_noise, int hybrid_inf) {
+    void model (double phi_ini,double Q_ini, double gst, double V0, double alph, double n, int p, int c, int therm, int rad_noise, int hybrid_inf) {
 
         double Cr = (M_PI*M_PI / 30.0) * gst;
         double php_ini=0.0;
@@ -24,37 +25,37 @@ extern "C" {
 
         //#### Model Def here ####//
 
-        auto V = [V0] (double phi) -> double {
+        auto V = [V0,alph,n] (double phi) -> double {
             //return V0*log(lmbd*phi)*log(lmbd*phi);
             //return 0.5*V0*phi*phi;
-            //return V0*exp(-alph*(pow(phi,n)));
+            return V0*exp(-alph*(pow(phi,n)));
             //return (pow(M,4.0)/(4.0*lmbd)) + ((V0/2.0)*phi*phi);
             //return V0 * (1.0 - (gma*phi*phi) );
             //return V0 * (1.0 + cos(phi/f));
             //return V0 * ( F - (4.0*exp(-phi/sqrt(3.0))) + exp(-4.0*phi/sqrt(3.0)) + ( R * ( exp(2.0*phi/sqrt(3.0)) - 1.0 ) ) ) ;
-            return (V0/4.0)*pow(phi,4.0);
+            //return (V0/4.0)*pow(phi,4.0);
         };
 
-        auto Vd = [V0] (double phi) -> double {
+        auto Vd = [V0,alph,n] (double phi) -> double {
             //return (2.0*V0*log(lmbd*phi))/phi;
             //return V0*phi;
-            //return -((n*V0*alph*pow(phi,-1.0 + n))/exp(alph*pow(phi,n)));
+            return -((n*V0*alph*pow(phi,-1.0 + n))/exp(alph*pow(phi,n)));
             //return V0*phi;
             //return -2.0 * V0 * gma * phi;
             //return (-V0/f) * sin(phi/f);
             //return V0 * (2.0/sqrt(3.0)) * exp(-4.0*phi/sqrt(3.0)) * (-2.0 + (2.0*exp(sqrt(3.0)*phi)) + (R*exp(2.0*sqrt(3.0)*phi)) ) ; 
-            return V0*phi*phi*phi;
+            //return V0*phi*phi*phi;
         };
 
-        auto Vdd = [V0] (double phi) -> double {
+        auto Vdd = [V0,alph,n] (double phi) -> double {
             //return (-2.0*V0*(-1.0 + log(lmbd*phi)))/(phi*phi);
             //return V0;
-            //return -(((-1.0 + n)*n*V0*alph*pow(phi,(-2.0 + n)))/exp(alph*pow(phi,n))) + (n*n*V0*alph*alph*pow(phi,(-2.0 + 2.0*n)))/exp(alph*pow(phi,n));
+            return -(((-1.0 + n)*n*V0*alph*pow(phi,(-2.0 + n)))/exp(alph*pow(phi,n))) + (n*n*V0*alph*alph*pow(phi,(-2.0 + 2.0*n)))/exp(alph*pow(phi,n));
             //return V0;
             //return -2.0 * V0 * gma;
             //return (-V0/(f*f)) * cos(phi/f);
             //return V0 * (4.0/3.0) * exp(-4.0*phi/sqrt(3.0)) * (4.0 - exp(sqrt(3.0)*phi) + (R*exp(2.0*sqrt(3.0)*phi)) ) ;
-            return 3.0*V0*phi*phi;
+            //return 3.0*V0*phi*phi;
 
         };
 
@@ -102,7 +103,7 @@ extern "C" {
 
         //#################################//
 
-        bg_solver (V,Vd,Vdd,Ups,pT_Ups,pph_Ups,Cr,Np,phi_ini,php_ini,T_ini,therm,kp,EM_step,Nrealz,want_Np_autocalc,verbose,rad_noise,hybrid_inf); //Calculates the power-spectrum
+        bg_solver (V,Vd,Vdd,Ups,pT_Ups,pph_Ups,Cr,Np,phi_ini,php_ini,T_ini,therm,kp,EM_step,Nrealz,want_Np_autocalc,verbose,rad_noise,hybrid_inf,want_FP); //Calculates the power-spectrum
     }
 
     void clear_vars () {
@@ -115,10 +116,11 @@ extern "C" {
     }
     
     //Function to set the global variables
-    void set_globals (int N_realizations, double Nstar, int verbosity) {
+    void set_globals (int N_realizations, double Nstar, int verbosity, int FP_approach) {
         Nrealz = N_realizations;
         Nevol = Nstar;
         verbose = verbosity;
+        want_FP = FP_approach;
     }
 
 }

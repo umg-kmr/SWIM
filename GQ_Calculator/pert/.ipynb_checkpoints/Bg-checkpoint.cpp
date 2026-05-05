@@ -15,6 +15,7 @@
 using namespace std;
 using namespace boost::numeric::odeint;
 
+
 //generating random seeds using random device
 chrono::high_resolution_clock clk;
 random_device rd;
@@ -24,6 +25,7 @@ static thread_local mt19937_64 rngen(clk.now().time_since_epoch().count() ^ rd()
 double Nend = 0.0;
 double GQ_val = 0.0;
 double Q_val = 0.0; //store corresponding Q value
+double ph_crit = 0.0; //Variable to set the critical field value in the case hybrid inflation
 double tend = 100.0; //Upper limit of Bg integration
 double maxiter_bg = 1e8; //Upper limit on the background integration iterations
 double maxiter_dxdN = 1e8;
@@ -38,7 +40,7 @@ struct root_stop  {
 };
 
 //Passing model functions by reference as the background code doesn't modify the original model functions like potential and upsilon.
-void bg_solver (const function<double(double)> &V, const function<double(double)>& Vd,const function<double(double)>& Vdd,const function<double(double,double)>& Ups, const function<double(double,double)>& pT_Ups,const function<double(double,double)>& pph_Ups,double Cr,double Np,double phi_ini,double php_ini, double T_ini,int therm, double kp, double EM_step, int Nrealz, int want_Np_autocalc, int verbose, int rad_noise) {
+void bg_solver (const function<double(double)> &V, const function<double(double)>& Vd,const function<double(double)>& Vdd,const function<double(double,double)>& Ups, const function<double(double,double)>& pT_Ups,const function<double(double,double)>& pph_Ups,double Cr,double Np,double phi_ini,double php_ini, double T_ini,int therm, double kp, double EM_step, int Nrealz, int want_Np_autocalc, int verbose, int rad_noise, int hybrid_inf, int want_FP) {
 
 
     typedef boost::array< double , 3 > state_type; //For boost ode solver, number of differential equations (3)
@@ -116,8 +118,13 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     };
     
     //ODE Observer to view and store results 
-    auto obsv = [eH,&Nl,&phil,&phpl,&Tl] ( const state_type &x ,const double t) -> void {
-        if (eH(x[0],x[1],x[2])>1.0 || Nl.size()>maxiter_bg) { //prevents out of bounds
+    auto obsv = [eH,&Nl,&phil,&phpl,&Tl,&hybrid_inf] ( const state_type &x ,const double t) -> void {
+        //For hybrid inflation
+        if ( (hybrid_inf == 1) && (x[0]<=ph_crit) ) {
+          throw runtime_error("Inflation Ended (Hybrid) - Critical phi value reached");
+        }
+       	
+	if ( (eH(x[0],x[1],x[2])>1.0 || Nl.size()>maxiter_bg) && (hybrid_inf!=1) )  { //prevents out of bounds
           throw runtime_error("Inflation Ended"); //Signals the end of Inflation
         }
         //cout << t << '\t' << x[0] << '\t' << x[1] << '\t' << x[2] <<" eH "<<eH(x[0],x[1],x[2])<< endl;
@@ -227,8 +234,14 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     typedef boost::array< double , 1 > state_type2; //For boost ode solver, number of differential equations (1)
     //dxdN function ode where x = ln(k/kp)
-    auto dxdN = [eH,phiasN,phpasN,TasN] (const state_type2 &x ,state_type2 &dxdt , double t) -> void{
-        dxdt[0] = 1.0-eH(phiasN(t),phpasN(t),TasN(t));
+    auto dxdN = [eH,phiasN,phpasN,TasN,hybrid_inf] (const state_type2 &x ,state_type2 &dxdt , double t) -> void{
+	if (hybrid_inf!=1) {
+            dxdt[0] = 1.0-eH(phiasN(t),phpasN(t),TasN(t));
+	}
+	else if (hybrid_inf==1) {
+	    dxdt[0] = 1.0;
+	}
+
     };
 
     auto obs_back = [&N_back,&x_back] ( const state_type2 &x ,const double t) -> void {
@@ -365,6 +378,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     // cout<<"Qlow: "<<QasN(NasX(xlow))<<endl;
     // cout<<"Qup: "<<QasN(NasX(xup))<<endl;
     // cout<<"Np: "<<Npp<<endl;
+    
     //Analytical Power Spectrum
     auto P = [Nask,phiasN,phpasN,TasN,H,Q,therm] (double k) -> double {
         double NN = Nask(k);
@@ -383,6 +397,33 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         return pow((Hn/(2.0*M_PI*phpn)),2.0) * (distrib + (Tn/Hn)*( 2.0*sqrt(3.0)*M_PI*Qn/sqrt(3+4*M_PI*Qn) ));
     };
     
+    //Uncomment the following function and comment the one above to implement the full analytical power spectrum (eqn. 4.24 arXiv:1302.3544 ), retaining the slow-roll coefficients
+    /* auto P = [Nask,phiasN,phpasN,TasN,H,Q,therm,V,Vd,Vdd,Ups,pph_Ups] (double k) -> double {
+        double NN = Nask(k);
+        double phin = phiasN(NN);
+        double phpn = phpasN(NN);
+        double Tn = TasN(NN);
+        double Hn = H(phin,phpn,Tn);
+        double Qn = Q(phin,phpn,Tn);
+        double distrib = 0.0;
+        double vn = 3.0*(1.0+Qn)/2.0;
+        double nV = Vdd(phin)/V(phin);
+        double bV = pph_Ups(phin,Tn)*Vd(phin)/(Ups(phin,Tn)*V(phin));
+        double alphan = sqrt(vn*vn - 3.0*nV + ( 3.0*bV*Qn/(1.0+Qn) ) );
+        if (therm == 1) {
+            distrib = 1/tanh(Hn/(2*Tn));
+        }
+        else if (therm == 0) {
+            distrib = 1.0;
+        }
+        double t1 = (Hn*Hn*Hn)*Tn/(4.0*(M_PI*M_PI)*(pow((Hn*phpn),2.0)));
+        double t2 = (Hn/Tn)*distrib;
+        //lgamma is used to protect against overflow issues
+        double ta =  2.0*alphan*log(2.0) + lgamma(-1.0 + vn) - lgamma(-0.5 + vn) + 2.0*lgamma(alphan) + lgamma(1.5 - vn + alphan) -lgamma(-0.5 + vn + alphan);
+        double t3 = (3.0*Qn/(2.0*sqrt(M_PI))) * exp(ta) ;
+        return t1*(t3+t2);
+    }; 
+    */
 
     //Perturbations
     auto a = [a0] (double N) -> double {
@@ -479,6 +520,252 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             return 0.0;
         }
     };
+
+    /* Fokker-Planck Implementation */
+
+    auto compute_A = [Cr] (double A[5][5],double k,double ai,double Hn, double phpn, double Tn, double Upsn, double Upsphn, double UpsTn, double Hpn, double Vdn, double Vddn) -> void {
+
+        double Tn4 = Tn*Tn*Tn*Tn;
+        double Cr4T4 = 4.0*Cr*Tn4;
+        double Hn2 = Hn*Hn;
+        double k2a2 = k*k/(ai*ai);
+        double phpn2 = phpn*phpn;
+        
+        // clear
+       for(int i=0;i<5;i++) {
+           for(int j=0;j<5;j++) {
+               A[i][j] = 0.0;
+           }
+        }
+
+        //1st row
+        A[0][0] = -1.0;
+        A[0][1] = -0.5/Hn;
+        A[0][2] = 0.5*phpn;
+        //2nd row
+        A[1][0] = -( (Cr4T4)/(3.0*Hn) );
+        A[1][1] = -3.0;
+        A[1][2] = -Upsn*phpn;
+        A[1][3] = -1.0/(3.0*Hn);
+        //3rd row
+        A[2][4] = 1.0;
+        //4th row
+        A[3][0] = -(Upsn*Hn*phpn2) -(Cr4T4);
+        A[3][1] = ( k2a2/Hn ) -( 0.5*Cr4T4/Hn );
+        A[3][2] = (0.5*Cr4T4*phpn) +(Upsphn*Hn*phpn2);
+        A[3][3] = -4.0 + ( UpsTn*Hn*phpn2*Tn/(Cr4T4) );
+        A[3][4] = 2.0*Upsn*Hn*phpn;
+        //5th row
+        A[4][0] = -(Upsn*phpn/Hn) -(2.0*Vdn/Hn2) -(4.0*phpn);
+        A[4][1] = -(2.0*phpn/Hn);
+        A[4][2] = -(k2a2/Hn2) -(Vddn/Hn2) -(Upsphn*phpn/Hn) + 2.0*phpn2;
+        A[4][3] = -( (UpsTn*Tn*phpn) / (Hn*Cr4T4) );
+        A[4][4] = -3.0 -(Upsn/Hn) - (Hpn/Hn);
+    };
+
+    auto compute_D = [nT,nq,rad_noise] (double D[5][5],double Upsn,double phpn,double Tn,double ai,double Hn) -> void {
+        
+        double nTi = nT(Upsn,Tn,ai,Hn);
+        double nqi = nq(Upsn,Tn,ai,Hn);
+        double nT2 = nTi*nTi;
+        double nq2 = nqi*nqi;
+        double Hn2 = Hn*Hn;
+        double Hn4 = Hn2*Hn2;
+
+        // clear
+       for(int i=0;i<5;i++) {
+           for(int j=0;j<5;j++) {
+               D[i][j] = 0.0;
+           }
+       }
+
+        if (rad_noise == 1) {
+            D[3][3]= Hn4*phpn*phpn*nT2;
+            D[3][4]= -(Hn2*phpn*nT2);
+            D[4][3]= D[3][4];
+            D[4][4] = nT2 + nq2;
+        }
+
+        else {
+            D[4][4] = nT2 + nq2;
+        }
+
+    };
+
+    auto compute_C = [phiasN,phpasN,TasN,H,V,Cr] (double C[5][1], double Ne) -> void {
+       
+        double phiNe = phiasN(Ne);
+        double TNe = TasN(Ne);
+        double phpNe = phpasN(Ne);
+        double Hn = H(phiNe,phpNe,TNe);
+        double VNe = V(phiNe);
+
+        double CrT4 = Cr*pow(TNe,4.0);
+        double HNephpNe2 = (Hn*phpNe)*(Hn*phpNe);
+
+        double rhotot = CrT4 + ( (HNephpNe2/2.0) + VNe );
+        double ptot = ((1.0/3.0)*CrT4) + ( (HNephpNe2/2.0) - VNe );
+        
+        // clear
+        for(int i=0;i<5;i++) {
+               C[i][0] = 0.0;
+        }
+
+        C[0][0] = -1.0;
+        C[1][0] = Hn/(rhotot+ptot);
+        C[2][0] = -Hn*Hn*phpNe/(rhotot+ptot);
+
+    };
+
+    typedef boost::array<long double,25> state_type_Q; //25 equations
+
+    auto k_mtrxQ = [phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,Calc_Ni_Ne] (double k) -> state_type_Q {
+        auto func_mtrxQ = [k,phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups] ( const state_type_Q &Qflat , state_type_Q &dQflatdt ,double t ) -> void {
+             
+            double Qm[5][5];
+            for(int i=0;i<5;i++) {
+                for(int j=0;j<5;j++) {
+                    Qm[i][j] = Qflat[i*5 + j];  //Convert from flattened array to 2D array. Eg. Q[4][4] = Qflat[24]
+                }
+            }
+    
+            //Bg quantities
+    	    double phn = phiasN(t);
+            double phpn = phpasN(t);
+            double Tn = TasN(t);
+            double Upsn = Ups(phn,Tn);
+            double Hn = H(phn,phpn,Tn);
+            double Hpn = Hp(phn,phpn,Tn);
+            double Vdn = Vd(phn);
+            double Vddn = Vdd(phn);
+            double Upsphn = pph_Ups(phn,Tn);
+            double UpsTn = pT_Ups(phn,Tn);
+            double an  = a(t);
+            
+            //build A and D 
+            double A[5][5], D[5][5];
+    
+            compute_A(A,k,an,Hn,phpn,Tn,Upsn,Upsphn,UpsTn,Hpn,Vdn,Vddn);
+    
+            compute_D(D,Upsn,phpn,Tn,an,Hn);
+    
+            // evolve Q matrix 
+            double dQm[5][5];
+    
+            for(int i=0;i<5;i++){
+                for(int j=0;j<5;j++){
+    
+                    dQm[i][j] = D[i][j];
+    
+                    for(int k2=0;k2<5;k2++){
+                        dQm[i][j] += A[i][k2]*Qm[k2][j];
+                        dQm[i][j] += Qm[i][k2]*A[j][k2];
+                    }
+                }
+            }
+            /* enforce symmetry
+            for(int i=0;i<5;i++){
+                for(int j=i;j<5;j++){
+                    double sym = 0.5*(dQm[i][j] + dQm[j][i]);
+                    dQm[i][j] = sym;
+                    dQm[j][i] = sym;
+                }
+            }*/
+            
+            // flatten 2D array to 1D for 25 ODEs
+            for(int i=0;i<5;i++) {
+                for(int j=0;j<5;j++) {
+                    dQflatdt[i*5 + j] = dQm[i][j];
+                }
+            }
+        };
+       
+    
+        //ODE solver
+        auto SolveODE_dQm = [func_mtrxQ,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H] () -> state_type_Q {
+            auto stepper = make_controlled( 1e-18 , 1e-16 , runge_kutta_fehlberg78 < state_type_Q >() );
+
+            //Integration limits
+            Ni_Ne nn = Calc_Ni_Ne(k);
+            double Ni = nn.Ni;
+            double Ne = nn.Ne;
+            
+            // initial conditions
+            state_type_Q Qflat = {0.0}; 
+            double ai = a(Ni);
+            double phii = phiasN(Ni);
+            double phpi = phpasN(Ni);
+            double Ti = TasN(Ni);
+            double Hi = H(phii,phpi,Ti);
+
+            /*double dph0 = (1.0/(sqrt(2.0*k)*ai));
+            double dphp0 = (1.0/(sqrt(2.0*k)*ai));
+
+
+            Qflat[2*5 + 2] = ai/(2.0*k);  
+            Qflat[4*5 + 4] = k/(2.0*ai*Hi*Hi);*/
+            
+            /*Qflat[2*5 + 2] = dph0*dph0;
+            Qflat[4*5 + 4] = dphp0*dphp0;
+            Qflat[2*5 + 4] = -dph0*dphp0;
+            Qflat[4*5 + 2] = Qflat[2*5 + 4];
+
+            double scale = 1.0/4.0;
+
+            Qflat[2*5 + 2] *= scale;
+            Qflat[4*5 + 4] *= scale;
+            Qflat[2*5 + 4] *= scale;
+            Qflat[4*5 + 2] *= scale;*/
+
+            integrate_adaptive( stepper ,func_mtrxQ , Qflat , Ni , Ne, 1e-6 ); 
+            
+            return Qflat;
+        };
+
+        state_type_Q Qflat_Ne = SolveODE_dQm();
+
+        return Qflat_Ne;
+
+    };
+
+    auto modR2 = [Calc_Ni_Ne,k_mtrxQ,compute_C] (double k) -> double {
+            Ni_Ne nn = Calc_Ni_Ne(k);
+            long double Ni = nn.Ni;
+            long double Ne = nn.Ne;
+            long double Qmatrix_Ne[5][5];
+
+            state_type_Q Qflat_Ne = k_mtrxQ(k);
+            for(int i=0;i<5;i++){
+                for(int j=0;j<5;j++){
+                    Qmatrix_Ne[i][j] = Qflat_Ne[i*5 + j];
+                }
+            }
+
+            double C[5][1];
+
+            compute_C(C,Ne);
+
+            double R2sol = 0.0;
+
+            for(int i=0;i<5;i++) {
+                for(int j=0;j<5;j++) {
+                    R2sol = R2sol + C[i][0]*Qmatrix_Ne[i][j]*C[j][0];
+                }
+            }
+
+            return R2sol;
+    };
+
+    auto P_num_FP = [modR2] (double k) -> double {
+        double Rmean = modR2(k);
+        return ( (k*k*k)/(2.0*(M_PI*M_PI)) ) * Rmean;
+    };
+
+    auto Gk_FP = [P_num_FP,P] (double k) -> double {
+        return P_num_FP(k)/P(k);  
+    };
+    
+    /* ------------------------------------------------------- */
 
     auto dW = [] (double h) -> double {
         //Create distribution object from the rng engine
@@ -735,7 +1022,6 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         return R_sol;
     };
 
-
     auto P_num = [Nrealz,R] (double k) -> double {
         double sum_R2 = 0.0;
         double R1 = 0.0;
@@ -753,9 +1039,14 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         return P_num(k)/P(k);  
    };
 
-
+    
     try {
-        GQ_val= Gk(kasN(Nevol)); //Calculate the power spectrum.
+        if (want_FP == 1){
+            GQ_val= Gk_FP(kasN(Nevol));
+        }
+        else {
+            GQ_val= Gk(kasN(Nevol)); //Calculate the power spectrum.
+        }
     }
 
     catch (const exception& e) {
