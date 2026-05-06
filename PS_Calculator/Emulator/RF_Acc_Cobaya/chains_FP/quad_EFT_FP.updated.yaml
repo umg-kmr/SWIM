@@ -1,10 +1,22 @@
-#Only implements A_s, n_s and r constraints. 
-#Uses the numerical solver and also trains RF emulator
-
-#import the likelihood function from llihood.py
+theory: null
 likelihood:
-  stb: import_module('llihood_Observables').logp
-  
+  stb:
+    type: []
+    speed: -1
+    stop_at_error: false
+    version: null
+    external: import_module('llihood_Observables').logp
+    input_params:
+    - p
+    - c
+    - therm
+    - rad_noise
+    - phi0
+    - gst
+    - V0
+    - Q0
+    - Np
+    output_params: []
 params:
   p:
     value: 0
@@ -27,6 +39,7 @@ params:
   phi0:
     value: 'lambda logphi0: 10**logphi0'
     latex: \phi_0
+    derived: true
   loggst:
     prior:
       dist: norm
@@ -40,6 +53,7 @@ params:
   gst:
     value: 'lambda loggst: 10**loggst'
     latex: g_*
+    derived: true
   logV0:
     prior:
       dist: norm
@@ -53,6 +67,7 @@ params:
   V0:
     value: 'lambda logV0: 10**logV0'
     latex: V_0
+    derived: true
   logQ0:
     prior:
       dist: norm
@@ -66,23 +81,46 @@ params:
   Q0:
     value: 'lambda logQ0: 10**logQ0'
     latex: Q_0
+    derived: true
   Np:
     value: 1.0
     latex: N_P
 sampler:
-  #minimize:
-  #  method: iminuit
-  #  ignore_prior: True
-  #  best_of: 8
-  #  override_bobyqa:
-  #    rhoend: 1e-8 
   mcmc:
-    drag: false
-    oversample_power: 0.4
+    burn_in: 0
+    max_tries: 100000d
+    covmat: null
+    covmat_params: null
     proposal_scale: 1.9
-    # covmat: 
+    output_every: 60s
+    learn_every: 40d
+    temperature: 1
+    learn_proposal: true
+    learn_proposal_Rminus1_max: 2.0
+    learn_proposal_Rminus1_max_early: 30.0
+    learn_proposal_Rminus1_min: 0.0
+    max_samples: .inf
     Rminus1_stop: 0.01
     Rminus1_cl_stop: 0.2
-    max_tries: 100000d 
-resume: True
-output: chains_FP/quad_EFT_FP
+    Rminus1_cl_level: 0.95
+    Rminus1_single_split: 4
+    measure_speeds: true
+    oversample_power: 0.4
+    oversample_thin: true
+    drag: false
+    blocking:
+    - - 1
+      - - logphi0
+        - loggst
+        - logV0
+        - logQ0
+    callback_function: null
+    callback_every: null
+    seed: null
+    check_every: null
+    oversample: null
+    drag_limits: null
+    fallback_covmat_scale: 4
+    version: 3.5.7
+output: quad_EFT_FP
+version: 3.5.7

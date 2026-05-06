@@ -1,0 +1,208 @@
+[0 : output] Output to be read-from/written-into folder 'chains_fullCMB_FP', with prefix 'quad_EFT_FP'
+[0 : camb] `camb` module loaded successfully from /home/umangk/anaconda3/envs/pyjulia_cobaya/lib/python3.13/site-packages/camb
+[0 : bao.desi_dr2] Initialized.
+[1 : bao.desi_dr2] Initialized.
+[3 : bao.desi_dr2] Initialized.
+[2 : bao.desi_dr2] Initialized.
+Loading ACT DR6 lensing likelihood v1.2...
+Successfully initialised candl likelihood 'SPT-3G D1 TnE, SPTlite (Camphuis et al. 2025, Quan et al. 2025)' (type: <class 'candl.likelihood.Like'>).
+Data loaded from '/home/umangk/anaconda3/envs/pyjulia_cobaya/lib/python3.13/site-packages/spt_candl_data/SPT3G_D1_TnE_v0/lite/'.
+Functional likelihood form: gaussian
+--------------------------------------------------------------------------------
+It will analyse the following spectra:
+
+TT lxl       (52 bins, bin centres spanning ell = 424.7 - 2974.5)
+TE lxl       (72 bins, bin centres spanning ell = 424.6 - 3974.5)
+EE lxl       (72 bins, bin centres spanning ell = 424.5 - 3974.5)
+--------------------------------------------------------------------------------
+A data model consisting of 4 transformations has been initialised.
+The following transformations will be applied to the theory spectra in this order:
+
+(1) Name: Aberration
+    Type: <class 'candl.transformations.common.AberrationCorrection'>
+(2) Name: TT Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+(3) Name: TE Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+(4) Name: EE Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+--------------------------------------------------------------------------------
+By default, a total of 2 Gaussian priors will be added to the likelihood in candl internally.
+If you are loading the likelihood in sampler wrapper these default priors below will overwritten or replaced according to your selection after initialisation.
+--------------------------------------------------------------------------------
+candl: clearing all internal priors.
+--------------------------------------------------------------------------------
+[0 : mcmc] Getting initial point... (this may take a few seconds)
+Loading ACT DR6 lensing likelihood v1.2...
+Successfully initialised candl likelihood 'SPT-3G D1 TnE, SPTlite (Camphuis et al. 2025, Quan et al. 2025)' (type: <class 'candl.likelihood.Like'>).
+Data loaded from '/home/umangk/anaconda3/envs/pyjulia_cobaya/lib/python3.13/site-packages/spt_candl_data/SPT3G_D1_TnE_v0/lite/'.
+Functional likelihood form: gaussian
+--------------------------------------------------------------------------------
+It will analyse the following spectra:
+
+TT lxl       (52 bins, bin centres spanning ell = 424.7 - 2974.5)
+TE lxl       (72 bins, bin centres spanning ell = 424.6 - 3974.5)
+EE lxl       (72 bins, bin centres spanning ell = 424.5 - 3974.5)
+--------------------------------------------------------------------------------
+A data model consisting of 4 transformations has been initialised.
+The following transformations will be applied to the theory spectra in this order:
+
+(1) Name: Aberration
+    Type: <class 'candl.transformations.common.AberrationCorrection'>
+(2) Name: TT Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+(3) Name: TE Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+(4) Name: EE Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+--------------------------------------------------------------------------------
+By default, a total of 2 Gaussian priors will be added to the likelihood in candl internally.
+If you are loading the likelihood in sampler wrapper these default priors below will overwritten or replaced according to your selection after initialisation.
+--------------------------------------------------------------------------------
+candl: clearing all internal priors.
+--------------------------------------------------------------------------------
+[2 : mcmc] Getting initial point... (this may take a few seconds)
+Loading ACT DR6 lensing likelihood v1.2...
+Successfully initialised candl likelihood 'SPT-3G D1 TnE, SPTlite (Camphuis et al. 2025, Quan et al. 2025)' (type: <class 'candl.likelihood.Like'>).
+Data loaded from '/home/umangk/anaconda3/envs/pyjulia_cobaya/lib/python3.13/site-packages/spt_candl_data/SPT3G_D1_TnE_v0/lite/'.
+Functional likelihood form: gaussian
+--------------------------------------------------------------------------------
+It will analyse the following spectra:
+
+TT lxl       (52 bins, bin centres spanning ell = 424.7 - 2974.5)
+TE lxl       (72 bins, bin centres spanning ell = 424.6 - 3974.5)
+EE lxl       (72 bins, bin centres spanning ell = 424.5 - 3974.5)
+--------------------------------------------------------------------------------
+A data model consisting of 4 transformations has been initialised.
+The following transformations will be applied to the theory spectra in this order:
+
+(1) Name: Aberration
+    Type: <class 'candl.transformations.common.AberrationCorrection'>
+(2) Name: TT Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+(3) Name: TE Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+(4) Name: EE Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+--------------------------------------------------------------------------------
+By default, a total of 2 Gaussian priors will be added to the likelihood in candl internally.
+If you are loading the likelihood in sampler wrapper these default priors below will overwritten or replaced according to your selection after initialisation.
+--------------------------------------------------------------------------------
+candl: clearing all internal priors.
+--------------------------------------------------------------------------------
+[1 : mcmc] Getting initial point... (this may take a few seconds)
+Loading ACT DR6 lensing likelihood v1.2...
+Successfully initialised candl likelihood 'SPT-3G D1 TnE, SPTlite (Camphuis et al. 2025, Quan et al. 2025)' (type: <class 'candl.likelihood.Like'>).
+Data loaded from '/home/umangk/anaconda3/envs/pyjulia_cobaya/lib/python3.13/site-packages/spt_candl_data/SPT3G_D1_TnE_v0/lite/'.
+Functional likelihood form: gaussian
+--------------------------------------------------------------------------------
+It will analyse the following spectra:
+
+TT lxl       (52 bins, bin centres spanning ell = 424.7 - 2974.5)
+TE lxl       (72 bins, bin centres spanning ell = 424.6 - 3974.5)
+EE lxl       (72 bins, bin centres spanning ell = 424.5 - 3974.5)
+--------------------------------------------------------------------------------
+A data model consisting of 4 transformations has been initialised.
+The following transformations will be applied to the theory spectra in this order:
+
+(1) Name: Aberration
+    Type: <class 'candl.transformations.common.AberrationCorrection'>
+(2) Name: TT Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+(3) Name: TE Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+(4) Name: EE Calibration (External)
+    Type: <class 'candl.transformations.common.CalibrationAuto'>
+--------------------------------------------------------------------------------
+By default, a total of 2 Gaussian priors will be added to the likelihood in candl internally.
+If you are loading the likelihood in sampler wrapper these default priors below will overwritten or replaced according to your selection after initialisation.
+--------------------------------------------------------------------------------
+candl: clearing all internal priors.
+--------------------------------------------------------------------------------
+[3 : mcmc] Getting initial point... (this may take a few seconds)
+[3 : mcmc] Initial point: logphi0:0.5086043, loggst:1.167332, logV0:-12.89376, logQ0:1.094209, Tcal:1, Ecal:1, theta_MC_100:1.041005, ombh2:0.02241578, omch2:0.1212335, tau:0.06295236, A_planck:1.001982, A_act:1.007125, P_act:0.9589697
+[2 : mcmc] Initial point: logphi0:1.013446, loggst:1.291337, logV0:-12.89136, logQ0:0.3504943, Tcal:1, Ecal:1, theta_MC_100:1.041241, ombh2:0.02234914, omch2:0.1191442, tau:0.04917461, A_planck:1.002308, A_act:1.095429, P_act:1.017146
+[0 : mcmc] Initial point: logphi0:0.4004223, loggst:1.281956, logV0:-12.87235, logQ0:1.536207, Tcal:1, Ecal:1, theta_MC_100:1.041602, ombh2:0.02241034, omch2:0.1210347, tau:0.05515704, A_planck:0.9970436, A_act:1.124629, P_act:0.9818337
+[1 : mcmc] Initial point: logphi0:0.3934383, loggst:1.530233, logV0:-12.93022, logQ0:1.512245, Tcal:1, Ecal:1, theta_MC_100:1.040526, ombh2:0.02233564, omch2:0.1184704, tau:0.04922346, A_planck:0.9980792, A_act:1.114541, P_act:0.9950556
+[0 : model] Measuring speeds... (this may take a few seconds)
+[0 : model] Setting measured speeds (per sec): {bao.desi_dr2: 2080.0, planck_2018_lowl.TT: 2720.0, planck_2018_lowl.EE_sroll2: 13300.0, act_dr6_cmbonly.PlanckActCut: 939.0, act_dr6_cmbonly: 899.0, act_dr6_lenslike.ACTDR6LensLike: 37.8, candl_like: 973.0, An_CAMB.FeaturePrimordialPk: 0.00828, camb.transfers: 1.72, camb: 1.97}
+[0 : mcmc] Dragging with number of interpolating steps:
+[0 : mcmc] *  1 : [['logphi0', 'loggst', 'logV0', 'logQ0'], ['theta_MC_100', 'ombh2', 'omch2', 'tau']]
+[0 : mcmc] * 35 : [['A_planck'], ['A_act', 'P_act'], ['Tcal', 'Ecal']]
+[0 : mcmc] Covariance matrix loaded for params ['logphi0', 'loggst', 'logV0', 'logQ0']
+[0 : mcmc] Missing proposal covariance for params ['Tcal', 'Ecal', 'theta_MC_100', 'ombh2', 'omch2', 'tau', 'A_planck', 'A_act', 'P_act']
+[0 : prior] *WARNING* Reference pdf not defined or improper for some parameters. Using prior's sigma instead for them.
+[0 : mcmc] Covariance matrix not complete. We will start learning the covariance of the proposal earlier: R-1 = 30 (would be 2 if all params loaded).
+[0 : mcmc] *WARNING* The initial points are widely dispersed compared to the proposal covariance, it may take a long time to burn in (max dist to start mean: [np.float64(13.06610247077078), np.float64(9.703325331139453), np.float64(4.909176559980466), np.float64(26.102025086758445)])
+[0 : mcmc] Sampling!
+[3 : mcmc] Progress @ 2026-05-07 02:47:40 : 1 steps taken, and 0 accepted.
+[2 : mcmc] Progress @ 2026-05-07 02:48:04 : 1 steps taken, and 0 accepted.
+[0 : mcmc] Progress @ 2026-05-07 02:48:27 : 1 steps taken, and 0 accepted.
+[1 : mcmc] Progress @ 2026-05-07 02:48:57 : 1 steps taken, and 0 accepted.
+[3 : mcmc] Progress @ 2026-05-07 02:50:01 : 3 steps taken, and 0 accepted.
+[2 : mcmc] Progress @ 2026-05-07 02:50:27 : 2 steps taken, and 0 accepted.
+[1 : mcmc] Progress @ 2026-05-07 02:51:09 : 2 steps taken, and 0 accepted.
+[0 : mcmc] Progress @ 2026-05-07 02:51:18 : 3 steps taken, and 0 accepted.
+[2 : mcmc] Progress @ 2026-05-07 02:52:49 : 3 steps taken, and 0 accepted.
+[1 : mcmc] Progress @ 2026-05-07 02:53:41 : 3 steps taken, and 0 accepted.
+[3 : mcmc] Progress @ 2026-05-07 02:53:49 : 7 steps taken, and 2 accepted.
+[2 : mcmc] Progress @ 2026-05-07 02:55:06 : 4 steps taken, and 1 accepted.
+[0 : mcmc] Progress @ 2026-05-07 02:55:15 : 4 steps taken, and 0 accepted.
+[3 : mcmc] Progress @ 2026-05-07 02:55:49 : 9 steps taken, and 2 accepted.
+[1 : mcmc] Progress @ 2026-05-07 02:56:05 : 4 steps taken, and 0 accepted.
+[2 : mcmc] Progress @ 2026-05-07 02:57:20 : 15 steps taken, and 2 accepted.
+[3 : mcmc] Progress @ 2026-05-07 02:57:27 : 13 steps taken, and 2 accepted.
+[1 : mcmc] Progress @ 2026-05-07 02:58:57 : 5 steps taken, and 0 accepted.
+[2 : mcmc] Progress @ 2026-05-07 02:59:28 : 16 steps taken, and 2 accepted.
+[3 : mcmc] Progress @ 2026-05-07 02:59:39 : 14 steps taken, and 2 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:01:19 : 6 steps taken, and 1 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:01:45 : 22 steps taken, and 5 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:03:40 : 18 steps taken, and 2 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:03:48 : 24 steps taken, and 5 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:03:48 : 7 steps taken, and 0 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:04:22 : 12 steps taken, and 3 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:05:43 : 20 steps taken, and 2 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:05:51 : 27 steps taken, and 5 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:07:11 : 14 steps taken, and 4 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:07:50 : 8 steps taken, and 0 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:08:02 : 24 steps taken, and 2 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:08:22 : 28 steps taken, and 5 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:09:33 : 15 steps taken, and 5 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:10:20 : 13 steps taken, and 1 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:10:32 : 31 steps taken, and 5 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:11:53 : 19 steps taken, and 6 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:12:31 : 34 steps taken, and 3 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:12:33 : 33 steps taken, and 5 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:12:35 : 15 steps taken, and 2 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:13:59 : 21 steps taken, and 7 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:14:50 : 36 steps taken, and 4 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:14:55 : 36 steps taken, and 6 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:15:55 : 16 steps taken, and 2 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:16:32 : 22 steps taken, and 7 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:17:05 : 38 steps taken, and 7 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:17:21 : 40 steps taken, and 6 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:18:29 : 18 steps taken, and 3 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:18:52 : 25 steps taken, and 8 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:19:13 : 43 steps taken, and 7 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:20:54 : 20 steps taken, and 4 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:21:10 : 28 steps taken, and 8 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:21:14 : 47 steps taken, and 7 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:22:09 : 42 steps taken, and 6 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:22:51 : 21 steps taken, and 4 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:23:17 : 48 steps taken, and 7 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:23:37 : 31 steps taken, and 9 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:24:37 : 45 steps taken, and 7 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:25:20 : 23 steps taken, and 5 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:25:24 : 50 steps taken, and 7 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:25:47 : 35 steps taken, and 9 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:26:55 : 51 steps taken, and 8 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:27:28 : 52 steps taken, and 7 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:27:30 : 28 steps taken, and 6 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:27:59 : 36 steps taken, and 9 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:29:29 : 53 steps taken, and 7 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:29:50 : 54 steps taken, and 8 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:30:07 : 31 steps taken, and 7 accepted.
+[1 : mcmc] Progress @ 2026-05-07 03:30:46 : 40 steps taken, and 9 accepted.
+[3 : mcmc] Progress @ 2026-05-07 03:31:25 : 56 steps taken, and 8 accepted.
+[2 : mcmc] Progress @ 2026-05-07 03:32:18 : 57 steps taken, and 9 accepted.
+[0 : mcmc] Progress @ 2026-05-07 03:32:22 : 32 steps taken, and 7 accepted.

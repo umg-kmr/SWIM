@@ -21,10 +21,10 @@ fname_ps = "ps.dat"
 #set model parameters (remember to specify the model in model_calc.cpp file):
 
 #fixed parameters:
-V0 = 2.05237e-15
-gst = 538.664
-Q0 = 0.311553
-phi0 = 23.6895
+V0 = 1.38222e-13
+gst = 18.0857
+Q0 = 6.50898
+phi0 = 5.96852
 Np = 1.0
 therm = int(0)
 rad_noise = int(0)

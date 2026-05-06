@@ -25,19 +25,22 @@ extern "C" {
         double php_ini=0.0;
         double T_ini=0.0;
         double Cy=0.0;
+        double M = 5.6e-5;
+        double alph = sqrt(1.0/8.0);
+        double g = 0.47;
 
         //#### Model Definition here ####//
 
         auto V = [V0] (double phi) -> double {
-            return (V0/4.0)*pow(phi,4.0);
+            return 0.5*V0*phi*phi;
         };
 
         auto Vd = [V0] (double phi) -> double {
-            return V0*phi*phi*phi;
+            return V0*phi;
         };
 
         auto Vdd = [V0] (double phi) -> double {
-            return 3.0*V0*phi*phi;
+            return V0;
         };
 
         auto set_php_ini = [Vd,V,phi_ini,&php_ini] (double Q_ini) -> void {
@@ -53,23 +56,25 @@ extern "C" {
         set_T_ini(Q_ini);
 
         /*  Specify your WI dissipation here if not of the form T^p \phi^c  */
-        auto Ups_wo_Cy = [p,c] (double phi,double T) -> double {  //Form of Upsilon without the constant
-            return pow(T,p) * pow(phi,c);
+        auto Ups_wo_Cy = [p,c,M,g,alph] (double phi,double T) -> double {  //Form of Upsilon without the constant
+            double mx = sqrt(((g*g)*(M*M))/2.0 + ((alph*alph)*(T*T)));
+            return exp(-mx/T)*(pow(g,4.0)*(M*M)*(T*T)/( pow(mx,3.0) ) ) * (1.0 + (1.0/(sqrt(2*M_PI)))*pow((mx/T),(3.0/2.0)) );
         };
 
         Cy = 3.0*sqrt(V(phi_ini)/3.0)*Q_ini/Ups_wo_Cy(phi_ini,T_ini);
         
-        auto Ups = [Cy,p,c] (double phi,double T) -> double {
-            return Cy * pow(T,p) * pow(phi,c);
+        auto Ups = [Cy,Ups_wo_Cy] (double phi,double T) -> double {
+            return Cy * Ups_wo_Cy(phi,T);
         };
         
         /*  Define the partial derivatives of Upsilon if not of the form T^p \phi^c  */
-        auto pT_Ups = [Cy,p,c] (double phi, double T) -> double {
-            return p * Cy * pow(T,p-1.0) * pow(phi,c);
+        auto pT_Ups = [p,c,Cy,M,g,alph] (double phi, double T) -> double {
+            return (Cy*pow(g,4.0)*M*M*(8.0*pow(T,4.0)*alph*alph*(-2.0*sqrt(M_PI) - (pow(2.0,0.75)*alph*alph)/sqrt(sqrt(g*g*M*M + 2.0*T*T*alph*alph)/T)) + (pow(2.0,0.25)*pow(g,4.0)*pow(M,4.0)*(sqrt(2.0)*T + 2.0*sqrt(g*g*M*M + 2.0*T*
+            T*alph*alph)))/(T*sqrt(sqrt(g*g*M*M + 2.0*T*T*alph*alph)/T)) + 2.0*g*g*M*M*T*(8.0*sqrt(M_PI)*T - (pow(2.0,0.75)*T*alph*alph)/sqrt(sqrt(g*g*M*M + 2.0*T*T*alph*alph)/T) + 2.0*pow(2.0,0.25)*T*alph*alph*sqrt(sqrt(g*g*M*M + 2.0*T*T*alph*alph)/T) + 2.0*sqrt(2.0*M_PI)*sqrt(g*g*M*M + 2.0*T*T*alph*alph))))/(2.0*exp(sqrt((g*g*M*M)/2.0 + T*T*alph*alph)/T)*sqrt(2.0*M_PI)*T*pow((g*g*M*M + 2.0*T*T*alph*alph),2.5));
         };
 
         auto pph_Ups = [Cy,p,c] (double phi, double T) -> double {
-            return c * Cy * pow(T,p) * pow(phi,c-1.0);
+            return 0.0;
         };
 
         /*

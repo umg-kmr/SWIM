@@ -2,7 +2,7 @@ likelihood:
   stb: import_module('llihood_Observables').logp
 params:
   p:
-    value: 3
+    value: 0
   c:
     value: 0
   therm:
@@ -12,24 +12,25 @@ params:
   logphi0:
     prior:
       dist: norm
-      loc: 1.05206
-      scale: 0.381546
+      loc: 0.811028
+      scale: 0.406772
     ref:
       dist: norm
-      loc: 0.566429
-      scale: 0.1
+      loc: 0.409891
+      scale: 0.3
     latex: \log_{10} \phi_0
   phi0:
     value: 'lambda logphi0: 10**logphi0'
     latex: \phi_0
   loggst:
     prior:
-      min: 0.0
-      max: 3.0
+      dist: norm
+      loc: 1.12074
+      scale: 0.539456
     ref:
       dist: norm
-      loc: 1.46339
-      scale: 0.3
+      loc: 1.27818
+      scale: 0.1
     latex: \log_{10} g_*
   gst:
     value: 'lambda loggst: 10**loggst'
@@ -37,12 +38,12 @@ params:
   logV0:
     prior:
       dist: norm
-      loc: -19.0966
-      scale: 4.52179
+      loc: -12.8248
+      scale: 0.20439
     ref:
       dist: norm
-      loc: -23.7408
-      scale: 1.0
+      loc: -12.8727
+      scale: 0.05
     latex: \log_{10} V_0
   V0:
     value: 'lambda logV0: 10**logV0'
@@ -50,16 +51,16 @@ params:
   logQ0:
     prior:
       dist: norm
-      loc: 0.427263
-      scale: 1.11572
+      loc: 0.667856
+      scale: 0.554455
     ref:
       dist: norm
-      loc: 1.60487
-      scale: 0.3
-    latex: \log_{10} Q_0
+      loc: 1.25058
+      scale: 0.4
+    latex: \log_{10} Q_{0}
   Q0:
     value: 'lambda logQ0: 10**logQ0'
-    latex: Q_0
+    latex: Q_{0}
   Np:
     value: 1.0
     latex: N_P
@@ -68,7 +69,8 @@ sampler:
     drag: false
     oversample_power: 0.4
     proposal_scale: 1.9
+    covmat: Quad_EFT.covmat
     Rminus1_stop: 0.01
     Rminus1_cl_stop: 0.2
     max_tries: 100000d
-output: quartic_T3
+output: Quad_EFT
