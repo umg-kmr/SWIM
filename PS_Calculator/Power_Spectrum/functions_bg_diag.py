@@ -28,3 +28,9 @@ def eH(phi,phip,T):
     return -Hp(phi,phip,T)/H(phi,phip,T)
 def Q(phi,phip,T):
     return Ups(phi,T)/(3*H(phi,phip,T))
+def weff(phi,phip,T):
+    Hi = H(phi,phip,T);
+    Vi = V(phi);
+    p_tot = ((1.0/3.0)*Cr*(T**4)) + (Hi*phip*Hi*phip*0.5) - Vi;
+    rho_tot = (Cr*(T**4)) + (Hi*phip*Hi*phip*0.5) + Vi; 
+    return p_tot/rho_tot;
