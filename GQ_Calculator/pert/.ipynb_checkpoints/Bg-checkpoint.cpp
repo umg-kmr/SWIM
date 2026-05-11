@@ -24,6 +24,7 @@ static thread_local mt19937_64 rngen(clk.now().time_since_epoch().count() ^ rd()
 double Nend = 0.0;
 double GQ_val = 0.0;
 double Q_val = 0.0; //store corresponding Q value
+double ph_crit = 0.0; //Variable to set the critical field value in the case hybrid inflation
 double tend = 100.0; //Upper limit of Bg integration
 double maxiter_bg = 1e8; //Upper limit on the background integration iterations
 double maxiter_dxdN = 1e8;
@@ -38,7 +39,7 @@ struct root_stop  {
 };
 
 //Passing model functions by reference as the background code doesn't modify the original model functions like potential and upsilon.
-void bg_solver (const function<double(double)> &V, const function<double(double)>& Vd,const function<double(double)>& Vdd,const function<double(double,double)>& Ups, const function<double(double,double)>& pT_Ups,const function<double(double,double)>& pph_Ups,double Cr,double Np,double phi_ini,double php_ini, double T_ini,int therm, double kp, double EM_step, int Nrealz, int want_Np_autocalc, int verbose, int rad_noise) {
+void bg_solver (const function<double(double)> &V, const function<double(double)>& Vd,const function<double(double)>& Vdd,const function<double(double,double)>& Ups, const function<double(double,double)>& pT_Ups,const function<double(double,double)>& pph_Ups,double Cr,double Np,double phi_ini,double php_ini, double T_ini,int therm, double kp, double EM_step, int Nrealz, int want_Np_autocalc, int verbose, int rad_noise, int hybrid_inf) {
 
 
     typedef boost::array< double , 3 > state_type; //For boost ode solver, number of differential equations (3)
@@ -116,8 +117,13 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     };
     
     //ODE Observer to view and store results 
-    auto obsv = [eH,&Nl,&phil,&phpl,&Tl] ( const state_type &x ,const double t) -> void {
-        if (eH(x[0],x[1],x[2])>1.0 || Nl.size()>maxiter_bg) { //prevents out of bounds
+    auto obsv = [eH,&Nl,&phil,&phpl,&Tl,&hybrid_inf] ( const state_type &x ,const double t) -> void {
+        //For hybrid inflation
+        if ( (hybrid_inf == 1) && (x[0]<=ph_crit) ) {
+          throw runtime_error("Inflation Ended (Hybrid) - Critical phi value reached");
+        }
+       	
+	if ( (eH(x[0],x[1],x[2])>1.0 || Nl.size()>maxiter_bg) && (hybrid_inf!=1) )  { //prevents out of bounds
           throw runtime_error("Inflation Ended"); //Signals the end of Inflation
         }
         //cout << t << '\t' << x[0] << '\t' << x[1] << '\t' << x[2] <<" eH "<<eH(x[0],x[1],x[2])<< endl;
@@ -227,8 +233,14 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     typedef boost::array< double , 1 > state_type2; //For boost ode solver, number of differential equations (1)
     //dxdN function ode where x = ln(k/kp)
-    auto dxdN = [eH,phiasN,phpasN,TasN] (const state_type2 &x ,state_type2 &dxdt , double t) -> void{
-        dxdt[0] = 1.0-eH(phiasN(t),phpasN(t),TasN(t));
+    auto dxdN = [eH,phiasN,phpasN,TasN,hybrid_inf] (const state_type2 &x ,state_type2 &dxdt , double t) -> void{
+	if (hybrid_inf!=1) {
+            dxdt[0] = 1.0-eH(phiasN(t),phpasN(t),TasN(t));
+	}
+	else if (hybrid_inf==1) {
+	    dxdt[0] = 1.0;
+	}
+
     };
 
     auto obs_back = [&N_back,&x_back] ( const state_type2 &x ,const double t) -> void {
@@ -365,6 +377,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     // cout<<"Qlow: "<<QasN(NasX(xlow))<<endl;
     // cout<<"Qup: "<<QasN(NasX(xup))<<endl;
     // cout<<"Np: "<<Npp<<endl;
+    
     //Analytical Power Spectrum
     auto P = [Nask,phiasN,phpasN,TasN,H,Q,therm] (double k) -> double {
         double NN = Nask(k);
@@ -383,6 +396,33 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         return pow((Hn/(2.0*M_PI*phpn)),2.0) * (distrib + (Tn/Hn)*( 2.0*sqrt(3.0)*M_PI*Qn/sqrt(3+4*M_PI*Qn) ));
     };
     
+    //Uncomment the following function and comment the one above to implement the full analytical power spectrum (eqn. 4.24 arXiv:1302.3544 ), retaining the slow-roll coefficients
+    /* auto P = [Nask,phiasN,phpasN,TasN,H,Q,therm,V,Vd,Vdd,Ups,pph_Ups] (double k) -> double {
+        double NN = Nask(k);
+        double phin = phiasN(NN);
+        double phpn = phpasN(NN);
+        double Tn = TasN(NN);
+        double Hn = H(phin,phpn,Tn);
+        double Qn = Q(phin,phpn,Tn);
+        double distrib = 0.0;
+        double vn = 3.0*(1.0+Qn)/2.0;
+        double nV = Vdd(phin)/V(phin);
+        double bV = pph_Ups(phin,Tn)*Vd(phin)/(Ups(phin,Tn)*V(phin));
+        double alphan = sqrt(vn*vn - 3.0*nV + ( 3.0*bV*Qn/(1.0+Qn) ) );
+        if (therm == 1) {
+            distrib = 1/tanh(Hn/(2*Tn));
+        }
+        else if (therm == 0) {
+            distrib = 1.0;
+        }
+        double t1 = (Hn*Hn*Hn)*Tn/(4.0*(M_PI*M_PI)*(pow((Hn*phpn),2.0)));
+        double t2 = (Hn/Tn)*distrib;
+        //lgamma is used to protect against overflow issues
+        double ta =  2.0*alphan*log(2.0) + lgamma(-1.0 + vn) - lgamma(-0.5 + vn) + 2.0*lgamma(alphan) + lgamma(1.5 - vn + alphan) -lgamma(-0.5 + vn + alphan);
+        double t3 = (3.0*Qn/(2.0*sqrt(M_PI))) * exp(ta) ;
+        return t1*(t3+t2);
+    }; 
+    */
 
     //Perturbations
     auto a = [a0] (double N) -> double {
@@ -651,16 +691,16 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             double kdphp2nq = nq(Upsni2n,Ti2n,ai2n,Hi2n);
             double kdrr2nT = kdphp2nT*(-Hi2n*Hi2n*phpi2n);
 
-            double N3 = Ni+((2.0/3.0)*h);
-            double phi3 = phiasN(N3);
-            double phpi3 = phpasN(N3);
-            double Ti3 = TasN(N3);
-            double Upsni3 = Ups(phi3,Ti3);
-            double Hi3 = H(phi3,phpi3,Ti3);
-            double Hpi3 = Hp(phi3,phpi3,Ti3);
-            double UpsTi3 = pT_Ups(phi3,Ti3);
-            double Upsphi3 = pph_Ups(phi3,Ti3);
-            double ai3 = a(N3);
+            double N3 = N2;
+            double phi3 = phi2;
+            double phpi3 = phpi2;
+            double Ti3 = Ti2;
+            double Upsni3 = Upsni2;
+            double Hi3 = Hi2;
+            double Hpi3 = Hpi2;
+            double UpsTi3 = UpsTi2;
+            double Upsphi3 = Upsphi2;
+            double ai3 = ai2;
             double psi3 = psi0-((1.0/3.0)*h*kpsi1)+(h*kpsi2);
             double dph3 = dph0-((1.0/3.0)*h*kdph1)+(h*kdph2);
             double dqr3 = dqr0-((1.0/3.0)*h*kdqr1)+(h*kdqr2);

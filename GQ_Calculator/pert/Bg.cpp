@@ -691,16 +691,16 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             double kdphp2nq = nq(Upsni2n,Ti2n,ai2n,Hi2n);
             double kdrr2nT = kdphp2nT*(-Hi2n*Hi2n*phpi2n);
 
-            double N3 = Ni+((2.0/3.0)*h);
-            double phi3 = phiasN(N3);
-            double phpi3 = phpasN(N3);
-            double Ti3 = TasN(N3);
-            double Upsni3 = Ups(phi3,Ti3);
-            double Hi3 = H(phi3,phpi3,Ti3);
-            double Hpi3 = Hp(phi3,phpi3,Ti3);
-            double UpsTi3 = pT_Ups(phi3,Ti3);
-            double Upsphi3 = pph_Ups(phi3,Ti3);
-            double ai3 = a(N3);
+            double N3 = N2;
+            double phi3 = phi2;
+            double phpi3 = phpi2;
+            double Ti3 = Ti2;
+            double Upsni3 = Upsni2;
+            double Hi3 = Hi2;
+            double Hpi3 = Hpi2;
+            double UpsTi3 = UpsTi2;
+            double Upsphi3 = Upsphi2;
+            double ai3 = ai2;
             double psi3 = psi0-((1.0/3.0)*h*kpsi1)+(h*kpsi2);
             double dph3 = dph0-((1.0/3.0)*h*kdph1)+(h*kdph2);
             double dqr3 = dqr0-((1.0/3.0)*h*kdqr1)+(h*kdqr2);
