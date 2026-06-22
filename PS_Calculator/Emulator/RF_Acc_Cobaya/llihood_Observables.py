@@ -65,13 +65,15 @@ kmin = np.log10(1e-6) #in log10
 points_k = int(50) #number of points to be calculated between the k values specified 
 Np_autocalc = int(1) # can be set to either 1 (for internal automatic calculation of N_pivot) or 0 (specify an N_pivot value) | in both cases a value for the Np parameter needs to be passed. 
 verbosity = int(0) #can be set to either 1 or 0, when set to 1 the error messages will be printed if encountered any.
+want_FP = int(1) #Enable faster determinisitc (Fokker-Planck) approach
+
 
 #Modify this according to the model_calc.cpp "model" function signature (copy-paste the arguments of "void model" in model_calc.cpp). Nothing else needs to be modified here.
-ffi.cdef("void model (double phi_ini,double gst,double Q_ini,double V0,double Np,int p,int c,int therm,int rad_noise);void set_globals (double kpivot, double Em_h, int N_realizations, double kmax, double kmin, int points_bw_k, int Np_calc, int verbosity);int get_npts ();double* get_klist();double* get_Plist();void clear_P();void clear_k();void write_Bg(const char* fname);extern double PT_kp;",override=True)
+ffi.cdef("void model (double phi_ini,double gst,double Q_ini,double V0,double Np,int p,int c,int therm,int rad_noise);void set_globals (double kpivot, double Em_h, int N_realizations, double kmax, double kmin, int points_bw_k, int Np_calc, int verbosity,int FP_approach);int get_npts ();double* get_klist();double* get_Plist();void clear_P();void clear_k();void write_Bg(const char* fname);extern double PT_kp;",override=True)
 
 
 lib_pert = ffi.dlopen("../../libmodel.so")
-lib_pert.set_globals(kp,em_step,Nrealz,kmax,kmin,points_k,Np_autocalc,verbosity) 
+lib_pert.set_globals(kp,em_step,Nrealz,kmax,kmin,points_k,Np_autocalc,verbosity,want_FP) 
 
 lib_pert.clear_k() 
 lib_pert.clear_P()
@@ -162,40 +164,54 @@ def logp(phi0,gst,Q0,V0,Np,p,c,therm,rad_noise):
     theta_true = np.array([phi0,gst,Q0,V0,Np,p,c,therm,rad_noise],dtype=float)
     theta_rf = np.array([phi0, gst, Q0, V0], dtype=float)
     theta_rf = np.log10(theta_rf)
-
-    # Try RF
-    if rf_trained:
+     
+    # Deterministic branch without RF emulator
+    if want_FP == 1:
+        obs = true_solver_obs(theta_true)
+        if obs is None:
+            return -np.inf
         
+        # Use only first two observables for likelihood
+        model_fin = obs[:len(yobs)]
+    
+        sigma2 = (yerr**2)
+        log_lik = -0.5 * np.sum(np.log(2*np.pi*sigma2)+ ((yobs - model_fin)**2)/sigma2)
+        return log_lik
 
-        preds = np.array([
-        tree.predict(theta_rf.reshape(1, -1))[0]
-        for tree in rf.estimators_
-        ])
-
-        mean_pred = np.mean(preds, axis=0)
-        std_pred  = np.std(preds, axis=0)
-
-        # normalize uncertainty
-        rel_std = std_pred[:len(yobs)] / scale
-        score = np.mean(rel_std)
-
-        rf_std_values.append(score)
+    # Stochastic branch with RF emulator
+    else:
+        # Try RF
+        if rf_trained:
+            
+            preds = np.array([
+            tree.predict(theta_rf.reshape(1, -1))[0]
+            for tree in rf.estimators_
+            ])
     
-        model_fin = mean_pred[:len(yobs)]
+            mean_pred = np.mean(preds, axis=0)
+            std_pred  = np.std(preds, axis=0)
     
-        # RF trust gate
-        if score < rf_uncertainty_tol:
-            if random.random() > forced_true_fraction:
+            # normalize uncertainty
+            rel_std = std_pred[:len(yobs)] / scale
+            score = np.mean(rel_std)
     
-                sigma2 = (yerr**2) + (yerr_solver**2)
-    
-                log_lik = -0.5 * np.sum(np.log(2*np.pi*sigma2) +((yobs - model_fin)**2)/sigma2)
-    
-                if log_lik > best_logL_seen:
-                    pass
-                else:
-                    rf_calls += 1
-                    return log_lik
+            rf_std_values.append(score)
+        
+            model_fin = mean_pred[:len(yobs)]
+        
+            # RF trust gate
+            if score < rf_uncertainty_tol:
+                if random.random() > forced_true_fraction:
+        
+                    sigma2 = (yerr**2) + (yerr_solver**2)
+        
+                    log_lik = -0.5 * np.sum(np.log(2*np.pi*sigma2) +((yobs - model_fin)**2)/sigma2)
+        
+                    if log_lik > best_logL_seen:
+                        pass
+                    else:
+                        rf_calls += 1
+                        return log_lik
 
     # True solver fallback
     solver_calls += 1
