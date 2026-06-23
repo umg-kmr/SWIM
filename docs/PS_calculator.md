@@ -135,7 +135,7 @@ python -u ps_script.py
 
 #### Output Control
 
-- `write_bg` *(bool, default = True)*  
+- `write_bg` *(bool, default: True)*  
   Save background evolution  
 
 - `fname_bg`, `fname_ps`  
@@ -344,7 +344,7 @@ forced_true_fraction = 0.05
   The RF prediction is used if:
 
   $$
-  \frac{\text{RF variance}}{\text{observational variance}} < \text{rf\_uncertainty_tol}
+  \frac{\text{RF variance}}{\text{observational variance}} < \texttt{rf\_uncertainty\_tol}
   $$
 
   - Lower values → more conservative (more true evaluations)  
