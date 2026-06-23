@@ -343,9 +343,7 @@ forced_true_fraction = 0.05
 
   The RF prediction is used if:
 
-  $$
-  \frac{\text{RF variance}}{\text{observational variance}} < \texttt{rf\_uncertainty\_tol}
-  $$
+  $$\frac{\text{RF variance}}{\text{observational variance}} < \text{rf\_uncertainty\_tol}$$
 
   - Lower values → more conservative (more true evaluations)  
   - Higher values → more aggressive RF usage (faster, less accurate)  
