@@ -9,7 +9,7 @@
 project = 'SWIM'
 copyright = '2026, Umang Kumar'
 author = 'Umang Kumar'
-release = '1.2'
+release = '2.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -18,6 +18,7 @@ The main components of SWIM include:
 - **G(Q) correction function calculator**
 - **Semi-analytical power spectrum module**
 - **Full numerical stochastic solver**
+- **Deterministic Fokker--Planck solver (DSWIM)**
 - **Random Forest emulator for accelerated inference**
 
 ---
@@ -195,6 +196,18 @@ Next, run the script to compute the $G(Q)$ correction factor:
 python -u find_GQ.py
 ```
 
+SWIM also includes a deterministic implementation of the perturbation evolution, referred to as **DSWIM** (Deterministic version of SWIM). To enable deterministic mode, set
+
+```python
+want_FP = 1
+```
+
+in `find_GQ.py` before execution. To use the original stochastic implementation, set
+
+```python
+want_FP = 0
+```
+
 After completion, the output will be saved in the file `GQ.dat`. The computed $G(Q)$ can be visualized using the Jupyter notebook:`GQ_Plotting_NB.ipynb`
 
 The notebook also includes utilities to smooth the raw output and save it as `GQ_smooth.dat`.
@@ -307,6 +320,14 @@ Then run the Python script:
 python -u ps_script.py
 ```
 
+To use the deterministic implementation (**DSWIM**) instead of the stochastic solver, set
+
+```python
+want_FP = 1
+```
+
+in `ps_script.py` before execution. To use the original stochastic implementation, set ``want_FP = 0``.
+
 The script generates the following files:
 
 - `bg.dat` — background evolution of $\phi$, $\phi'$, and $T$ as a function of e-folds $N$  
@@ -332,14 +353,13 @@ Remove any existing chains:
 ```bash
 rm -rf chains
 ```
-
 Then run Cobaya:
 
 ```bash
 cobaya-run Input_asns.yaml
 ```
 
-This runs a single MCMC chain and uses a Random Forest Regression (RFR) emulator to accelerate the inference.
+This runs a single MCMC chain and uses a Random Forest Regression RFR) emulator to accelerate the inference.
 
 During the initial phase, the code evaluates the full numerical solver and stores valid samples. Once a sufficient number of points (100) have been accumulated, the emulator is trained and saved as: `rf_model.pkl`
 
@@ -349,6 +369,7 @@ This trained model can then be used to perform parameter inference more efficien
 
 - This module is the most computationally expensive component of SWIM and is best suited for execution on a high-performance computing (HPC) system with multiple CPU threads.  
 - After training, the emulator provides a fast approximation to the full numerical solver in the high-likelihood region of parameter space.
+- **Deterministic mode (DSWIM):** To use the deterministic perturbation solver, set ``want_FP = 1`` in `llihood_Observables.py` before running Cobaya. In this mode, due to the computational efficiency of the deterministic solver, the RFR emulator is bypassed and parameter inference is performed directly using the deterministic implementation.
 
 ---
 
@@ -380,6 +401,7 @@ SWIM/
 ├── PS_Calculator/
 │   ├── Emulator/              # RF emulator based inference
 │   ├── Power_Spectrum/        # Numerical power spectrum calculation
+│   ├── CMB_Const_FP/          # Full CMB parameter inference using the deterministic perturbation solver (DSWIM)
 │   ├── model_calc.cpp         # Model definition
 │   └── Bg.cpp                 # Solver
 
