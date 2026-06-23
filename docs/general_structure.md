@@ -112,7 +112,7 @@ It includes three main sub-directories:
 
 ---
 
-### Power Spectrum
+### Power_Spectrum
 
 This subdirectory contains Python scripts for computing the numerical power spectrum of a WI model, along with Jupyter notebooks for visualizing and analysing the results. The outputs are stored as `.dat` files, including both the primordial power spectrum and the corresponding background evolution. These files can be used for further analysis and for extracting observables such as $A_s$, $n_s$, and $r$. This mode requires the WI model parameters to be known and explicitly specified.
 
@@ -143,11 +143,8 @@ The trained emulator is specific to the Warm Inflation model under consideration
 
 ### CMB_Const_FP
 
-This subdirectory performs direct parameter inference using the deterministic perturbation solver (DSWIM) together with full CMB likelihoods through `Cobaya`.
+This subdirectory contains a direct CMB parameter-inference pipeline based on the deterministic perturbation solver (DSWIM), with the resulting primordial power spectrum supplied as an external input to `CAMB`.
 
-Unlike the emulator-based workflow, this approach does not rely on compressed constraints on inflationary observables or machine-learning surrogates. Instead, the primordial power spectrum is computed deterministically and passed directly to Boltzmann solvers and observational likelihoods.
+This approach provides robust parameter constraints by directly comparing the predicted CMB power spectra with observational likelihoods. Unlike the emulator-based workflow, no emulator training is required, owing to the computational efficiency of the deterministic approach.
 
-```{note}
-This module uses DSWIM by default. Running the corresponding stochastic pipeline for full CMB inference is generally not recommended because of the substantially higher computational cost. Required CMB likelihoods must be installed and configured within Cobaya prior to use.
-```
 ---
