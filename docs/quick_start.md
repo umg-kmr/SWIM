@@ -11,15 +11,18 @@ $$
 
 ## Overview
 
-The typical workflow in SWIM is:
+SWIM provides two complementary workflows:
 
-1. Compute the correction function $G(Q)$  
-2. Perform semi-analytical parameter inference using the computed $G(Q)$
-   
-**or**
+### Semi-Analytical Workflow
 
-1. Bypass the semi-analytical approach and compute the full numerical power spectrum 
-2. Perform parameter inference using full numerical power spectrum accelerated using a RandomForest regression emulator  
+1. Compute $G(Q)$
+2. Perform parameter inference using the semi-analytical primordial power spectrum
+
+### Fully Numerical Workflow
+
+1. Compute the primordial power spectrum using stochastic or deterministic perturbation evolution
+2. Perform parameter inference using either emulator-accelerated (stochastic) or direct likelihood evaluation (deterministic)
+3. Optionally perform full CMB likelihood inference using deterministic framework
 
 ---
 
