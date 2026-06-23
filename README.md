@@ -408,7 +408,7 @@ SWIM/
 │   └── Bg.cpp                 # Solver
 
 ├── compile_SWIM.sh            # Compilation script
-├── arXiv_plots_data/          # Figures and data from paper
+├── Comparison_data/          # Figures and data from paper
 └── README.md
 ```
 
