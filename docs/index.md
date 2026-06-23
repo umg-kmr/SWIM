@@ -9,8 +9,7 @@
 [![arXiv (DSWIM ](https://img.shields.io/badge/arXiv-DSWIM%202606.23518-b31b1b)](https://arxiv.org/abs/2606.23518)[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19831716.svg)](https://doi.org/10.5281/zenodo.19831716)
 
 
-SWIM is a numerical framework for computing the primordial power spectrum of warm inflation models.  
-It combines stochastic and deterministic perturbation solvers, semi-analytical approximations, and fast inference tools within a modular C++/Python architecture.
+SWIM is a numerical framework for computing the primordial power spectrum of warm inflation models. It combines stochastic and deterministic perturbation solvers, semi-analytical approximations, and fast inference tools within a modular C++/Python architecture.
 
 SWIM is intended for both detailed numerical studies of warm inflation dynamics and efficient parameter inference.
 
@@ -31,14 +30,13 @@ SWIM is intended for both detailed numerical studies of warm inflation dynamics 
 ## Module Overview
 
 - **GQ Calculator**  
-  Computes the correction function $G(Q)$ for semi-analytical warm inflation power spectra
+  Computes the warm inflation correction function $G(Q)$ using either stochastic realizations or the deterministic solver (DSWIM). The resulting $G(Q)$ can be used in semi-analytical power-spectrum calculations.
 
 - **SA_PS Calculator**  
   Fast parameter inference using semi-analytical power spectra with precomputed $G(Q)$, integrated with Cobaya and CAMB
 
 - **PS Calculator**  
-  Full stochastic numerical solver for the power spectrum, with optional Random Forest emulator for accelerated parameter inference
-
+  Computes the primordial scalar power spectrum using either the full stochastic perturbation solver or the deterministic DSWIM implementation. Supports direct parameter inference as well as accelerated inference through an optional Random Forest emulator.
 ---
 
 ## Quick Workflow
@@ -103,7 +101,13 @@ The following configuration was used for testing:
 
 ## Citation
 
-If you use SWIM in your work, please cite: [arXiv:2604.24654](https://arxiv.org/abs/2604.24654)
+If you use **SWIM** in your work, please cite: 
+
+[arXiv:2604.24654](https://arxiv.org/abs/2604.24654)
+
+If you use the deterministic perturbation solver (**DSWIM**), please additionally cite:
+
+[arXiv:2606.23518](https://arxiv.org/abs/2606.23518)
 
 ---
 
