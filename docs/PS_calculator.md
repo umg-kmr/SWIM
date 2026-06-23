@@ -112,7 +112,7 @@ python -u ps_script.py
 - `kmin`, `kmax` *(float, default: -6.0, 2.0)*  
   Logarithmic range of $k$ (actual range is $10^{k_{\min}}$ to $10^{k_{\max}}$)
 
-- `points_k` *(int, default = 50)*  
+- `points_k` *(int, default: 50)*  
   Number of $k$ points to sample in the defined $k$-range.
 
     ```{note}
@@ -121,14 +121,14 @@ python -u ps_script.py
     For deterministic calculations (`want_FP = 1`), independent $k$-modes are evolved in parallel. Consequently, substantially larger values of `points_k` can be used with a modest impact on runtime. Values of $\mathcal{O}(10^2$--$10^3)$ are typically practical and may be desirable when constructing high-resolution primordial power spectra.
     ```
 
-- `Np_autocalc` *(int, default = 1)*  
+- `Np_autocalc` *(int, default: 1)*  
   Controls pivot scale exit calculation  
 
   ```{note}
   Automatic computation is recommended unless precise control over the pivot scale is required.
   ```
 
-- `verbosity` *(int, default = 1)*  
+- `verbosity` *(int, default: 1)*  
   Controls logging  
 
 ---
@@ -194,6 +194,8 @@ Plotting_NB.ipynb
 - Computes $r$  
 - Plots background evolution (if enabled)
 
+The same notebook is applicable to both stochastic and deterministic approaches.
+
 ---
 
 #### Power Spectrum Fitting
@@ -245,7 +247,8 @@ This mode must be run with a single chain.
 
 - Computes and fits numerical $P(k)$ → extracts observables  
 - Compares with observational constraints using Gaussian likelihood  
-- Incorporates solver uncertainty into likelihood  
+- Incorporates solver uncertainty into likelihood
+- Supports both stochastic (`want_FP = 0`) and deterministic (`want_FP = 1`) perturbation solvers.
 
 ---
 
@@ -275,7 +278,7 @@ The Random Forest (RF) emulator is trained dynamically during MCMC to approximat
 
 $$\{\text{model parameters}\} \rightarrow \{A_s, n_s, \alpha_s, \beta_s\}$$
 
-This section lists all configurable parameters controlling training, usage, and reliability of the emulator.
+This section lists all configurable parameters controlling training, usage, and reliability of the emulator. Edit the `llihood_Observables.py` script to implement them.
 
 ---
 
@@ -293,7 +296,7 @@ load_previous_rf = False
 
 ---
 
-### Training Schedule
+#### Training Schedule
 
 ```python
 update_frequency = 100
@@ -328,7 +331,7 @@ Sliding window training improves local accuracy near the posterior peak and avoi
 
 ---
 
-### RF Usage Control
+#### RF Usage Control
 
 ```python
 rf_uncertainty_tol = 3.0
@@ -341,7 +344,7 @@ forced_true_fraction = 0.05
   The RF prediction is used if:
 
   $$
-  \frac{\text{RF variance}}{\text{observational variance}} < \text{rf_uncertainty_tol}
+  \frac{\text{RF variance}}{\text{observational variance}} < \text{rf\_uncertainty_tol}
   $$
 
   - Lower values → more conservative (more true evaluations)  
@@ -361,7 +364,7 @@ Higher values improve robustness but increase runtime.
 
 ---
 
-### Numerical Solver Parameters
+#### Numerical Solver Parameters
 
 These must also be set consistently (same as direct PS computation):
 
@@ -374,6 +377,22 @@ kmin = np.log10(1e-6)
 points_k = 50
 Np_autocalc = 1
 verbosity = 0
+```
+
+The emulator framework also supports the deterministic perturbation solver (**DSWIM**) through the parameter
+
+```python
+want_FP = 1
+```
+
+When deterministic mode is enabled, the primordial power spectrum is computed using correlation-matrix evolution rather than stochastic realizations. Owing to the computational efficiency of the deterministic solver, emulator training is bypassed and parameter inference is performed through direct likelihood evaluation.
+
+```{note}
+The Random Forest emulator is used only when `want_FP = 0`. In deterministic mode (`want_FP = 1`), all likelihood evaluations are performed using DSWIM directly.
+```
+
+```{important}
+The emulator-related settings are relevant only when `want_FP = 0`. They are ignored when using the deterministic solver (`want_FP = 1`).
 ```
 ---
 
@@ -428,6 +447,10 @@ forced_true_fraction = 0.1
 This mode is useful for validating emulator performance and running extended analyses (full CMB likelihood).
 ```
 
+```{important}
+The `RF_Only_Cobaya` workflow is intended exclusively for emulator-based inference. When using DSWIM (`want_FP = 1`), `RF_Acc_Cobaya` performs direct likelihood evaluation and bypasses emulator training. As a result, no `rf_model.pkl` file is created and `RF_Only_Cobaya` cannot be used.
+```
+
 ---
 
 ### Limitations
@@ -450,25 +473,53 @@ Full CMB inference can be implemented by adapting the approach in `SA_PS_Calcula
 
 1. Define WI model in `model_calc.cpp`  
 2. (Optional) Run `ps_script.py` to inspect spectrum  
-3. Run RF_Acc_Cobaya to train emulator  
-4. Use RF_Only_Cobaya for fast inference  
-5. Analyze chains using `getdist`  
+3. Choose an inference pipeline:
+   - **Stochastic mode (`want_FP = 0`)**
+     - Run `RF_Acc_Cobaya` to train the emulator and perform parameter inference
+     - Optionally use `RF_Only_Cobaya` for subsequent fast inference using the trained emulator
+   - **Deterministic mode (`want_FP = 1`)**
+     - Run `RF_Acc_Cobaya` to perform direct parameter inference using DSWIM
+4. Analyze chains using `getdist`  
 
 ---
 
 ### Common Pitfalls
 
 - Incorrect function signature  
-- Too few realizations → noisy spectrum  
-- Poor RF training → inaccurate inference  
+- Too few realizations (`Nrealz`) when using the stochastic solver, leading to noisy power spectra
+- Poor RF training or insufficient training samples when using the emulator workflow 
 - Not accounting for solver uncertainty  
-- Using RF_Acc_Cobaya with multiple chains  
+- Using RF_Acc_Cobaya with multiple chains
+- Attempting to use `RF_Only_Cobaya` after running in deterministic mode (`want_FP = 1`), since no emulator is trained 
 
+---
+
+## CMB_Const_FP — Full CMB Inference using DSWIM
+
+This subdirectory contains a direct CMB parameter-inference pipeline based on the deterministic perturbation solver (DSWIM). The primordial power spectrum is computed deterministically and supplied to `CAMB` for comparison with observational likelihoods through `Cobaya`.
+
+The overall workflow, input YAML configuration, likelihood installation, and chain analysis are largely identical to those described for `SA_PS_Calculator/An_CAMB.py`. As with the other submodules of `PS_Calculator`, the warm inflation model is defined in `model_calc.cpp` and inherited automatically by the inference pipeline.
+
+### Key Differences
+
+- Uses the full numerical primordial power spectrum rather than the semi-analytical WI spectrum.
+- Uses deterministic perturbation evolution (`want_FP = 1`) by default.
+- Does not require a precomputed $G(Q)$ correction function.
+- Does not require emulator training.
+
+```{important}
+Before running this module, ensure that the required CMB likelihoods have been installed and configured in Cobaya, as described in `SA_PS_Calculator/An_CAMB.py`.
+```
+
+```{note}
+Although DSWIM enables full CMB inference at a fraction of the cost of the stochastic approach, the semi-analytical pipeline remains the faster alternative. For warm inflation models where $G(Q)$ depends non-trivially on the model parameters, however, direct deterministic inference is generally the preferred approach. We therefore recommend running this module on HPC systems with multiple CPU threads.
+```
 ---
 
 ## Summary
 
-- Computes full numerical WI power spectrum  
+- Computes full numerical WI power spectrum
 - Most accurate but computationally expensive  
-- Emulator enables efficient inference  
+- Emulator enables efficient inference
+- DSWIM provides alternative efficient and accurate approach 
 - Modular design 
