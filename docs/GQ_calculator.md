@@ -359,7 +359,7 @@ These must be kept consistent.
   Controls logging output (0 = silent).
 
 ```{note}
-The number of CPU threads used to parallelize over independent stochastic realizations is controlled by the environment variable `OMP_NUM_THREADS`. By default, all available threads are used. Set this environment variable to limit the threads used by the `GQ_Calculator`.
+The number of CPU threads used to parallelize over independent stochastic realizations is controlled by the environment variable `OMP_NUM_THREADS`. By default, all available threads are used. Set this environment variable to limit the threads used by the stochsatic solver mode of `GQ_Calculator`.
 
 For the stochastic solver (`want_FP = 0`), parallelization is performed over independent stochastic realizations. The runtime scales approximately inversely with the number of threads (up to hardware limits).
 

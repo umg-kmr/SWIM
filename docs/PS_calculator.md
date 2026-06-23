@@ -1,6 +1,6 @@
 # `PS` Calculator
 
-This module computes the full Warm Inflation (WI) primordial power spectrum numerically using a stochastic approach. It also provides a framework for parameter inference using a Random Forest Regression (RFR) emulator.
+This module computes the full Warm Inflation (WI) primordial power spectrum numerically using either stochastic perturbation evolution or the deterministic perturbation solver (DSWIM). It also provides parameter-inference pipelines ranging from emulator-accelerated analyses to direct full CMB likelihood constraints.
 
 This is the most complete and physically accurate module in SWIM, as it does not rely on semi-analytical approximations and other modules of SWIM.
 
@@ -16,29 +16,36 @@ PS_Calculator/
 │   ├── ps_script.py
 │   ├── functions_bg_diag.py
 │   └── Plotting_NB.ipynb
-└── Emulator/
+├── Emulator/
     ├── RF_Acc_Cobaya/
     └── RF_Only_Cobaya/
+└── CMB_Const_FP/
+    ├── An_CAMB.py
+    └── Input.yaml
 ```
 
 ---
 
 ## Overview
 
-This module has two main components:
+This module has three main components:
 
 1. **Direct Numerical Power Spectrum**
    - Computes $P_{\mathcal{R}}(k)$ for a given WI model and parameters  
 
 2. **Emulator-Based Parameter Inference**
    - Uses the numerical solver to perform parameter inference  
-   - Accelerates computation using a Random Forest surrogate  
+   - Supports both Random Forest emulator–accelerated inference and direct deterministic (DSWIM) likelihood evaluation
+         
+3. **Direct CMB Parameter Inference (DSWIM)**
+   - Computes the primordial power spectrum deterministically
+   - Performs parameter inference through direct comparison of the resulting CMB power spectra with full observational likelihoods
 
 ---
 
 ## Direct Numerical Power Spectrum
 
-This component computes the full numerical power spectrum for a given WI model.
+This component computes the full numerical primordial power spectrum for a given WI model using either stochastic realizations or deterministic correlation-matrix evolution.
 
 ---
 
@@ -82,22 +89,37 @@ python -u ps_script.py
 
 ### Input Parameters (`ps_script.py`)
 
+#### Solver Selection
+
+- `want_FP` *(int: 0 or 1, default: 1)*
+
+  Selects the perturbation solver:
+
+  - `0` → stochastic perturbation evolution (default SWIM solver)
+  - `1` → deterministic perturbation evolution (DSWIM)
+
 #### Numerical Controls
 
-- `kp` *(float, default = 0.05)*  
+- `kp` *(float, default: 0.05)*  
   Pivot scale in $\mathrm{Mpc}^{-1}$
 
-- `em_step` *(float, default = 1e-5)*  
+- `em_step` *(float, default: 1e-5)*  
   Minimum step size used for SDE solver
 
-- `Nrealz` *(int, default = 2048)*  
-  Number of stochastic realizations  
+- `Nrealz` *(int, default: 2048)*  
+  Number of stochastic realizations. Ignored when `want_FP = 1`  
 
-- `kmin`, `kmax` *(float, default = -6.0, 2.0)*  
+- `kmin`, `kmax` *(float, default: -6.0, 2.0)*  
   Logarithmic range of $k$ (actual range is $10^{k_{\min}}$ to $10^{k_{\max}}$)
 
 - `points_k` *(int, default = 50)*  
-  Number of $k$ points to sample in the defined $k$-range 
+  Number of $k$ points to sample in the defined $k$-range.
+
+    ```{note}
+    For stochastic calculations, increasing `points_k` increases the total runtime approximately linearly, since each $k$-mode requires averaging over many realizations.
+
+    For deterministic calculations (`want_FP = 1`), independent $k$-modes are evolved in parallel. Consequently, substantially larger values of `points_k` can be used with a modest impact on runtime. Values of $\mathcal{O}(10^2$--$10^3)$ are typically practical and may be desirable when constructing high-resolution primordial power spectra.
+    ```
 
 - `Np_autocalc` *(int, default = 1)*  
   Controls pivot scale exit calculation  
