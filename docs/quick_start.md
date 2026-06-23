@@ -11,7 +11,7 @@ $$
 
 ## Overview
 
-SWIM provides two complementary workflows:
+SWIM supports multiple workflows for studying and constraining Warm Inflation models, depending on the desired balance between computational cost and physical accuracy.
 
 ### Semi-Analytical Workflow
 
