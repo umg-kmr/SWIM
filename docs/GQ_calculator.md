@@ -441,7 +441,7 @@ If no valid initial condition is found, the code may still write incorrect value
 
 The function value corresponds to:
 
-$$N_{\mathrm{end}} - \mathrm{dur\_N}$$
+$$N_{\mathrm{end}} - \texttt{dur\_N}$$
 
 Typical acceptable values are $\sim 10^{-3}$ or smaller. Significant deviation from zero indicates that the desired inflation duration was not achieved.
 ```
