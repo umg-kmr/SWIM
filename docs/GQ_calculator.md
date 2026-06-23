@@ -1,13 +1,13 @@
 # `GQ` Calculator
 
-This module computes the correction function $G(Q)$ for a given Warm Inflation (WI) model by solving the background and perturbation equations numerically.
+This module computes the correction function $G(Q)$ for a given Warm Inflation (WI) model by solving the background and perturbation equations numerically. Both stochastic and deterministic (DSWIM) perturbation solvers are available.
 
 It is organized into two main components `bg` and `pert` with helper Python scripts:
 
 ```
 GQ_Calculator/
 ├── bg/                # Background evolution
-├── pert/              # Perturbations + power spectrum
+├── pert/              # Perturbations + power spectrum (stochastic/deterministic)
 ├── find_ICs.py        # Initial condition finder
 ├── find_GQ.py         # Computes G(Q)
 └── GQ_Plotting_NB.ipynb  # Plotting and Smoothing G(Q)
@@ -23,7 +23,7 @@ The computation proceeds in two stages:
    Determines the field value $\phi_{\text{initial}}$ corresponding to a given $Q_{\text{initial}}$ such that a desired duration of inflation is obtained.
 
 2. **$G(Q)$ computation (`find_GQ.py`)**  
-   Uses these initial conditions to solve the background as well as perturbation equations and computes:
+   Uses these initial conditions to solve the background and perturbation equations using either the stochastic or deterministic solver and computes:
 
 $$G(Q_*) = \left.\frac{P_{\mathrm{numerical}}}{P_{\mathrm{analytical}}}\right|_{Q = Q_*}$$
 
@@ -337,10 +337,20 @@ These must be kept consistent.
 
 ---
 
+### Solver Options
+
+- `want_FP` *(int: 0 or 1, default: 1)*
+  
+  Selects the perturbation solver:
+  
+  - `0` → stochastic perturbation evolution (default SWIM solver)
+  - `1` → Fokker-Planck based deterministic evolution (DSWIM)
+
+  
 ### Numerical Controls
 
 - `Nrealz` *(int, default: 2048)*  
-  Number of stochastic realizations used for averaging.
+  Number of stochastic realizations used for averaging. This parameter is ignored when `want_FP = 1`.
 
 - `Nstar` *(float, default: 7)*  
   E-fold at which the power spectrum is evaluated. Set it such that enough e-folds are available for the mode to initialize and freeze.
@@ -390,7 +400,8 @@ For each $(\phi_\text{initial}, Q_\text{initial})$:
 
 - Background evolution is solved
 - Analytical power spectrum is computed
-- Stochastic perturbation equations are solved and numerical power spectrum obtained after averaging
+- Perturbation equations are solved using either the stochastic or deterministic solver
+- The numerical power spectrum is computed
 - The ratio gives $G(Q)$
 
 ---
@@ -409,6 +420,11 @@ The analytical power spectrum is always computed inside the `pert` module.
 ## Smoothing
 
 Smoothing of $G(Q)$ is performed in `GQ_Plotting_NB.ipynb` using 1-D splines with knots.
+
+
+```{note}
+Smoothing is not required if $G(Q)$ was computed using the deterministic approach (DSWIM) i.e. `want_FP = 1`.
+```
 
 ---
 
@@ -435,7 +451,7 @@ Typical acceptable values are $\sim 10^{-3}$ or smaller. Significant deviation f
 - Define your WI model in `model_calc.cpp`  
 - Ensure consistent function signatures across C++ and Python  
 - Use `find_ICs.py` → compute initial conditions  
-- Use `find_GQ.py` → compute $G(Q)$  
+- Use `find_GQ.py` → compute $G(Q)$ using stochastic or deterministic perturbation evolution  
 - Validate and smooth results  
 
 This module provides a flexible and powerful framework for computing $G(Q)$ for a wide range of Warm Inflation models.
