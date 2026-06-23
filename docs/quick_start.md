@@ -49,6 +49,14 @@ Then compute $G(Q)$:
 python -u find_GQ.py
 ```
 
+**Deterministic mode (DSWIM):** To compute $G(Q)$ using the deterministic perturbation solver, set
+
+```python
+want_FP = 1
+```
+
+in `find_GQ.py` before execution. In this mode, the perturbation correlation matrix is evolved deterministically using the Fokker--Planck formalism. The default stochastic implementation is recovered by setting `want_FP = 0`.
+
 Outputs:
 - `ics.dat` — initial conditions  
 - `GQ.dat` — raw $G(Q)$  
@@ -99,7 +107,7 @@ Make sure to set the `packages_path:` in `Input.yaml` to the location of your Co
 
 ## 3. Numerical Power Spectrum
 
-Compute the full numerica WI power spectrum:
+Compute the full numerical WI power spectrum:
 
 ```bash
 cd ../PS_Calculator/Power_Spectrum
@@ -123,6 +131,14 @@ Run:
 python -u ps_script.py
 ```
 
+**Deterministic mode (DSWIM):** To use the deterministic perturbation solver, set
+
+```python
+want_FP = 1
+```
+
+in `ps_script.py` before execution. 
+
 Outputs:
 - `bg.dat` — background evolution  
 - `ps.dat` — power spectrum  
@@ -143,7 +159,7 @@ cd ../../Emulator/RF_Acc_Cobaya
 Remove previous chains:
 
 ```bash
-rm -rf chains
+rm -rf chains*
 ```
 
 Run:
@@ -158,14 +174,56 @@ After ~100 valid samples, the emulator is trained and saved as: `rf_model.pkl`
 The emulator is trained only for the chosen WI model. Any change in the model or perturbation settings requires retraining.
 ```
 
+**Deterministic mode (DSWIM):** To use the deterministic perturbation solver, set
+
+```python
+want_FP = 1
+```
+
+in `llihood_Observables.py` before running Cobaya. Owing to the computational efficiency of the deterministic solver, parameter inference is performed directly and the Random Forest emulator is bypassed.
+
+---
+
+## 5. CMB Inference using DSWIM
+
+Full CMB parameter inference using the deterministic perturbation solver:
+
+```bash
+cd ../../PS_Calculator/CMB_Const_FP
+```
+
+Remove previous chains:
+
+```bash
+rm -rf chains*
+```
+
+Run Cobaya (example with 8 chains):
+
+```bash
+mpirun -n 8 cobaya-run Input_asns.yaml
+```
+
+```{note}
+When running multiple chains, limit CPU usage per chain:
+
+    export OMP_NUM_THREADS=$(( $(nproc --all) / 8 ))
+```
+
+This module uses the deterministic perturbation solver (**DSWIM**) by default. Although the stochastic solver can also be used, it is generally not recommended for parameter inference owing to its significantly higher computational cost. This module performs direct likelihood evaluation using the full CMB angular power spectra and corresponding observational likelihoods.
+
+Before running this module, ensure that all required CMB likelihoods have been installed and configured in Cobaya.
+
+
 ---
 
 ## Summary
 
-- Use **GQ module** → compute correction factor  
+- Use **GQ module** → computes correction factor using stochastic or deterministic perturbation evolution 
 - Use **SA module** → fast semi-analytical inference  
-- Use **PS module** → full numerical spectrum  
-- Use **PS module - Emulator** → efficient parameter inference using numerical power spectrum  
+- Use **PS module - Power_Spectrum** → full numerical spectrum using stochastic or deterministic approaches 
+- Use **PS module - Emulator** → efficient parameter inference using numerical power spectrum (stochastic/deterministic) 
+- Use **PS module - CMB_Const_FP** → full CMB likelihood parameter inference using DSWIM (no emulator) 
 
 ---
 
