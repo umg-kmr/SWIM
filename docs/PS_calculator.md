@@ -69,6 +69,10 @@ As in the GQ module, define:
 Any modification to `model_calc.cpp` requires recompilation.
 ```
 
+```{note}
+For a detailed guide on implementing WI models, including custom dissipation coefficients, refer to the `GQ_Calculator` documentation.
+```
+
 ---
 
 ### Running the Solver

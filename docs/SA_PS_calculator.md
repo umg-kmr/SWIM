@@ -57,6 +57,10 @@ If the dissipation coefficient is of the form $\Upsilon \propto T^p \phi^c$, it 
 Any modification to `model_calc.cpp` requires recompilation.
 ```
 
+```{note}
+For a detailed guide on implementing WI models, refer to the `GQ_Calculator` documentation. It includes step-by-step instructions for modifying `model_calc.cpp`, implementing custom inflationary potentials and dissipation coefficients, updating the corresponding Python function signatures, updating the C++ functions, and configuring model parameters in the Python scripts.
+```
+
 ---
 
 ## Role of Core Files
