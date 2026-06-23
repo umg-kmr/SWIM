@@ -2,7 +2,7 @@
 
 SWIM is designed with a hybrid architecture that combines the computational efficiency of C++ with the flexibility and ease of use of Python.
 
-The computationally intensive components—such as background evolution and stochastic perturbation dynamics—are implemented in C++, while Python provides a lightweight interface for running pipelines, managing data, and performing analysis.
+The computationally intensive components—such as background evolution, stochastic perturbation dynamics, and deterministic perturbation evolution—are implemented in C++, while Python provides a lightweight interface for running pipelines, managing data, and performing analysis.
 
 ---
 
@@ -39,6 +39,7 @@ The end of different phases is determined using:
 
 The stochastic evolution of perturbations is implemented using a custom scheme:
 
+- **Formalism**: Stochastic--Langevin
 - **Method**: RI1W1 scheme (Rößler) for Itô stochastic differential equations  
 - **Step-size**: Controlled via an internal empirical prescription (neither fixed nor fully adaptive)  
 - **Noise**: Gaussian with zero mean, scaled with the e-fold step  
@@ -47,14 +48,28 @@ The curvature perturbation is obtained by averaging over multiple stochastic rea
 
 ---
 
+### Deterministic Solver (DSWIM)
+
+In addition to the stochastic solver, SWIM includes a deterministic perturbation solver (**DSWIM**) based on correlation-matrix evolution.
+
+- **Formalism**: Fokker--Planck / correlation-matrix evolution
+- **Variables evolved**: Full $5\times5$ perturbation correlation matrix
+- **Method**: Runge–Kutta–Fehlberg 7(8) (`runge_kutta_fehlberg78`)
+- **Step-size**: Fully adaptive, controlled by Boost ODEInt
+- **Scaling**: Hubble parameter based scaling transformation to improve numerical conditioning and numerical stability
+
+Rather than averaging over many stochastic realizations, DSWIM evolves the statistical moments of the perturbation system directly. The primordial power spectrum is then obtained using the evolved correlation matrix.
+
+---
+
 ### Parallelization
 
-Parallelization is implemented using **OpenMP**:
+Parallelization is implemented using **OpenMP**, with the strategy depending on the perturbation solver being used:
 
-- Independent stochastic realizations are computed in parallel  
-- The final power spectrum is obtained by averaging over these realizations  
+- **Stochastic solver:** Independent stochastic realizations for a given wavenumber $k$ are computed in parallel. The final power spectrum is obtained by averaging over these realizations.
+- **Deterministic solver (DSWIM):** Independent wavenumbers are computed in parallel. Since each $k$-mode evolves independently, the computation of the primordial power spectrum at each $k$ can be distributed efficiently across multiple CPU cores.
 
-For parameter inference, parallelization across chains is handled externally via `Cobaya` using MPI.
+For parameter inference, parallelization across Markov chains is handled externally via `Cobaya` using MPI.
 
 ---
 
