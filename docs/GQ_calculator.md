@@ -361,7 +361,9 @@ These must be kept consistent.
 ```{note}
 The number of CPU threads used to parallelize over independent stochastic realizations is controlled by the environment variable `OMP_NUM_THREADS`. By default, all available threads are used. Set this environment variable to limit the threads used by the `GQ_Calculator`.
 
-The runtime scales approximately inversely with the number of threads (up to hardware limits), since realizations are computed independently. 
+For the stochastic solver (`want_FP = 0`), parallelization is performed over independent stochastic realizations. The runtime scales approximately inversely with the number of threads (up to hardware limits).
+
+For the deterministic solver (`want_FP = 1`), no realization averaging is required and the computation is performed serially.
 ```
 
 ---
@@ -439,7 +441,7 @@ If no valid initial condition is found, the code may still write incorrect value
 
 The function value corresponds to:
 
-$$N_{\mathrm{end}} - \texttt{dur_N}$$
+$$N_{\mathrm{end}} - \mathrm{dur\_N}$$
 
 Typical acceptable values are $\sim 10^{-3}$ or smaller. Significant deviation from zero indicates that the desired inflation duration was not achieved.
 ```
