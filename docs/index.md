@@ -5,12 +5,12 @@
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Docker-lightgrey)
 ![Language](https://img.shields.io/badge/language-C++%20%26%20Python-blue)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/umg-kmr/SWIM) 
-[![arXiv](https://img.shields.io/badge/arXiv-2604.24654-b31b1b.svg)](https://arxiv.org/abs/2604.24654)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19831716.svg)](https://doi.org/10.5281/zenodo.19831716)
+[![arXiv (SWIM)](https://img.shields.io/badge/arXiv-SWIM%202604.24654-b31b1b)](https://arxiv.org/abs/2604.24654)
+[![arXiv (DSWIM ](https://img.shields.io/badge/arXiv-DSWIM%202606.23518-b31b1b)](https://arxiv.org/abs/2606.23518)[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19831716.svg)](https://doi.org/10.5281/zenodo.19831716)
 
 
-SWIM is a numerical framework for computing the primordial power spectrum in warm inflation models.  
-It combines a full stochastic solver, semi-analytical approximations, and fast inference tools within a modular C++/Python architecture.
+SWIM is a numerical framework for computing the primordial power spectrum of warm inflation models.  
+It combines stochastic and deterministic perturbation solvers, semi-analytical approximations, and fast inference tools within a modular C++/Python architecture.
 
 SWIM is intended for both detailed numerical studies of warm inflation dynamics and efficient parameter inference.
 
@@ -19,8 +19,10 @@ SWIM is intended for both detailed numerical studies of warm inflation dynamics 
 ## Key Features
 
 - Full stochastic warm inflation solver (background + perturbations)
+- Deterministic perturbation solver (DSWIM) based on Fokker-Planck approach
 - Semi-analytical power spectrum using the $G(Q)$ correction function
 - Random Forest emulator for accelerated parameter inference
+- Direct deterministic parameter inference using DSWIM
 - Integration with Cobaya and CAMB for cosmological analysis
 - Parallelized implementation (OpenMP for realizations, MPI via Cobaya)
 
