@@ -204,7 +204,7 @@ likelihood:
 params:
   p:
     derived: false
-    value: 0
+    value: 3
   c:
     derived: false
     value: 0
@@ -217,12 +217,12 @@ params:
   logphi0:
     prior:
       dist: norm
-      loc: 0.811028
-      scale: 0.406772
+      loc: 1.05206
+      scale: 0.381546
     ref:
       dist: norm
-      loc: 0.409891
-      scale: 0.3
+      loc: 0.566429
+      scale: 0.1
     latex: \log_{10} \phi_0
   phi0:
     derived: true
@@ -230,13 +230,12 @@ params:
     latex: \phi_0
   loggst:
     prior:
-      dist: norm
-      loc: 1.12074
-      scale: 0.539456
+      min: 0.0
+      max: 3.0
     ref:
       dist: norm
-      loc: 1.27818
-      scale: 0.1
+      loc: 1.46339
+      scale: 0.3
     latex: \log_{10} g_*
   gst:
     derived: true
@@ -245,12 +244,12 @@ params:
   logV0:
     prior:
       dist: norm
-      loc: -12.8248
-      scale: 0.20439
+      loc: -19.0966
+      scale: 4.52179
     ref:
       dist: norm
-      loc: -12.8727
-      scale: 0.05
+      loc: -23.7408
+      scale: 1.0
     latex: \log_{10} V_0
   V0:
     derived: true
@@ -259,13 +258,13 @@ params:
   logQ0:
     prior:
       dist: norm
-      loc: 0.667856
-      scale: 0.554455
+      loc: 0.427263
+      scale: 1.11572
     ref:
       dist: norm
-      loc: 1.25058
-      scale: 0.4
-    latex: \log_{10} Q_{0}
+      loc: 1.60487
+      scale: 0.3
+    latex: \log_{10} Q_0
   Q0:
     derived: true
     value: 'lambda logQ0: 10**logQ0'
@@ -347,8 +346,8 @@ params:
     latex: Y_\mathrm{P}
     derived: true
     renames:
-    - yheused
     - yhe
+    - yheused
   Y_p:
     latex: Y_P^\mathrm{BBN}
     derived: true
@@ -430,7 +429,7 @@ sampler:
   mcmc:
     burn_in: 0
     max_tries: 100000d
-    covmat: quad_EFT_FP.covmat
+    covmat: null
     covmat_params: null
     proposal_scale: 1.9
     output_every: 60s
@@ -460,14 +459,14 @@ sampler:
         - ombh2
         - omch2
         - tau
-    - - 56
+    - - 15
       - - A_planck
-    - - 56
-      - - A_act
-        - P_act
-    - - 56
+    - - 15
       - - Tcal
         - Ecal
+    - - 15
+      - - A_act
+        - P_act
     callback_function: null
     callback_every: null
     seed: null

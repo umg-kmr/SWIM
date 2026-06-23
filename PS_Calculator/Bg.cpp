@@ -642,7 +642,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     
         //ODE solver
         auto SolveODE_dQm = [func_mtrxQ,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H] () -> state_type_Q {
-            auto stepper = make_controlled( 1e-14 , 1e-12 , runge_kutta_fehlberg78 < state_type_Q >() );
+            auto stepper = make_controlled( 1e-10 , 1e-8 , runge_kutta_fehlberg78 < state_type_Q >() );
 
             //Integration limits
             Ni_Ne nn = Calc_Ni_Ne(k);
@@ -657,7 +657,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             double Ti = TasN(Ni);
             double Hi = H(phii,phpi,Ti);
 
-            integrate_adaptive( stepper ,func_mtrxQ , Qflat , Ni , Ne, 1e-6 );
+            integrate_adaptive( stepper ,func_mtrxQ , Qflat , Ni , Ne, 1e-3 );
             
             return Qflat;
         };
