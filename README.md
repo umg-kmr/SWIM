@@ -314,12 +314,6 @@ rm bg.dat ps.dat PT_kp.dat
 export OMP_NUM_THREADS=$(nproc --all)
 ```
 
-Then run the Python script:
-
-```bash
-python -u ps_script.py
-```
-
 To use the deterministic implementation (**DSWIM**) instead of the stochastic solver, set
 
 ```python
@@ -327,6 +321,12 @@ want_FP = 1
 ```
 
 in `ps_script.py` before execution. To use the original stochastic implementation, set ``want_FP = 0``.
+
+Then run the Python script:
+
+```bash
+python -u ps_script.py
+```
 
 The script generates the following files:
 
