@@ -360,7 +360,7 @@ Make sure to set the `packages_path:` in `Input.yaml` to the location of your Co
 ## Common Pitfalls
 
 - Using incorrect or inconsistent $G(Q)$  
-- Not smoothing $G(Q)$ computed by stochasticSWIM (can introduce noise in inference). For $G(Q)$ computed using DSWIM, smoothing is not required.  
+- Not smoothing $G(Q)$ computed by stochastic SWIM (can introduce noise in inference). For $G(Q)$ computed using deterministic DSWIM, smoothing is not required.  
 - Insufficient $Q$ range in $G(Q)$ data  
 - Function signature mismatch between C++ and Python  
 - CAMB overusing threads in multi-chain runs  
