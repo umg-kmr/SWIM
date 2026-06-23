@@ -12,7 +12,7 @@ These modules can be used independently or combined within a workflow, depending
 
 ## Overview
 
-- The **$G(Q)$ calculator module** computes the correction factor that enters the semi-analytical power spectrum in Warm Inflation.  
+- The **$G(Q)$ calculator module** computes the correction factor that enters the semi-analytical power spectrum in Warm Inflation.
 - The **semi-analytical module** uses this function to efficiently evaluate the power spectrum and perform parameter inference via `Cobaya`.  
 - The **numerical module** computes the full primordial power spectrum directly and also provides emulator-based acceleration for parameter inference via `Cobaya`.   
 
@@ -20,7 +20,7 @@ These modules can be used independently or combined within a workflow, depending
 
 ## $G(Q)$ Calculator
 
-The correction function $G(Q)$ accounts for the effect of the coupling between inflaton and radiation fluctuations on the primordial power spectrum in Warm Inflation. It is obtained by numerically solving the full-set of perturbation equations.
+The correction function $G(Q)$ accounts for the effect of the coupling between inflaton and radiation fluctuations on the primordial power spectrum in Warm Inflation. It is obtained by numerically evolving the perturbation system and can be computed using either stochastic realizations or the deterministic approach using DSWIM solver.
 
 This module is conceptually similar to existing tools such as [WI2Easy](https://github.com/RudneiRamos/WI2easy) and [WarmSpy](https://github.com/GabrieleMonte/WarmSPy).
 
@@ -87,13 +87,14 @@ It includes example configuration files for use with `Cobaya`.
 
 ## Numerical Power Spectrum Calculator
 
-This module directly computes the WI primordial power spectrum $P_{\mathcal{R}}(k)$ by solving the full set of stochastic perturbation equations. It can be used independently of the other modules of SWIM.
+This module directly computes the WI primordial power spectrum $P_{\mathcal{R}}(k)$ by solving the full perturbation system using either stochastic realizations or the deterministic DSWIM solver. It can be used independently of the other modules of SWIM.
 
 Key features:
 
-- Full stochastic-Langevin evolution of perturbations  
+- Full stochastic and deterministic evolution of perturbations
 - Direct computation of $P_{\mathcal{R}}(k)$ as a function of $k$  
-- No reliance on the $G(Q)$ approximation  
+- No reliance on the $G(Q)$ approximation
+- Optional emulator-based acceleration for parameter inference
 
 ### Structure
 
@@ -103,7 +104,11 @@ This module is implemented in:
 PS_Calculator/
 ```
 
-It includes two sub-directories- 1) `Power_Spectrum` and 2) `Emulator`
+It includes three main sub-directories:
+
+1. `Power_Spectrum`
+2. `Emulator`
+3. `CMB_Const_FP`
 
 ---
 
@@ -124,6 +129,11 @@ The `Emulator` subdirectory is organized into two components:
 1. **`RF_Acc_Cobaya`**  
    Performs parameter inference using `Cobaya` with the full numerical solver. During the run, the RFR emulator is trained on-the-fly and progressively replaces calls to the computationally expensive numerical solver.
 
+   ```{note}
+    Enabling the deterministic mode (**DSWIM**) bypasses the RFR emulator. In this case, parameter inference is performed directly using the deterministic perturbation solver rather than the emulator-accelerated workflow.
+    
+    ```
+
 2. **`RF_Only_Cobaya`**  
    Performs parameter inference using the pre-trained emulator. This mode is highly efficient and is suitable for more detailed or extended analyses once the emulator has been trained.
 
@@ -131,4 +141,13 @@ The `Emulator` subdirectory is organized into two components:
 The trained emulator is specific to the Warm Inflation model under consideration. Any change in the model, including modifications to the perturbation setup (e.g., thermalization assumptions or radiation noise), requires retraining the emulator.
 ```
 
+### CMB_Const_FP
+
+This subdirectory performs direct parameter inference using the deterministic perturbation solver (DSWIM) together with full CMB likelihoods through `Cobaya`.
+
+Unlike the emulator-based workflow, this approach does not rely on compressed constraints on inflationary observables or machine-learning surrogates. Instead, the primordial power spectrum is computed deterministically and passed directly to Boltzmann solvers and observational likelihoods.
+
+```{note}
+This module uses DSWIM by default. Running the corresponding stochastic pipeline for full CMB inference is generally not recommended because of the substantially higher computational cost. Required CMB likelihoods must be installed and configured within Cobaya prior to use.
+```
 ---
