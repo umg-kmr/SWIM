@@ -1159,7 +1159,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
         cdouble R_sol = ( (HNe/(rhotot+ptot)) * ( -(HNe*phpNe*dphr) + dqrr) ) - psir;
 
-        return sqrt(norm(R_sol));
+        return norm(R_sol);
     };
 
 
@@ -1170,7 +1170,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         #pragma omp parallel for reduction(+:sum_R2)
         for (int i = 0; i < Nrealz; i++) {
             R1 = R(k);
-            sum_R2 = sum_R2 + (R1*R1);
+            sum_R2 = sum_R2 + R1;
         }
         double Rmean = sum_R2/Nrealz;
         double Rh2 = 0.0;
