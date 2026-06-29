@@ -12,9 +12,11 @@
 #include <chrono> // Include for time-based seeding
 #include <omp.h>  //For parallel processing
 #include <unistd.h> // For getpid()
+#include <complex>
 
 using namespace std;
 using namespace boost::numeric::odeint;
+using cdouble = complex<double>;
 
 //generating random seeds using random device
 chrono::high_resolution_clock clk;
@@ -49,7 +51,7 @@ struct root_stop  {
 };
 
 //Passing model functions by reference as the background code doesn't modify the original model functions like potential and upsilon.
-void bg_solver (const function<double(double)> &V, const function<double(double)>& Vd,const function<double(double)>& Vdd,const function<double(double,double)>& Ups, const function<double(double,double)>& pT_Ups,const function<double(double,double)>& pph_Ups,double Cr,double Np,double phi_ini,double php_ini, double T_ini,int therm, double kp, double klow, double kup, double EM_step, int npts, int Nrealz, int want_Np_autocalc, int want_FP,int verbose,int rad_noise) {
+void bg_solver (const function<double(double)> &V, const function<double(double)>& Vd,const function<double(double)>& Vdd,const function<double(double,double)>& Ups, const function<double(double,double)>& pT_Ups,const function<double(double,double)>& pph_Ups,double Cr,double Np,double phi_ini,double php_ini, double T_ini,int therm, double kp, double klow, double kup, double EM_step, int npts, int Nrealz, int want_Np_autocalc, int want_FP,int wi2easy,int verbose,int rad_noise) {
 
 
     typedef boost::array< double , 3 > state_type; //For boost ode solver, number of differential equations (3)
@@ -373,40 +375,40 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     //SDE Functions
 
     //Perturbation equations
-    auto dpsi_dN = [] (double psi,double dph,double dqr,double Hn,double php) -> double {
+    auto dpsi_dN = [] (cdouble psi,cdouble dph,cdouble dqr,double Hn,double php) -> cdouble {
         return -psi -( (1.0/2.0) * ( -(php*dph) + (dqr/Hn) ) );
     };
 
-    auto ddqr_dN =[Cr] (double psi,double dph,double dqr,double drr,double Upsn,double Hn,double T,double php) -> double {
+    auto ddqr_dN =[Cr] (cdouble psi,cdouble dph,cdouble dqr,cdouble drr,double Upsn,double Hn,double T,double php) -> cdouble {
         return -(3.0*dqr) -(Upsn*php*dph) -(drr/(3.0*Hn)) - ((4.0*Cr*pow(T,4.0)*psi)/(3.0*Hn));
     };
 
-    auto ddrr_dN = [Cr] (double k,double psi,double dph,double dqr,double drr,double dphp,double Upsn,double Hn,double T,double php,double UpsT,double Upsph,double ai,double psip) -> double {
+    auto ddrr_dN = [Cr] (double k,cdouble psi,cdouble dph,cdouble dqr,cdouble drr,cdouble dphp,double Upsn,double Hn,double T,double php,double UpsT,double Upsph,double ai,cdouble psip) -> cdouble {
         double CrT4 = Cr*pow(T,4.0);
         double php2 = php*php;
 
-        double t1 = - (4.0 - ( (UpsT*Hn*(php2)*T)/(4.0*CrT4) ))*drr;
-        double t2 = ((k*k)*dqr)/((ai*ai)*Hn);
-        double t3 = 2.0*Upsn*Hn*php*dphp;
-        double t4 = Upsph*Hn*(php2)*dph;
-        double t5 = 4.0 * CrT4*psip;
-        double t6 = -(Upsn*Hn*(php2))*psi;
+        cdouble t1 = - (4.0 - ( (UpsT*Hn*(php2)*T)/(4.0*CrT4) ))*drr;
+        cdouble t2 = ((k*k)*dqr)/((ai*ai)*Hn);
+        cdouble t3 = 2.0*Upsn*Hn*php*dphp;
+        cdouble t4 = Upsph*Hn*(php2)*dph;
+        cdouble t5 = 4.0 * CrT4*psip;
+        cdouble t6 = -(Upsn*Hn*(php2))*psi;
 
         return t1 + t2 + t3 + t4 + t5 + t6;
     };
 
-    auto ddph_dN = [] (double dphp0) -> double {
+    auto ddph_dN = [] (cdouble dphp0) -> cdouble {
         return dphp0;
     };
 
-    auto ddphp_dN = [Cr,Vd,Vdd] (double k,double psi,double dph,double dqr,double drr,double dphp,double Upsn,double Hn,double T,double php,double UpsT,double Upsph,double ai,double psip,double Hpi,double phi) -> double {
+    auto ddphp_dN = [Cr,Vd,Vdd] (double k,cdouble psi,cdouble dph,cdouble dqr,cdouble drr,cdouble dphp,double Upsn,double Hn,double T,double php,double UpsT,double Upsph,double ai,cdouble psip,double Hpi,double phi) -> cdouble {
         double H2 = Hn*Hn;
 
-        double t1 = -( 3.0 + (Upsn/Hn) + (Hpi/Hn) )*dphp;
-        double t2 = -(  ( (k/(ai*Hn))*(k/(ai*Hn)) )  + (Vdd(phi)/(H2)) + (Upsph*php/Hn) )*dph;
-        double t3 = -( (UpsT*T*php*drr)/(4.0*Hn*Cr*pow(T,4.0)) );
-        double t4 = 4.0*psip*php;
-        double t5 = -( (Upsn*php/Hn) + (2.0*Vd(phi)/(H2)) )*psi;
+        cdouble t1 = -( 3.0 + (Upsn/Hn) + (Hpi/Hn) )*dphp;
+        cdouble t2 = -(  ( (k/(ai*Hn))*(k/(ai*Hn)) )  + (Vdd(phi)/(H2)) + (Upsph*php/Hn) )*dph;
+        cdouble t3 = -( (UpsT*T*php*drr)/(4.0*Hn*Cr*pow(T,4.0)) );
+        cdouble t4 = 4.0*psip*php;
+        cdouble t5 = -( (Upsn*php/Hn) + (2.0*Vd(phi)/(H2)) )*psi;
 
         return t1 + t2 + t3 + t4 + t5;
     };
@@ -417,15 +419,17 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         return sqrt( (2.0*Upsn*T)/(aiHn*aiHn*aiHn) );
     };
 
-    auto nq = [therm] (double Upsn,double T,double ai,double Hn) -> double {
+    auto nq = [therm,wi2easy] (double Upsn,double T,double ai,double Hn) -> double {
 
         if (therm == 1) {
             return ( pow(( (9.0*Hn) + (4.0*M_PI*Upsn) ),(1.0/4.0))* sqrt( 1.0/tanh(Hn/(2.0*T)) ) )/ sqrt(M_PI*pow(ai,3.0)*pow(Hn,(3.0/2.0)));
         }
-        else if (therm == 0) {
+        else if ( (therm == 0) && (wi2easy == 0) ) {
             return ( pow(( (9.0*Hn) + (4.0*M_PI*Upsn) ),(1.0/4.0))* sqrt( 1.0 ) )/ sqrt(M_PI*pow(ai,3)*pow(Hn,(3.0/2.0)));
         }
-
+        else if ( (therm == 0) && (wi2easy == 1) ){ //Use BD ICs instead
+            return 0.0;
+        }
         else {
             cout<<"Please set therm to either 1 (bose-einstein) or 0 (no thermalization)"<<endl;
             return 0.0;
@@ -551,12 +555,12 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     };
 
-    typedef boost::array<double,25> state_type_Q; //25 equations
+    typedef boost::array<cdouble,25> state_type_Q; //25 equations
 
-    auto k_mtrxQ = [phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,Calc_Ni_Ne,compute_scaling] (double k) -> state_type_Q {
+    auto k_mtrxQ = [phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,Calc_Ni_Ne,compute_scaling,therm,wi2easy] (double k) -> state_type_Q {
         auto func_mtrxQ = [k,phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,compute_scaling] ( const state_type_Q &Qflat , state_type_Q &dQflatdt ,double t ) -> void {
              
-            double Qm[5][5];
+            cdouble Qm[5][5];
             for(int i=0;i<5;i++) {
                 for(int j=0;j<5;j++) {
                     Qm[i][j] = Qflat[i*5 + j];  //Convert from flattened array to 2D array. Eg. Q[4][4] = Qflat[24]
@@ -609,7 +613,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     
             // evolve Q matrix 
-            double dQm[5][5];
+            cdouble dQm[5][5];
     
             for(int i=0;i<5;i++){
                 for(int j=0;j<5;j++){
@@ -641,7 +645,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
        
     
         //ODE solver
-        auto SolveODE_dQm = [func_mtrxQ,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H] () -> state_type_Q {
+        auto SolveODE_dQm = [func_mtrxQ,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H,therm,wi2easy] () -> state_type_Q {
             auto stepper = make_controlled( 1e-10 , 1e-8 , runge_kutta_fehlberg78 < state_type_Q >() );
 
             //Integration limits
@@ -651,13 +655,24 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             
             // initial conditions
             state_type_Q Qflat = {0.0}; //noise dominates the evolution of perturbations, ICs are not too relevant
-            double ai = a(Ni);
-            double phii = phiasN(Ni);
-            double phpi = phpasN(Ni);
-            double Ti = TasN(Ni);
-            double Hi = H(phii,phpi,Ti);
+            
+            if ( (therm == 0) && (wi2easy == 1) ) {// BD ICs
+                double ai = a(Ni);
+                double phii = phiasN(Ni);
+                double phpi = phpasN(Ni);
+                double Ti = TasN(Ni);
+                double Hi = H(phii,phpi,Ti);
+                double Hi2 = Hi*Hi;
+                double pref = 1.0/(2.0*k*ai*ai*Hi2);
+                double xi = k/(ai*Hi);
+    
+                Qflat[12] = pref;
+                Qflat[14] = -pref*cdouble(-1.0,xi);
+                Qflat[22] = -pref*cdouble(-1.0,-xi);
+                Qflat[24] = pref*(1.0 + xi*xi);
+            }
 
-            integrate_adaptive( stepper ,func_mtrxQ , Qflat , Ni , Ne, 1e-3 );
+            integrate_adaptive( stepper ,func_mtrxQ , Qflat , Ni , Ne, 1e-6 );
             
             return Qflat;
         };
@@ -672,7 +687,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             Ni_Ne nn = Calc_Ni_Ne(k);
             double Ni = nn.Ni;
             double Ne = nn.Ne;
-            double Qmatrix_Ne[5][5];
+            cdouble Qmatrix_Ne[5][5];
 
             state_type_Q Qflat_Ne = k_mtrxQ(k);
             for(int i=0;i<5;i++){
@@ -685,7 +700,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
             compute_C(C,Ne,k);
 
-            double R2sol = 0.0;
+            cdouble R2sol = 0.0;
 
             for(int i=0;i<5;i++) {
                 for(int j=0;j<5;j++) {
@@ -693,7 +708,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
                 }
             }
 
-            return R2sol;
+            return R2sol.real();
     };
 
     auto P_num_FP = [modR2] (double k) -> double {
@@ -772,11 +787,11 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     //Struct to store computation products
     struct EM_vars {
-    	double psiE;
-    	double dqrE;
-    	double dphE;
-    	double drrE;
-    	double dphpE;
+    	cdouble psiE;
+    	cdouble dqrE;
+    	cdouble dphE;
+    	cdouble drrE;
+    	cdouble dphpE;
     	double Ne;
     };/*
     auto EM = [Calc_Ni_Ne,phiasN,phpasN,TasN,Ups,pT_Ups,pph_Ups,H,Hp,a,dpsi_dN,ddqr_dN,ddph_dN,ddrr_dN,ddphp_dN,dW,nT,nq,rad_noise] (double k,double h) -> EM_vars {
@@ -846,6 +861,111 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         return em;
     };*/
 
+    //Homogenous solution
+    typedef boost::array<cdouble,5> state_type_R;
+    
+    auto RKF78 = [Calc_Ni_Ne,phiasN,phpasN,TasN,Ups,H,Hp,Vdd,a,dpsi_dN,ddqr_dN,ddph_dN,ddrr_dN,ddphp_dN,pph_Ups,pT_Ups,therm] (double k) -> EM_vars
+    {
+        auto func_R =[k,phiasN,phpasN,TasN,Ups,H,Hp,Vdd,a,dpsi_dN,ddqr_dN,ddph_dN,ddrr_dN,ddphp_dN,pph_Ups,pT_Ups] (const state_type_R &y,state_type_R &dydN,double N) -> void
+        {
+            double phi   = phiasN(N);
+            double phpi  = phpasN(N);
+            double Ti    = TasN(N);
+    
+            double Hi      = H(phi,phpi,Ti);
+            double Hpi     = Hp(phi,phpi,Ti);
+    
+            double Upsni   = Ups(phi,Ti);
+            double UpsTi   = pT_Ups(phi,Ti);
+            double Upsphi  = pph_Ups(phi,Ti);
+    
+            double ai = a(N);
+
+            //y[0] = psi, y[1] = dqr, y[2] = dphi, y[3] = drr, y[4] = dphp
+            dydN[0] = dpsi_dN(y[0],y[2],y[1],Hi,phpi);
+            dydN[1] = ddqr_dN(y[0],y[2],y[1],y[3],Upsni,Hi,Ti,phpi);
+            dydN[2] = ddph_dN(y[4]);
+            dydN[3] = ddrr_dN(k,y[0],y[2],y[1],y[3],y[4],Upsni,Hi,Ti,phpi,UpsTi,Upsphi,ai,dydN[0]);
+            dydN[4] = ddphp_dN(k,y[0],y[2],y[1],y[3],y[4],Upsni,Hi,Ti,phpi,UpsTi,Upsphi,ai,dydN[0],Hpi,phi);
+        };
+    
+        auto SolveODE =[func_R,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H,therm]()-> state_type_R
+        {
+            auto stepper = make_controlled(1e-14,1e-12,runge_kutta_fehlberg78<state_type_R>());
+    
+            Ni_Ne nn = Calc_Ni_Ne(k);
+    
+            double Ni = nn.Ni;
+            double Ne = nn.Ne;
+    
+            state_type_R y;
+    
+            //-----------------------------------
+            // Initial Conditions
+            //-----------------------------------
+    
+            double ai = a(Ni);
+            double Hi = H(phiasN(Ni),phpasN(Ni),TasN(Ni));
+            double xi = k/(ai*Hi);
+    
+            double amp = 1.0/(ai*sqrt(2.0*k));
+
+            //y[0] = psi, y[1] = dqr, y[2] = dphi, y[3] = drr, y[4] = dphp
+            y[0]=0.0;
+            y[1]=0.0;
+            y[3]=0.0;
+            y[2]=amp;
+            y[4]=-amp*cdouble(1.0,-xi);
+    
+            integrate_adaptive(stepper,func_R,y,Ni,Ne,1e-6);
+    
+            return y;
+        };
+    
+        state_type_R y = SolveODE();
+    
+        EM_vars em;
+    
+        em.psiE  = y[0];
+        em.dqrE  = y[1];
+        em.dphE  = y[2];
+        em.drrE  = y[3];
+        em.dphpE = y[4];
+    
+        Ni_Ne nn = Calc_Ni_Ne(k);
+        em.Ne = nn.Ne;
+    
+        return em;
+    };
+
+    auto Rhom = [RKF78,Cr,phiasN,phpasN,TasN,H,V,therm] (double k) -> double
+    {
+        EM_vars sol = RKF78(k);
+        
+        double Ne = sol.Ne;
+        cdouble dphr = sol.dphE;
+        cdouble dqrr = sol.dqrE;
+        cdouble psir = sol.psiE;
+    
+        double phiNe = phiasN(Ne);
+        double TNe   = TasN(Ne);
+        double phpNe = phpasN(Ne);
+    
+        double HNe = H(phiNe,phpNe,TNe);
+        double VNe = V(phiNe);
+    
+        double CrT4 = Cr*pow(TNe,4.0);
+        double HNephpNe2 = (HNe*phpNe)*(HNe*phpNe);
+    
+        double rhotot = CrT4 + 0.5*HNephpNe2 + VNe;
+        double ptot = CrT4/3.0 + 0.5*HNephpNe2 - VNe;
+    
+        cdouble Rsol = (HNe/(rhotot+ptot)) * (-(HNe*phpNe*dphr) + dqrr) - psir;
+    
+        return norm(Rsol);
+    };
+    //**********************************************************************//
+
     auto RI1W1 = [Calc_Ni_Ne,phiasN,phpasN,TasN,Ups,pT_Ups,pph_Ups,H,Hp,a,dpsi_dN,ddqr_dN,ddph_dN,ddrr_dN,ddphp_dN,dW,nT,nq, rad_noise] (double k,double h) -> EM_vars {
         Ni_Ne nn = Calc_Ni_Ne(k);
         EM_vars em;
@@ -865,11 +985,11 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         
         
         //Initial Conditions
-        double psi0=0.0;
-        double dqr0=0.0;
-        double drr0=0.0;
-        double dph0 = (-1.0/(sqrt(2.0*k)*a(Ni)));
-        double dphp0 = (1.0/(sqrt(2.0*k)*a(Ni)));
+        cdouble psi0=0.0;
+        cdouble dqr0=0.0;
+        cdouble drr0=0.0;
+        cdouble dph0 = 0.0;
+        cdouble dphp0 = 0.0;
         double dnT = dW(h);
         double dnq = dW(h);
 
@@ -886,11 +1006,11 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             Upsphi = pph_Ups(phi,Ti);
             ai = a(Ni);
             
-            double kpsi1 = dpsi_dN(psi0,dph0,dqr0,Hi,phpi);
-            double kdqr1 = ddqr_dN(psi0,dph0,dqr0,drr0,Upsni,Hi,Ti,phpi);
-            double kdph1 = ddph_dN(dphp0);
-            double kdrr1 = ddrr_dN(k,psi0,dph0,dqr0,drr0,dphp0,Upsni,Hi,Ti,phpi,UpsTi,Upsphi,ai,kpsi1);
-            double kdphp1 = ddphp_dN(k,psi0,dph0,dqr0,drr0,dphp0,Upsni,Hi,Ti,phpi,UpsTi,Upsphi,ai,kpsi1,Hpi,phi);
+            cdouble kpsi1 = dpsi_dN(psi0,dph0,dqr0,Hi,phpi);
+            cdouble kdqr1 = ddqr_dN(psi0,dph0,dqr0,drr0,Upsni,Hi,Ti,phpi);
+            cdouble kdph1 = ddph_dN(dphp0);
+            cdouble kdrr1 = ddrr_dN(k,psi0,dph0,dqr0,drr0,dphp0,Upsni,Hi,Ti,phpi,UpsTi,Upsphi,ai,kpsi1);
+            cdouble kdphp1 = ddphp_dN(k,psi0,dph0,dqr0,drr0,dphp0,Upsni,Hi,Ti,phpi,UpsTi,Upsphi,ai,kpsi1,Hpi,phi);
             double kdphp1nT = nT(Upsni,Ti,ai,Hi);
             double kdphp1nq = nq(Upsni,Ti,ai,Hi);
             double kdrr1nT = kdphp1nT*(-Hi*Hi*phpi);
@@ -905,22 +1025,22 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             double UpsTi2 = pT_Ups(phi2,Ti2);
             double Upsphi2 = pph_Ups(phi2,Ti2);
             double ai2 = a(N2);
-            double psi2 = psi0+((2.0/3.0)*h*kpsi1);
-            double dph2 = dph0+((2.0/3.0)*h*kdph1);
-            double dqr2 = dqr0+((2.0/3.0)*h*kdqr1);
-            double dphp2 = dphp0+((2.0/3.0)*h*kdphp1) + (dnT*kdphp1nT)  + (dnq*kdphp1nq)  ;
-            double drr2 = 0.0;
+            cdouble psi2 = psi0+((2.0/3.0)*h*kpsi1);
+            cdouble dph2 = dph0+((2.0/3.0)*h*kdph1);
+            cdouble dqr2 = dqr0+((2.0/3.0)*h*kdqr1);
+            cdouble dphp2 = dphp0+((2.0/3.0)*h*kdphp1) + (dnT*kdphp1nT)  + (dnq*kdphp1nq)  ;
+            cdouble drr2 = 0.0;
             if (rad_noise == 1) {
                 drr2 = drr0+((2.0/3.0)*h*kdrr1) + ((dnT*kdphp1nT)*(-Hi*Hi*phpi));
             }
             else {
                 drr2 = drr0+((2.0/3.0)*h*kdrr1);
             }
-            double kpsi2 = dpsi_dN(psi2 , dph2 , dqr2 , Hi2 , phpi2);
-            double kdqr2 = ddqr_dN(psi2,dph2,dqr2,drr2,Upsni2,Hi2,Ti2,phpi2);
-            double kdph2 = ddph_dN(dphp2);
-            double kdrr2 = ddrr_dN(k,psi2,dph2,dqr2,drr2,dphp2,Upsni2,Hi2,Ti2,phpi2,UpsTi2,Upsphi2,ai2,kpsi2);
-            double kdphp2 = ddphp_dN(k,psi2,dph2,dqr2,drr2,dphp2,Upsni2,Hi2,Ti2,phpi2,UpsTi2,Upsphi2,ai2,kpsi2,Hpi2,phi2);
+            cdouble kpsi2 = dpsi_dN(psi2 , dph2 , dqr2 , Hi2 , phpi2);
+            cdouble kdqr2 = ddqr_dN(psi2,dph2,dqr2,drr2,Upsni2,Hi2,Ti2,phpi2);
+            cdouble kdph2 = ddph_dN(dphp2);
+            cdouble kdrr2 = ddrr_dN(k,psi2,dph2,dqr2,drr2,dphp2,Upsni2,Hi2,Ti2,phpi2,UpsTi2,Upsphi2,ai2,kpsi2);
+            cdouble kdphp2 = ddphp_dN(k,psi2,dph2,dqr2,drr2,dphp2,Upsni2,Hi2,Ti2,phpi2,UpsTi2,Upsphi2,ai2,kpsi2,Hpi2,phi2);
             double N2n = Ni+h;
             double phi2n = phiasN(N2n);
             double phpi2n = phpasN(N2n);
@@ -942,17 +1062,17 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             double UpsTi3 = UpsTi2;
             double Upsphi3 = Upsphi2;
             double ai3 = ai2;
-            double psi3 = psi0-((1.0/3.0)*h*kpsi1)+(h*kpsi2);
-            double dph3 = dph0-((1.0/3.0)*h*kdph1)+(h*kdph2);
-            double dqr3 = dqr0-((1.0/3.0)*h*kdqr1)+(h*kdqr2);
-            double dphp3 = dphp0-((1.0/3.0)*h*kdphp1)+(h*kdphp2);
-            double drr3 = drr0-((1.0/3.0)*h*kdrr1)+(h*kdrr2);
+            cdouble psi3 = psi0-((1.0/3.0)*h*kpsi1)+(h*kpsi2);
+            cdouble dph3 = dph0-((1.0/3.0)*h*kdph1)+(h*kdph2);
+            cdouble dqr3 = dqr0-((1.0/3.0)*h*kdqr1)+(h*kdqr2);
+            cdouble dphp3 = dphp0-((1.0/3.0)*h*kdphp1)+(h*kdphp2);
+            cdouble drr3 = drr0-((1.0/3.0)*h*kdrr1)+(h*kdrr2);
             
-            double kpsi3 = dpsi_dN(psi3 , dph3 , dqr3 , Hi3 , phpi3);
-            double kdqr3 = ddqr_dN(psi3,dph3,dqr3,drr3,Upsni3,Hi3,Ti3,phpi3);
-            double kdph3 = ddph_dN(dphp3);
-            double kdrr3 = ddrr_dN(k,psi3,dph3,dqr3,drr3,dphp3,Upsni3,Hi3,Ti3,phpi3,UpsTi3,Upsphi3,ai3,kpsi3);
-            double kdphp3 = ddphp_dN(k,psi3,dph3,dqr3,drr3,dphp3,Upsni3,Hi3,Ti3,phpi3,UpsTi3,Upsphi3,ai3,kpsi3,Hpi3,phi3);
+            cdouble kpsi3 = dpsi_dN(psi3 , dph3 , dqr3 , Hi3 , phpi3);
+            cdouble kdqr3 = ddqr_dN(psi3,dph3,dqr3,drr3,Upsni3,Hi3,Ti3,phpi3);
+            cdouble kdph3 = ddph_dN(dphp3);
+            cdouble kdrr3 = ddrr_dN(k,psi3,dph3,dqr3,drr3,dphp3,Upsni3,Hi3,Ti3,phpi3,UpsTi3,Upsphi3,ai3,kpsi3);
+            cdouble kdphp3 = ddphp_dN(k,psi3,dph3,dqr3,drr3,dphp3,Upsni3,Hi3,Ti3,phpi3,UpsTi3,Upsphi3,ai3,kpsi3,Hpi3,phi3);
                             
             psi0 = psi0 + ((h/4.0)*(kpsi1+(2.0*kpsi2)+kpsi3));
             dqr0 = dqr0 + ((h/4.0)*(kdqr1+(2.0*kdqr2)+kdqr3));
@@ -986,9 +1106,9 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         
         EM_vars sol_r = RI1W1(k,h);
         double Ne = sol_r.Ne;
-        double dphr = sol_r.dphE;
-        double dqrr = sol_r.dqrE;
-        double psir = sol_r.psiE;
+        cdouble dphr = sol_r.dphE;
+        cdouble dqrr = sol_r.dqrE;
+        cdouble psir = sol_r.psiE;
 
         double phiNe = phiasN(Ne);
         double TNe = TasN(Ne);
@@ -1002,23 +1122,27 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         double rhotot = CrT4 + ( (HNephpNe2/2.0) + VNe );
         double ptot = ((1.0/3.0)*CrT4) + ( (HNephpNe2/2.0) - VNe );
 
-        double R_sol = ( (HNe/(rhotot+ptot)) * ( -(HNe*phpNe*dphr) + dqrr) ) - psir;
+        cdouble R_sol = ( (HNe/(rhotot+ptot)) * ( -(HNe*phpNe*dphr) + dqrr) ) - psir;
 
-        return R_sol;
+        return norm(R_sol);
     };
 
 
-    auto P_num = [Nrealz,R] (double k,double h) -> double {
+    auto P_num = [Nrealz,R,Rhom,therm,wi2easy] (double k,double h) -> double {
         double sum_R2 = 0.0;
         double R1 = 0.0;
         // Parallelize the loop using OpenMP
         #pragma omp parallel for reduction(+:sum_R2)
         for (int i = 0; i < Nrealz; i++) {
             R1 = R(k,h);
-            sum_R2 = sum_R2 + (R1*R1);
+            sum_R2 = sum_R2 + R1;
         }
         double Rmean = sum_R2/Nrealz;
-        return ( (k*k*k)/(2.0*(M_PI*M_PI)) ) * Rmean;
+        double Rh2 = 0.0;
+        if ( (wi2easy == 1) && (therm == 0) ) {
+            Rh2 = Rhom(k); 
+        }
+        return ( (k*k*k)/(2.0*(M_PI*M_PI)) ) * (Rmean+Rh2);
     };
 
     //cout<<"As: "<<P_num(kp)<<endl;

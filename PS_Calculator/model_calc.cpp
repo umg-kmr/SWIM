@@ -15,6 +15,7 @@ int npts = 40;
 int want_Np_autocalc = 1; //Set to 1 if you want the solver to calculate Np itself otherwise set 0. In both cases supply Np
 int verbose = 0; //Set to one if you want to see the error messages
 int want_FP = 1; //enable the Fokker-Planck (deterministic) approach
+int wi2easy = 0; //enable (1) or disable (0) wi2easy like treatment of quantum-noise
 /* ######################### */
 
 extern "C" {
@@ -94,11 +95,11 @@ extern "C" {
         */
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        bg_solver (V,Vd,Vdd,Ups,pT_Ups,pph_Ups,Cr,Np,phi_ini,php_ini,T_ini,therm,kp,klow,kup,EM_step,npts,Nrealz,want_Np_autocalc,want_FP,verbose,rad_noise); //Calculates the power-spectrum
+        bg_solver (V,Vd,Vdd,Ups,pT_Ups,pph_Ups,Cr,Np,phi_ini,php_ini,T_ini,therm,kp,klow,kup,EM_step,npts,Nrealz,want_Np_autocalc,want_FP,wi2easy,verbose,rad_noise); //Calculates the power-spectrum
     }  //Model Specification ends
 
     //Function to set the global variables
-    void set_globals (double kpivot, double Em_h, int N_realizations, double kmax, double kmin, int points_bw_k, int Np_calc, int verbosity, int FP_approach) {
+    void set_globals (double kpivot, double Em_h, int N_realizations, double kmax, double kmin, int points_bw_k, int Np_calc, int verbosity, int FP_approach,int want_wi2easy) {
         kp = kpivot;
         EM_step = Em_h;
         Nrealz = N_realizations;
@@ -108,6 +109,7 @@ extern "C" {
         want_Np_autocalc = Np_calc;
         verbose = verbosity;
         want_FP = FP_approach;
+        wi2easy = want_wi2easy;
     }
 
     // Define a function that returns a pointer to the global array

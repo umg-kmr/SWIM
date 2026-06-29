@@ -52,7 +52,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     vector <double> phpl;
     vector <double> Tl;
 
-    //Initializer for interpolation
+    //Initializer for interpolationsqrt(norm(R_sol))
     function<double(double)> phiasN;
     function<double(double)> phpasN;
     function<double(double)> TasN;
@@ -992,6 +992,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         return norm(Rsol);
     };
     //**********************************************************************//
+    
     auto RI1W1 = [Calc_Ni_Ne,phiasN,phpasN,TasN,Ups,pT_Ups,pph_Ups,H,Hp,a,dpsi_dN,ddqr_dN,ddph_dN,ddrr_dN,ddphp_dN,dW,nT,nq, rad_noise] (double k,double h) -> EM_vars {
         Ni_Ne nn = Calc_Ni_Ne(k);
         EM_vars em;

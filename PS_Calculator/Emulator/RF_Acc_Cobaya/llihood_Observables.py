@@ -66,14 +66,15 @@ points_k = int(50) #number of points to be calculated between the k values speci
 Np_autocalc = int(1) # can be set to either 1 (for internal automatic calculation of N_pivot) or 0 (specify an N_pivot value) | in both cases a value for the Np parameter needs to be passed. 
 verbosity = int(0) #can be set to either 1 or 0, when set to 1 the error messages will be printed if encountered any.
 want_FP = int(1) #Enable faster determinisitc (Fokker-Planck) approach
+wi2easy = int(0) #Enable (1) or disable (0) wi2easy like treatment of quantum-noise
 
 
 #Modify this according to the model_calc.cpp "model" function signature (copy-paste the arguments of "void model" in model_calc.cpp). Nothing else needs to be modified here.
-ffi.cdef("void model (double phi_ini,double gst,double Q_ini,double V0,double Np,int p,int c,int therm,int rad_noise);void set_globals (double kpivot, double Em_h, int N_realizations, double kmax, double kmin, int points_bw_k, int Np_calc, int verbosity,int FP_approach);int get_npts ();double* get_klist();double* get_Plist();void clear_P();void clear_k();void write_Bg(const char* fname);extern double PT_kp;",override=True)
+ffi.cdef("void model (double phi_ini,double gst,double Q_ini,double V0,double Np,int p,int c,int therm,int rad_noise);void set_globals (double kpivot, double Em_h, int N_realizations, double kmax, double kmin, int points_bw_k, int Np_calc, int verbosity,int FP_approach,int want_wi2easy);int get_npts ();double* get_klist();double* get_Plist();void clear_P();void clear_k();void write_Bg(const char* fname);extern double PT_kp;",override=True)
 
 
 lib_pert = ffi.dlopen("../../libmodel.so")
-lib_pert.set_globals(kp,em_step,Nrealz,kmax,kmin,points_k,Np_autocalc,verbosity,want_FP) 
+lib_pert.set_globals(kp,em_step,Nrealz,kmax,kmin,points_k,Np_autocalc,verbosity,want_FP,wi2easy) 
 
 lib_pert.clear_k() 
 lib_pert.clear_P()
