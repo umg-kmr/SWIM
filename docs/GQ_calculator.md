@@ -346,7 +346,15 @@ These must be kept consistent.
   - `0` → stochastic perturbation evolution (default SWIM solver)
   - `1` → Fokker-Planck based deterministic evolution (DSWIM)
 
-  
+- `wi2easy` *(int: 0 or 1, default: 0)*
+
+  Selects the prescription used for the quantum contribution to the inflaton perturbations:
+
+  - `0` → Default SWIM prescription: perturbations are initialized with vanishing initial conditions and the quantum-noise source term is always included.
+  - `1` → WI2Easy-compatible prescription: when the inflaton is **not** thermalized (`therm = 0`), the quantum-noise source is switched off and Bunch–Davies initial conditions are imposed instead. For the thermalized case (`therm = 1`), the quantum-noise source is retained.
+
+---
+
 ### Numerical Controls
 
 - `Nrealz` *(int, default: 2048)*  
