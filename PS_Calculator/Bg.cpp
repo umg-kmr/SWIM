@@ -374,22 +374,23 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     //Perturbation equations
     auto dpsi_dN = [] (double psi,double dph,double dqr,double Hn,double php) -> double {
-        return -psi -( (1.0/2.0) * ( -(php*dph) + (dqr/Hn) ) );
+        return -psi -( 0.5 * ( -(php*dph) + (dqr/Hn) ) );
     };
 
     auto ddqr_dN =[Cr] (double psi,double dph,double dqr,double drr,double Upsn,double Hn,double T,double php) -> double {
-        return -(3.0*dqr) -(Upsn*php*dph) -(drr/(3.0*Hn)) - ((4.0*Cr*pow(T,4.0)*psi)/(3.0*Hn));
+        double Hn3 = 3.0*Hn;
+        return -(3.0*dqr) -(Upsn*php*dph) -(drr/Hn3) - ((4.0*Cr*T*T*T*T*psi)/Hn3);
     };
 
     auto ddrr_dN = [Cr] (double k,double psi,double dph,double dqr,double drr,double dphp,double Upsn,double Hn,double T,double php,double UpsT,double Upsph,double ai,double psip) -> double {
-        double CrT4 = Cr*pow(T,4.0);
+        double Four_CrT4 = 4.0*Cr*T*T*T*T;
         double php2 = php*php;
 
-        double t1 = - (4.0 - ( (UpsT*Hn*(php2)*T)/(4.0*CrT4) ))*drr;
+        double t1 = - (4.0 - ( (UpsT*Hn*(php2)*T)/(Four_CrT4) ))*drr;
         double t2 = ((k*k)*dqr)/((ai*ai)*Hn);
         double t3 = 2.0*Upsn*Hn*php*dphp;
         double t4 = Upsph*Hn*(php2)*dph;
-        double t5 = 4.0 * CrT4*psip;
+        double t5 = Four_CrT4*psip;
         double t6 = -(Upsn*Hn*(php2))*psi;
 
         return t1 + t2 + t3 + t4 + t5 + t6;
@@ -401,10 +402,11 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     auto ddphp_dN = [Cr,Vd,Vdd] (double k,double psi,double dph,double dqr,double drr,double dphp,double Upsn,double Hn,double T,double php,double UpsT,double Upsph,double ai,double psip,double Hpi,double phi) -> double {
         double H2 = Hn*Hn;
+        double kbaH = k/(ai*Hn);
 
         double t1 = -( 3.0 + (Upsn/Hn) + (Hpi/Hn) )*dphp;
-        double t2 = -(  ( (k/(ai*Hn))*(k/(ai*Hn)) )  + (Vdd(phi)/(H2)) + (Upsph*php/Hn) )*dph;
-        double t3 = -( (UpsT*T*php*drr)/(4.0*Hn*Cr*pow(T,4.0)) );
+        double t2 = -(  ( kbaH*kbaH )  + (Vdd(phi)/(H2)) + (Upsph*php/Hn) )*dph;
+        double t3 = -( (UpsT*T*php*drr)/(4.0*Hn*Cr*T*T*T*T) );
         double t4 = 4.0*psip*php;
         double t5 = -( (Upsn*php/Hn) + (2.0*Vd(phi)/(H2)) )*psi;
 
@@ -420,10 +422,10 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     auto nq = [therm] (double Upsn,double T,double ai,double Hn) -> double {
 
         if (therm == 1) {
-            return ( pow(( (9.0*Hn) + (4.0*M_PI*Upsn) ),(1.0/4.0))* sqrt( 1.0/tanh(Hn/(2.0*T)) ) )/ sqrt(M_PI*pow(ai,3.0)*pow(Hn,(3.0/2.0)));
+            return ( pow(( (9.0*Hn) + (4.0*M_PI*Upsn) ),(1.0/4.0))* sqrt( 1.0/tanh(Hn/(2.0*T)) ) )/ sqrt(M_PI*ai*ai*ai*pow(Hn,(3.0/2.0)));
         }
         else if (therm == 0) {
-            return ( pow(( (9.0*Hn) + (4.0*M_PI*Upsn) ),(1.0/4.0))* sqrt( 1.0 ) )/ sqrt(M_PI*pow(ai,3)*pow(Hn,(3.0/2.0)));
+            return ( pow(( (9.0*Hn) + (4.0*M_PI*Upsn) ),(1.0/4.0))* sqrt( 1.0 ) )/ sqrt(M_PI*ai*ai*ai*pow(Hn,(3.0/2.0)));
         }
 
         else {
@@ -432,7 +434,28 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         }
     };
     
-    /* Fokker-Planck Implementation */
+      /* Fokker-Planck Implementation with scaling for numerical stability*/
+    
+    auto compute_scaling = [] (double S[5],double Sinv[5],double dlogS[5],double Hn,double Hpn) -> void {
+    
+        // H powers:
+        // psi   -> H^0
+        // dqr   -> H^1
+        // dph   -> H^1
+        // drr   -> H^2
+        // dphp  -> H^1
+    
+        int p[5] = {0,1,1,2,1};
+    
+        for(int i=0;i<5;i++) {
+    
+            S[i] = pow(Hn,-p[i]);
+    
+            Sinv[i] = 1.0/S[i];
+    
+            dlogS[i] = -p[i]*(Hpn/Hn);
+        }
+    };
 
     auto compute_A = [Cr] (double A[5][5],double k,double ai,double Hn, double phpn, double Tn, double Upsn, double Upsphn, double UpsTn, double Hpn, double Vdn, double Vddn) -> void {
 
@@ -503,7 +526,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     };
 
-    auto compute_C = [phiasN,phpasN,TasN,H,V,Cr] (double C[5][1], double Ne) -> void {
+    auto compute_C = [a,phiasN,phpasN,TasN,H,V,Cr] (double C[5][1], double Ne, double k_global) -> void {
        
         double phiNe = phiasN(Ne);
         double TNe = TasN(Ne);
@@ -511,8 +534,9 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         double Hn = H(phiNe,phpNe,TNe);
         double VNe = V(phiNe);
 
-        double CrT4 = Cr*pow(TNe,4.0);
-        double HNephpNe2 = (Hn*phpNe)*(Hn*phpNe);
+        double CrT4 = Cr*TNe*TNe*TNe*TNe;
+        double HnphpNe = (Hn*phpNe);
+        double HNephpNe2 = HnphpNe * HnphpNe;
 
         double rhotot = CrT4 + ( (HNephpNe2/2.0) + VNe );
         double ptot = ((1.0/3.0)*CrT4) + ( (HNephpNe2/2.0) - VNe );
@@ -523,15 +547,15 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         }
 
         C[0][0] = -1.0;
-        C[1][0] = Hn/(rhotot+ptot);
-        C[2][0] = -Hn*Hn*phpNe/(rhotot+ptot);
+        C[1][0] =(Hn/(rhotot+ptot))*(Hn);
+        C[2][0] = (-Hn*Hn*phpNe/(rhotot+ptot))*(Hn);
 
     };
 
-    typedef boost::array<long double,25> state_type_Q; //25 equations
+    typedef boost::array<double,25> state_type_Q; //25 equations
 
-    auto k_mtrxQ = [phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,Calc_Ni_Ne] (double k) -> state_type_Q {
-        auto func_mtrxQ = [k,phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups] ( const state_type_Q &Qflat , state_type_Q &dQflatdt ,double t ) -> void {
+    auto k_mtrxQ = [phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,Calc_Ni_Ne,compute_scaling] (double k) -> state_type_Q {
+        auto func_mtrxQ = [k,phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,compute_scaling] ( const state_type_Q &Qflat , state_type_Q &dQflatdt ,double t ) -> void {
              
             double Qm[5][5];
             for(int i=0;i<5;i++) {
@@ -554,11 +578,36 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             double an  = a(t);
             
             //build A and D 
-            double A[5][5], D[5][5];
-    
-            compute_A(A,k,an,Hn,phpn,Tn,Upsn,Upsphn,UpsTn,Hpn,Vdn,Vddn);
-    
+            double Araw[5][5], A[5][5], D[5][5];
+            compute_A(Araw,k,an,Hn,phpn,Tn,Upsn,Upsphn,UpsTn,Hpn,Vdn,Vddn);
+            
+            double S[5], Sinv[5], dlogS[5];
+            compute_scaling(S,Sinv,dlogS,Hn,Hpn);
+
+            // Build scaled A matrix
+            
+            for(int i=0;i<5;i++) {
+            
+                for(int j=0;j<5;j++) {
+            
+                    A[i][j] = S[i]* Araw[i][j] * Sinv[j];
+            
+                    // add dS/dN term on diagonal
+            
+                    if(i==j) {
+                        A[i][j] += dlogS[i];
+                    }
+                }
+            }
+
             compute_D(D,Upsn,phpn,Tn,an,Hn);
+            for(int i=0;i<5;i++) {
+                for(int j=0;j<5;j++) {
+            
+                    D[i][j] = S[i]* D[i][j]* S[j];
+                }
+            }
+
     
             // evolve Q matrix 
             double dQm[5][5];
@@ -594,7 +643,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
     
         //ODE solver
         auto SolveODE_dQm = [func_mtrxQ,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H] () -> state_type_Q {
-            auto stepper = make_controlled( 1e-18 , 1e-16 , runge_kutta_fehlberg78 < state_type_Q >() );
+            auto stepper = make_controlled( 1e-14 , 1e-12 , runge_kutta_fehlberg78 < state_type_Q >() );
 
             //Integration limits
             Ni_Ne nn = Calc_Ni_Ne(k);
@@ -609,7 +658,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             double Ti = TasN(Ni);
             double Hi = H(phii,phpi,Ti);
 
-            integrate_adaptive( stepper ,func_mtrxQ , Qflat , Ni , Ne, 1e-6 ); 
+            integrate_adaptive( stepper ,func_mtrxQ , Qflat , Ni , Ne, 1e-6 );
             
             return Qflat;
         };
@@ -622,9 +671,9 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     auto modR2 = [Calc_Ni_Ne,k_mtrxQ,compute_C] (double k) -> double {
             Ni_Ne nn = Calc_Ni_Ne(k);
-            long double Ni = nn.Ni;
-            long double Ne = nn.Ne;
-            long double Qmatrix_Ne[5][5];
+            double Ni = nn.Ni;
+            double Ne = nn.Ne;
+            double Qmatrix_Ne[5][5];
 
             state_type_Q Qflat_Ne = k_mtrxQ(k);
             for(int i=0;i<5;i++){
@@ -635,7 +684,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
             double C[5][1];
 
-            compute_C(C,Ne);
+            compute_C(C,Ne,k);
 
             double R2sol = 0.0;
 
@@ -883,16 +932,16 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             double kdphp2nq = nq(Upsni2n,Ti2n,ai2n,Hi2n);
             double kdrr2nT = kdphp2nT*(-Hi2n*Hi2n*phpi2n);
 
-            double N3 = Ni+((2.0/3.0)*h);
-            double phi3 = phiasN(N3);
-            double phpi3 = phpasN(N3);
-            double Ti3 = TasN(N3);
-            double Upsni3 = Ups(phi3,Ti3);
-            double Hi3 = H(phi3,phpi3,Ti3);
-            double Hpi3 = Hp(phi3,phpi3,Ti3);
-            double UpsTi3 = pT_Ups(phi3,Ti3);
-            double Upsphi3 = pph_Ups(phi3,Ti3);
-            double ai3 = a(N3);
+            double N3 = N2;
+            double phi3 = phi2;
+            double phpi3 = phpi2;
+            double Ti3 = Ti2;
+            double Upsni3 = Upsni2;
+            double Hi3 = Hi2;
+            double Hpi3 = Hpi2;
+            double UpsTi3 = UpsTi2;
+            double Upsphi3 = Upsphi2;
+            double ai3 = ai2;
             double psi3 = psi0-((1.0/3.0)*h*kpsi1)+(h*kpsi2);
             double dph3 = dph0-((1.0/3.0)*h*kdph1)+(h*kdph2);
             double dqr3 = dqr0-((1.0/3.0)*h*kdqr1)+(h*kdqr2);
@@ -947,13 +996,14 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
         double HNe = H(phiNe,phpNe,TNe);
         double VNe = V(phiNe);
 
-        double CrT4 = Cr*pow(TNe,4.0);
-        double HNephpNe2 = (HNe*phpNe)*(HNe*phpNe);
+        double CrT4 = Cr*TNe*TNe*TNe*TNe;
+        double HNephpNe = HNe*phpNe;
+        double HNephpNe2 = HNephpNe*HNephpNe;
 
         double rhotot = CrT4 + ( (HNephpNe2/2.0) + VNe );
         double ptot = ((1.0/3.0)*CrT4) + ( (HNephpNe2/2.0) - VNe );
 
-        double R_sol = ( (HNe/(rhotot+ptot)) * ( -(HNe*phpNe*dphr) + dqrr) ) - psir;
+        double R_sol = ( (HNe/(rhotot+ptot)) * ( -(HNephpNe*dphr) + dqrr) ) - psir;
 
         return R_sol;
     };
