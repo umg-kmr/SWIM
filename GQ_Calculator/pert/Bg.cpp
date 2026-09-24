@@ -643,17 +643,59 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     };
 
-    typedef boost::array<cdouble,25> state_type_Q; //25 equations
+    typedef boost::array<cdouble,15> state_type_Q; //15 equations (exploiting hermiticity of Q matrix (J in paper) )
 
     auto k_mtrxQ = [phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,Calc_Ni_Ne,compute_scaling,therm,wi2easy] (double k) -> state_type_Q {
         auto func_mtrxQ = [k,phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,compute_scaling] ( const state_type_Q &Qflat , state_type_Q &dQflatdt ,double t ) -> void {
              
             cdouble Qm[5][5];
-            for(int i=0;i<5;i++) {
+            
+            //Upper triangle specification for Q
+            Qm[0][0]=Qflat[0];
+            Qm[0][1]=Qflat[1];
+            Qm[0][2]=Qflat[2];
+            Qm[0][3]=Qflat[3];
+            Qm[0][4]=Qflat[4];
+
+            Qm[1][1]=Qflat[5];
+            Qm[1][2]=Qflat[6];
+            Qm[1][3]=Qflat[7];
+            Qm[1][4]=Qflat[8];
+
+            Qm[2][2]=Qflat[9];
+            Qm[2][3]=Qflat[10];
+            Qm[2][4]=Qflat[11];
+
+            Qm[3][3]=Qflat[12];
+            Qm[3][4]=Qflat[13];
+
+            Qm[4][4]=Qflat[14];
+            
+            //enforce Hermiticity
+            Qm[1][0]=std::conj(Qm[0][1]);
+            Qm[2][0]=std::conj(Qm[0][2]);
+            Qm[3][0]=std::conj(Qm[0][3]);
+            Qm[4][0]=std::conj(Qm[0][4]);
+
+            Qm[2][1]=std::conj(Qm[1][2]);
+            Qm[3][1]=std::conj(Qm[1][3]);
+            Qm[4][1]=std::conj(Qm[1][4]);
+
+            Qm[3][2]=std::conj(Qm[2][3]);
+            Qm[4][2]=std::conj(Qm[2][4]);
+
+            Qm[4][3]=std::conj(Qm[3][4]);
+
+            // diagonal should be real
+            for(int i=0;i<5;i++)
+                Qm[i][i]=cdouble(Qm[i][i].real(),0.0);
+            
+   
+            /* for(int i=0;i<5;i++) {
                 for(int j=0;j<5;j++) {
                     Qm[i][j] = Qflat[i*5 + j];  //Convert from flattened array to 2D array. Eg. Q[4][4] = Qflat[24]
                 }
-            }
+            } */
     
             //Bg quantities
     	    double phn = phiasN(t);
@@ -703,7 +745,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             // evolve Q matrix 
             cdouble dQm[5][5];
     
-            for(int i=0;i<5;i++){
+           for(int i=0;i<5;i++){
                 for(int j=0;j<5;j++){
     
                     dQm[i][j] = D[i][j];
@@ -715,13 +757,30 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
                 }
             }
             
-            // flatten 2D array to 1D for 25 ODEs
-            for(int i=0;i<5;i++) {
-                for(int j=0;j<5;j++) {
-                    dQflatdt[i*5 + j] = dQm[i][j];
-                }
-            }
-        };
+            // diagonal should remain real
+            for(int i=0;i<5;i++)
+                dQm[i][i]=cdouble(dQm[i][i].real(),0.0);
+
+            dQflatdt[0] = dQm[0][0];
+            dQflatdt[1] = dQm[0][1];
+            dQflatdt[2] = dQm[0][2];
+            dQflatdt[3] = dQm[0][3];
+            dQflatdt[4] = dQm[0][4];
+
+            dQflatdt[5] = dQm[1][1];
+            dQflatdt[6] = dQm[1][2];
+            dQflatdt[7] = dQm[1][3];
+            dQflatdt[8] = dQm[1][4];
+
+            dQflatdt[9]  = dQm[2][2];
+            dQflatdt[10] = dQm[2][3];
+            dQflatdt[11] = dQm[2][4];
+
+            dQflatdt[12] = dQm[3][3];
+            dQflatdt[13] = dQm[3][4];
+
+            dQflatdt[14] = dQm[4][4];
+            };
        
     
         //ODE solver
@@ -736,7 +795,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             // initial conditions
             state_type_Q Qflat = {0.0}; //noise dominates the evolution of perturbations, ICs are not too relevant
             
-            if ( (therm == 0) && (wi2easy == 1) ) {// BD ICs
+             if ( (therm == 0) && (wi2easy == 1) ) {// BD ICs
                 double ai = a(Ni);
                 double phii = phiasN(Ni);
                 double phpi = phpasN(Ni);
@@ -746,10 +805,9 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
                 double pref = 1.0/(2.0*k*ai*ai*Hi2);
                 double xi = k/(ai*Hi);
     
-                Qflat[12] = pref;
-                Qflat[14] = -pref*cdouble(-1.0,xi);
-                Qflat[22] = -pref*cdouble(-1.0,-xi);
-                Qflat[24] = pref*(1.0 + xi*xi);
+                Qflat[9]  = pref;                         // Q22
+                Qflat[11] = -pref*cdouble(-1.0,xi);       // Q24
+                Qflat[14] = pref*(1.0+xi*xi);             // Q44
             }
 
 
@@ -771,11 +829,46 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             cdouble Qmatrix_Ne[5][5];
 
             state_type_Q Qflat_Ne = k_mtrxQ(k);
-            for(int i=0;i<5;i++){
-                for(int j=0;j<5;j++){
-                    Qmatrix_Ne[i][j] = Qflat_Ne[i*5 + j];
-                }
-            }
+            //build upper triangle
+            Qmatrix_Ne[0][0]=Qflat_Ne[0];
+            Qmatrix_Ne[0][1]=Qflat_Ne[1];
+            Qmatrix_Ne[0][2]=Qflat_Ne[2];
+            Qmatrix_Ne[0][3]=Qflat_Ne[3];
+            Qmatrix_Ne[0][4]=Qflat_Ne[4];
+
+            Qmatrix_Ne[1][1]=Qflat_Ne[5];
+            Qmatrix_Ne[1][2]=Qflat_Ne[6];
+            Qmatrix_Ne[1][3]=Qflat_Ne[7];
+            Qmatrix_Ne[1][4]=Qflat_Ne[8];
+
+            Qmatrix_Ne[2][2]=Qflat_Ne[9];
+            Qmatrix_Ne[2][3]=Qflat_Ne[10];
+            Qmatrix_Ne[2][4]=Qflat_Ne[11];
+
+            Qmatrix_Ne[3][3]=Qflat_Ne[12];
+            Qmatrix_Ne[3][4]=Qflat_Ne[13];
+
+            Qmatrix_Ne[4][4]=Qflat_Ne[14];
+
+            // enforce Hermiticity
+            Qmatrix_Ne[1][0]=std::conj(Qmatrix_Ne[0][1]);
+            Qmatrix_Ne[2][0]=std::conj(Qmatrix_Ne[0][2]);
+            Qmatrix_Ne[3][0]=std::conj(Qmatrix_Ne[0][3]);
+            Qmatrix_Ne[4][0]=std::conj(Qmatrix_Ne[0][4]);
+
+            Qmatrix_Ne[2][1]=std::conj(Qmatrix_Ne[1][2]);
+            Qmatrix_Ne[3][1]=std::conj(Qmatrix_Ne[1][3]);
+            Qmatrix_Ne[4][1]=std::conj(Qmatrix_Ne[1][4]);
+
+            Qmatrix_Ne[3][2]=std::conj(Qmatrix_Ne[2][3]);
+            Qmatrix_Ne[4][2]=std::conj(Qmatrix_Ne[2][4]);
+
+            Qmatrix_Ne[4][3]=std::conj(Qmatrix_Ne[3][4]);
+
+            // diagonal should be real
+            for(int i=0;i<5;i++)
+                Qmatrix_Ne[i][i]=cdouble(Qmatrix_Ne[i][i].real(),0.0);
+
 
             double C[5][1];
 
