@@ -41,7 +41,7 @@ struct root_stop  {
 };
 
 //Passing model functions by reference as the background code doesn't modify the original model functions like potential and upsilon.
-void bg_solver (const function<double(double)> &V, const function<double(double)>& Vd,const function<double(double)>& Vdd,const function<double(double,double)>& Ups, const function<double(double,double)>& pT_Ups,const function<double(double,double)>& pph_Ups,double Cr,double Np,double phi_ini,double php_ini, double T_ini,int therm, double kp, double EM_step, int Nrealz, int want_Np_autocalc, int verbose, int rad_noise, int hybrid_inf,int want_FP, int wi2easy) {
+void bg_solver (const function<double(double)> &V, const function<double(double)>& Vd,const function<double(double)>& Vdd,const function<double(double,double)>& Ups, const function<double(double,double)>& pT_Ups,const function<double(double,double)>& pph_Ups,double Cr,double Np,double phi_ini,double php_ini, double T_ini,int therm, double kp, double EM_step, int Nrealz, int want_Np_autocalc, int verbose, int rad_noise, int hybrid_inf,int want_FP, int wi2easy, int unscaled) {
 
 
     typedef boost::array< double , 3 > state_type; //For boost ode solver, number of differential equations (3)
@@ -616,7 +616,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
 
     };
 
-    auto compute_C = [a,phiasN,phpasN,TasN,H,V,Cr] (double C[5][1], double Ne, double k_global) -> void {
+    auto compute_C = [a,phiasN,phpasN,TasN,H,V,Cr,unscaled] (double C[5][1], double Ne, double k_global) -> void {
        
         double phiNe = phiasN(Ne);
         double TNe = TasN(Ne);
@@ -636,17 +636,23 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
                C[i][0] = 0.0;
         }
 
-        //scaling included for C
-        C[0][0] = -1.0;
-        C[1][0] =(Hn/(rhotot+ptot))*(Hn);
-        C[2][0] = (-Hn*Hn*phpNe/(rhotot+ptot))*(Hn);
-
+        if (unscaled==1) {
+            C[0][0] = -1.0;
+            C[1][0] =(Hn/(rhotot+ptot));
+            C[2][0] = (-Hn*Hn*phpNe/(rhotot+ptot));
+        }
+        else {
+            //scaling included for C
+            C[0][0] = -1.0;
+            C[1][0] =(Hn/(rhotot+ptot))*(Hn);
+            C[2][0] = (-Hn*Hn*phpNe/(rhotot+ptot))*(Hn);
+        }
     };
 
     typedef boost::array<cdouble,15> state_type_Q; //15 equations (exploiting hermiticity of Q matrix (J in paper) )
 
-    auto k_mtrxQ = [phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,Calc_Ni_Ne,compute_scaling,therm,wi2easy] (double k) -> state_type_Q {
-        auto func_mtrxQ = [k,phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,compute_scaling] ( const state_type_Q &Qflat , state_type_Q &dQflatdt ,double t ) -> void {
+    auto k_mtrxQ = [phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,Calc_Ni_Ne,compute_scaling,therm,wi2easy,unscaled] (double k) -> state_type_Q {
+        auto func_mtrxQ = [k,phiasN,phpasN,TasN,Ups,H,Hp,Vd,Vdd,a,compute_A,compute_D,pph_Ups,pT_Ups,compute_scaling,unscaled] ( const state_type_Q &Qflat , state_type_Q &dQflatdt ,double t ) -> void {
              
             cdouble Qm[5][5];
             
@@ -722,13 +728,17 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             for(int i=0;i<5;i++) {
             
                 for(int j=0;j<5;j++) {
-            
-                    A[i][j] = S[i]* Araw[i][j] * Sinv[j];
-            
-                    // add dS/dN term on diagonal
-            
-                    if(i==j) {
-                        A[i][j] += dlogS[i];
+                
+                     if (unscaled==1) {
+                        A[i][j] = Araw[i][j];
+                    }
+                    
+                    else {
+                        A[i][j] = S[i]* Araw[i][j] * Sinv[j];
+                        // add dS/dN term on diagonal
+                        if(i==j) {
+                            A[i][j] += dlogS[i];
+                        }
                     }
                 }
             }
@@ -737,7 +747,12 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             for(int i=0;i<5;i++) {
                 for(int j=0;j<5;j++) {
             
-                    D[i][j] = S[i]* D[i][j]* S[j];
+                    if (unscaled==1) {
+                        D[i][j] = D[i][j];
+                    }
+                    else {
+                        D[i][j] = S[i]* D[i][j]* S[j];
+                    }
                 }
             }
 
@@ -784,7 +799,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
        
     
         //ODE solver
-        auto SolveODE_dQm = [func_mtrxQ,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H,therm,wi2easy] () -> state_type_Q {
+        auto SolveODE_dQm = [func_mtrxQ,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H,therm,wi2easy,unscaled] () -> state_type_Q {
             auto stepper = make_controlled( 1e-10 , 1e-8 , runge_kutta_fehlberg78 < state_type_Q >() );
 
             //Integration limits
@@ -805,9 +820,17 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
                 double pref = 1.0/(2.0*k*ai*ai*Hi2);
                 double xi = k/(ai*Hi);
     
-                Qflat[9]  = pref;                         // Q22
-                Qflat[11] = -pref*cdouble(-1.0,xi);       // Q24
-                Qflat[14] = pref*(1.0+xi*xi);             // Q44
+                if (unscaled==1) {
+                    Qflat[9]  = pref*Hi2;                         // Q22
+                    Qflat[11] = -pref*cdouble(-1.0,xi)*Hi2;       // Q24
+                    Qflat[14] = pref*(1.0+xi*xi)*Hi2;             // Q44
+                }
+
+                else {
+                    Qflat[9]  = pref;                         // Q22
+                    Qflat[11] = -pref*cdouble(-1.0,xi);       // Q24
+                    Qflat[14] = pref*(1.0+xi*xi);             // Q44
+                }
             }
 
 

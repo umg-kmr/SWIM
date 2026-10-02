@@ -11,6 +11,7 @@ int want_Np_autocalc = 0; //Set to 1 if you want the solver to calculate Np itse
 int verbose = 0; //Set to one if you want to see the error messages
 int want_FP = 1;
 int wi2easy = 0;
+int unscaled= 0;
 /* ###################################### */
 
 extern "C" {
@@ -104,7 +105,7 @@ extern "C" {
 
         //#################################//
 
-        bg_solver (V,Vd,Vdd,Ups,pT_Ups,pph_Ups,Cr,Np,phi_ini,php_ini,T_ini,therm,kp,EM_step,Nrealz,want_Np_autocalc,verbose,rad_noise,hybrid_inf,want_FP,wi2easy); //Calculates the power-spectrum
+        bg_solver (V,Vd,Vdd,Ups,pT_Ups,pph_Ups,Cr,Np,phi_ini,php_ini,T_ini,therm,kp,EM_step,Nrealz,want_Np_autocalc,verbose,rad_noise,hybrid_inf,want_FP,wi2easy,unscaled); //Calculates the power-spectrum
     }
 
     void clear_vars () {
@@ -117,12 +118,14 @@ extern "C" {
     }
     
     //Function to set the global variables
-    void set_globals (int N_realizations, double Nstar, int verbosity, int FP_approach, int want_wi2easy) {
+    void set_globals (int N_realizations, double Nstar, int verbosity, int FP_approach, int want_wi2easy, int want_unscaled) {
         Nrealz = N_realizations;
         Nevol = Nstar;
         verbose = verbosity;
         want_FP = FP_approach;
         wi2easy = want_wi2easy;
+        unscaled = want_unscaled;
+
     }
 
 }
