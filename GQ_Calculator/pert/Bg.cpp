@@ -33,6 +33,8 @@ double maxiter_dxdN = 1e8;
 uintmax_t max_iter = 1000000; //upper limit for root finding algorithm
 double Nevol = 7.0; //Number of efolds at which to solve perturbations (used in WI2Easy)
 
+int save_Qmtrx_evol = 0; // Set to 1 if you want to save the evolution of the correlation matrix to file as a function of e-folds.
+
 //Function to terminate root finding algorithm with some epsilon.
 struct root_stop  {
     bool operator() (double r1, double r2)  {
@@ -797,9 +799,79 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             dQflatdt[14] = dQm[4][4];
             };
        
-    
+          std::ofstream fout;
+          std::function<void(const state_type_Q&, double)> observer_dQm = [](const state_type_Q&, double) {};
+          
+          if (save_Qmtrx_evol == 1) {
+              fout.open("Qevolution.dat");
+              // Header
+              fout << "#N ";
+              for (int i = 0; i < 5; i++) {
+                  for (int j = 0; j < 5; j++) {
+                      fout << "Q" << i << j << " ";
+                  }
+              }
+            fout << "\n";
+            
+            observer_dQm = [&fout](const state_type_Q &Qflat, double N)
+            {
+                cdouble Qm[5][5];
+        
+                // --------------------------------------------------
+                // Reconstruct upper triangle from the 15 variables
+                // --------------------------------------------------
+        
+                Qm[0][0] = Qflat[0];
+                Qm[0][1] = Qflat[1];
+                Qm[0][2] = Qflat[2];
+                Qm[0][3] = Qflat[3];
+                Qm[0][4] = Qflat[4];
+        
+                Qm[1][1] = Qflat[5];
+                Qm[1][2] = Qflat[6];
+                Qm[1][3] = Qflat[7];
+                Qm[1][4] = Qflat[8];
+        
+                Qm[2][2] = Qflat[9];
+                Qm[2][3] = Qflat[10];
+                Qm[2][4] = Qflat[11];
+        
+                Qm[3][3] = Qflat[12];
+                Qm[3][4] = Qflat[13];
+        
+                Qm[4][4] = Qflat[14];
+        
+        
+                // --------------------------------------------------
+                // Reconstruct lower triangle using Hermiticity
+                // Q_ji = Q_ij^*
+                // --------------------------------------------------
+        
+                for (int i = 0; i < 5; i++) {
+                    for (int j = i + 1; j < 5; j++) {
+                        Qm[j][i] = std::conj(Qm[i][j]);
+                    }
+                }
+        
+        
+                // --------------------------------------------------
+                // Write N followed by all 25 matrix elements
+                // --------------------------------------------------
+        
+                fout << N << " ";
+        
+                for (int i = 0; i < 5; i++) {
+                    for (int j = 0; j < 5; j++) {
+                        fout << Qm[i][j] << " ";
+                    }
+                }
+        
+                fout << "\n";
+            };
+        }
+        
         //ODE solver
-        auto SolveODE_dQm = [func_mtrxQ,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H,therm,wi2easy,unscaled] () -> state_type_Q {
+        auto SolveODE_dQm = [func_mtrxQ,Calc_Ni_Ne,k,a,phiasN,phpasN,TasN,H,therm,wi2easy,unscaled,observer_dQm] () -> state_type_Q {
             auto stepper = make_controlled( 1e-10 , 1e-8 , runge_kutta_fehlberg78 < state_type_Q >() );
 
             //Integration limits
@@ -834,7 +906,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             }
 
 
-            integrate_adaptive( stepper ,func_mtrxQ , Qflat , Ni , Ne, 1e-6 );
+            integrate_adaptive( stepper ,func_mtrxQ , Qflat , Ni , Ne, 1e-6 , observer_dQm);
             
             return Qflat;
         };
