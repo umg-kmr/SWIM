@@ -342,7 +342,7 @@ void bg_solver (const function<double(double)> &V, const function<double(double)
             if ( ( k/(a(Nl[i])*H(phil[i],phpl[i],Tl[i])) ) >= 1000.0  ) {
                 nn.Ni = Nl[i];
             }
-            else if ( ( k/(a(Nl[i])*H(phil[i],phpl[i],Tl[i])) ) >= 0.1 ) {
+            else if ( ( k/(a(Nl[i])*H(phil[i],phpl[i],Tl[i])) ) >= (1e-4) ) {
                 nn.Ne = Nl[i];
             }
             else {
