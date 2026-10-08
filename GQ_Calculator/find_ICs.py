@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import optimize
+from multiprocessing import Pool
 from cffi import FFI
 ffi = FFI()
 
@@ -47,17 +48,41 @@ def objfn(x,Q0):
     Nend = lib.Nend
     lib.clear_Nend()
     return np.abs(Nend-dur_N)
+    
+def solve_one_Q(Q0):
+
+    # global search with DIRECT
+    soln = optimize.direct(objfn,bounds=[(lower_bound, upper_bound)],args=(Q0,),locally_biased=True,maxfun=350,len_tol=1e-5)
+    nfev_total = soln.nfev
+
+    if soln.fun <= 1e-4:
+        #if solution is already good enough - skip polishing
+        x_best = soln.x[0]
+        residual = soln.fun
+    else:
+        # local polishing around the DIRECT solution
+        local = optimize.minimize(objfn,soln.x,args=(Q0,),method="Nelder-Mead",options={"xatol": 1e-6,"fatol": 1e-4,"maxiter": 100})
+        nfev_total += local.nfev
+
+        # keep whichever result is better
+        if local.fun < soln.fun:
+            x_best = local.x[0]
+            residual = local.fun
+        else:
+            x_best = soln.x[0]
+            residual = soln.fun
+
+    phi_in = 10**x_best
+    return Q0, phi_in, residual, nfev_total
 
 def main():
-    for i in Qs:
-        print(f"Finding initial condition for Q = {i:.4e}")  
-        soln = optimize.brute(objfn,ranges=ranges, args=(i,), Ns=1000, full_output=1, disp=False, workers=Nprocs,finish=optimize.fmin)
-        phi_in = 10**(soln[0][0])
-        print(f"Function value at {i:.4e}: {soln[1]:.4e}")
-        # logging.info(f"Function value at {i:.4e}: {soln[1]:.4e}")
+    with Pool(processes=Nprocs) as pool:
         with open("ics.dat", "a") as fl:
-            fl.write(str(phi_in)+","+str(i)+"\n")
+            for Q0, phi_in, residual, nfev in pool.imap(solve_one_Q,Qs,chunksize=1):
+                print(f"Q = {Q0:.4e} | "f"phi_initial = {phi_in:.12e} | "f"Function value = {residual:.4e} | "f"Nfev = {nfev}",flush=True)
 
+                fl.write(f"{phi_in},{Q0}\n")
+                fl.flush()
         
 if __name__ == "__main__":
     main()
