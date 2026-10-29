@@ -464,7 +464,6 @@ The `RF_Only_Cobaya` workflow is intended exclusively for emulator-based inferen
 
 ### Limitations
 
-- Full CMB likelihood not yet implemented  
 - RF_Acc_Cobaya supports only single-chain runs
 - Parameter inference is still computationally expensive and initial burn-in can take a long time
 
@@ -473,7 +472,7 @@ It is recommended to run the numerical solver based inference on HPCs with many 
 ```
 
 ```{note}
-Full CMB inference can be implemented by adapting the approach in `SA_PS_Calculator/An_CAMB.py`.
+- Full CMB likelihood inference is not supported directly within the emulator-based workflow. It is available separately through `CMB_Const_FP` using DSWIM.
 ```
 
 ---

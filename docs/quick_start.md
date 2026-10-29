@@ -58,7 +58,7 @@ python -u find_GQ.py
 want_FP = 1
 ```
 
-in `find_GQ.py` before execution. In this mode, the perturbation correlation matrix is evolved deterministically using the Fokker--Planck formalism. The default stochastic implementation is recovered by setting `want_FP = 0`.
+in `find_GQ.py` before execution. In this mode, the perturbation correlation matrix is evolved deterministically using the Fokker--Planck formalism. The stochastic solver can instead be selected by setting `want_FP = 0`.
 
 Outputs:
 - `ics.dat` — initial conditions  
