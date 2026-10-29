@@ -50,15 +50,28 @@ The curvature perturbation is obtained by averaging over multiple stochastic rea
 
 ### Deterministic Solver (DSWIM)
 
-In addition to the stochastic solver, SWIM includes a deterministic perturbation solver (**DSWIM**) based on correlation-matrix evolution.
+SWIM includes a deterministic perturbation solver (**DSWIM**) based on correlation-matrix evolution.
 
 - **Formalism**: Fokker--Planck / correlation-matrix evolution
-- **Variables evolved**: Full $5\times5$ perturbation correlation matrix
+- **Variables evolved**: 15 independent components of the $5\times5$ Hermitian correlation matrix (reduced from 25)
 - **Method**: Runge–Kutta–Fehlberg 7(8) (`runge_kutta_fehlberg78`)
-- **Step-size**: Fully adaptive, controlled by Boost ODEInt
-- **Scaling**: Hubble parameter based scaling transformation to improve numerical conditioning and numerical stability
+- **Step-size**: Adaptive, controlled by solver tolerances
+- **Scaling**: Hubble-based scaling enabled by default for numerical stability
 
-Rather than averaging over many stochastic realizations, DSWIM evolves the statistical moments of the perturbation system directly. The primordial power spectrum is then obtained using the evolved correlation matrix.
+Rather than averaging over stochastic realizations, DSWIM evolves the perturbation correlations directly to compute the primordial power spectrum.
+
+#### Numerical Settings
+
+| Parameter | Default | Description |
+|---|---|---|
+| `unscaled` | `0` | Use the scaled formulation (recommended) |
+| `eps_abs` | `1e-10` | Absolute solver tolerance |
+| `eps_rel` | `1e-8` | Relative solver tolerance |
+| $\chi_{\mathrm{end}}$ | $10^{-4}$ | Integration endpoint, $\chi=k/(aH)$ |
+
+Setting `unscaled=1` enables the unscaled formulation for comparison and testing. It is **not recommended for production runs**.
+
+The default solver tolerances and integration endpoint were selected based on numerical convergence tests. See the DSWIM paper for further details.
 
 ---
 
