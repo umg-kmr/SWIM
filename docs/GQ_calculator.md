@@ -353,6 +353,16 @@ These must be kept consistent.
   - `0` → Default SWIM prescription: perturbations are initialized with vanishing initial conditions and the quantum-noise source term is always included.
   - `1` → WI2Easy-compatible prescription: when the inflaton is **not** thermalized (`therm = 0`), the quantum-noise source is switched off and Bunch–Davies initial conditions are imposed instead. For the thermalized case (`therm = 1`), the quantum-noise source is retained.
 
+- `unscaled` *(int: 0 or 1, default: 0)*
+
+  Controls the deterministic perturbation formulation ( i.e. `want_FP = 1`):
+
+  - `0` → Scaled formulation (default and recommended), enables Hubble parameter based scaling
+  - `1` → Unscaled formulation (for comparisons and testing only), disables the scaling framework and solves the deterministic perturbation equations directly
+
+  **Note:** The unscaled formulation is not recommended for production calculations due to potential numerical instabilities.
+
+
 ---
 
 ### Numerical Controls
