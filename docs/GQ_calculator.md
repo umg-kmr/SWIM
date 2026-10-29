@@ -301,9 +301,9 @@ These define the underlying Warm Inflation model.
 
 ---
 
-### Root-Finding Parameters
+### Initial-Condition Search Parameters
 
-Used in the brute-force search for initial field values.
+The initial-condition search uses the DIRECT optimization algorithm.
 
 - `lower_bound`, `upper_bound` *(float)*  
   Defines the search interval for $\phi$ (in log-space) and should be set according to the WI model being studied.  
@@ -314,7 +314,7 @@ Used in the brute-force search for initial field values.
 ### Parallelization
 
 - `Nprocs` *(int)*  
-  Number of CPU threads used for parallel root finding. Set depending upon your system, `nprocs --all` lists all available threads.
+  Number of CPU threads used for parallel initial-condition searches. Set depending upon your system, `nprocs --all` lists all available threads.
 
 ---
 
@@ -412,7 +412,7 @@ python -u find_GQ.py
 
 ### Initial Conditions
 
-The initial field value $\phi_\text{initial}$ is obtained via a **brute-force root-finding procedure** over a user-defined interval, ensuring a fixed duration of inflation (`dur_N`).
+The initial field value $\phi_\text{initial}$ is determined using the DIRECT optimization algorithm over a user-defined interval to obtain the desired duration of inflation (`dur_N`).
 
 ### $G(Q)$ Computation
 
