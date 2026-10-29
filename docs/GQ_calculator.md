@@ -357,8 +357,8 @@ These must be kept consistent.
 
   Controls the deterministic perturbation formulation ( i.e. `want_FP = 1`):
 
-  - `0` → Scaled formulation (default and recommended), enables Hubble parameter based scaling
-  - `1` → Unscaled formulation (for comparisons and testing only), disables the scaling framework and solves the deterministic perturbation equations directly
+  - `0` → Scaled formulation (default and recommended), enables Hubble parameter based scaling.
+  - `1` → Unscaled formulation (for comparisons and testing only), disables the scaling framework and solves the deterministic perturbation equations directly.
 
   **Note:** The unscaled formulation is not recommended for production calculations due to potential numerical instabilities.
 
